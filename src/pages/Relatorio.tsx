@@ -48,6 +48,8 @@ export default function Relatorio() {
     'A condução diligente do escritório Sayão & Polo, em sintonia fina com a Diretoria Jurídica, tem por escopo a maximização do recebimento destes haveres e a célere consecução da prestação jurisdicional.',
   )
 
+  const [logoError, setLogoError] = useState(false)
+
   const [signatures, setSignatures] = useState([
     { title: 'Diretor Jurídico', company: 'Cetenco Engenharia S.A.', name: '' },
     { title: 'Diretor Financeiro (CFO)', company: 'Cetenco Engenharia S.A.', name: '' },
@@ -105,28 +107,28 @@ export default function Relatorio() {
       title: 'Processos Ativos',
       key: 'count',
       val: displayCount,
-      textCls: 'text-primary text-3xl print:text-base',
+      textCls: 'text-primary text-3xl print:text-xl',
       bgCls: 'bg-slate-50 border-slate-200',
     },
     {
       title: 'Valores Incontroversos',
       key: 'incontroverso',
       val: displayIncontroverso,
-      textCls: 'text-emerald-700 text-xl print:text-xs',
+      textCls: 'text-emerald-700 text-xl print:text-base',
       bgCls: 'bg-emerald-50/50 border-emerald-100',
     },
     {
       title: 'Valores Controversos',
       key: 'controverso',
       val: displayControverso,
-      textCls: 'text-amber-700 text-xl print:text-xs',
+      textCls: 'text-amber-700 text-xl print:text-base',
       bgCls: 'bg-amber-50/50 border-amber-100',
     },
     {
       title: 'Total Global (Disputa)',
       key: 'total',
       val: displayTotal,
-      textCls: 'text-primary text-xl print:text-xs',
+      textCls: 'text-primary text-xl print:text-base',
       bgCls: 'bg-slate-50 border-slate-200',
     },
   ]
@@ -205,21 +207,32 @@ export default function Relatorio() {
       </div>
 
       <div ref={reportRef} className="paper-document">
-        <div className="flex justify-between items-center border-b-2 border-primary pb-6 mb-8">
+        <div className="flex justify-between items-end border-b-2 border-primary pb-6 mb-8">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-primary text-white flex items-center justify-center font-bold text-xl font-serif rounded print:border print:border-primary">
-              C
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-primary uppercase tracking-wider font-serif m-0 leading-none">
-                Cetenco
-              </h2>
-              <p className="text-[10px] text-primary/70 tracking-widest uppercase">
-                Engenharia S.A.
-              </p>
-            </div>
+            {!logoError ? (
+              <img
+                src="/cetenco-logo.png"
+                alt="Cetenco Engenharia S.A."
+                className="h-12 md:h-14 object-contain print:h-12"
+                onError={() => setLogoError(true)}
+              />
+            ) : (
+              <>
+                <div className="w-12 h-12 bg-primary text-white flex items-center justify-center font-bold text-xl font-serif rounded print:border print:border-primary">
+                  C
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-primary uppercase tracking-wider font-serif m-0 leading-none">
+                    Cetenco
+                  </h2>
+                  <p className="text-[10px] text-primary/70 tracking-widest uppercase">
+                    Engenharia S.A.
+                  </p>
+                </div>
+              </>
+            )}
           </div>
-          <div className="text-right">
+          <div className="text-right pb-1">
             <h2 className="text-lg font-bold text-slate-700 font-serif m-0 leading-none">
               Sayão e Polo
             </h2>
@@ -390,19 +403,19 @@ export default function Relatorio() {
                         <div className="font-bold text-xs">
                           {formatCurrency(asset.value)}{' '}
                           <span className="text-[9px] font-normal text-slate-500 uppercase">
-                            (Total)
+                            (Valor Total)
                           </span>
                         </div>
                         <div className="text-xs text-emerald-700 font-semibold">
                           {formatCurrency(asset.incontroversoValue || 0)}{' '}
                           <span className="text-[9px] font-normal text-slate-500 uppercase">
-                            (Incontroverso)
+                            (Valor Incontroverso)
                           </span>
                         </div>
                         <div className="text-xs text-amber-700 font-semibold">
                           {formatCurrency(asset.controversoValue || 0)}{' '}
                           <span className="text-[9px] font-normal text-slate-500 uppercase">
-                            (Controverso)
+                            (Valor Controverso)
                           </span>
                         </div>
                         <div className="text-[10px] text-slate-500 mt-1">
@@ -629,19 +642,19 @@ export default function Relatorio() {
                         <p className="text-sm font-bold text-slate-900">
                           {formatCurrency(asset.value)}{' '}
                           <span className="text-[10px] font-normal text-slate-500 uppercase">
-                            Total
+                            Valor Total
                           </span>
                         </p>
                         <p className="text-xs font-semibold text-emerald-700">
                           {formatCurrency(asset.incontroversoValue || 0)}{' '}
                           <span className="text-[10px] font-normal text-slate-500 uppercase">
-                            Incontroverso
+                            Valor Incontroverso
                           </span>
                         </p>
                         <p className="text-xs font-semibold text-amber-700">
                           {formatCurrency(asset.controversoValue || 0)}{' '}
                           <span className="text-[10px] font-normal text-slate-500 uppercase">
-                            Controverso
+                            Valor Controverso
                           </span>
                         </p>
                       </div>
