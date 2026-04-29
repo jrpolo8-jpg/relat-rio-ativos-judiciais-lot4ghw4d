@@ -1,21 +1,10 @@
-import { Bell, Search, User, LogOut } from 'lucide-react'
+import { Bell, Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { SidebarTrigger } from '@/components/ui/sidebar'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { useAuth } from '@/hooks/use-auth'
 
 export function Header() {
-  const { user, signOut } = useAuth()
-
   return (
     <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-border/40 bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 print-hide">
       <div className="flex items-center gap-4">
@@ -36,39 +25,15 @@ export function Header() {
           <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-destructive"></span>
         </Button>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-              <Avatar className="h-8 w-8">
-                <AvatarImage
-                  src="https://img.usecurling.com/ppl/thumbnail?gender=male&seed=1"
-                  alt="Diretor Jurídico"
-                />
-                <AvatarFallback>DJ</AvatarFallback>
-              </Avatar>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56" align="end" forceMount>
-            <DropdownMenuLabel className="font-normal">
-              <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">
-                  {user?.name || 'Diretor Jurídico'}
-                </p>
-                <p className="text-xs leading-none text-muted-foreground">
-                  {user?.email || 'juridico@cetenco.com.br'}
-                </p>
-              </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>Perfil</DropdownMenuItem>
-            <DropdownMenuItem>Configurações</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive" onClick={signOut}>
-              <LogOut className="mr-2 h-4 w-4" />
-              Sair
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Button variant="ghost" className="relative h-8 w-8 rounded-full pointer-events-none">
+          <Avatar className="h-8 w-8">
+            <AvatarImage
+              src="https://img.usecurling.com/ppl/thumbnail?gender=male&seed=1"
+              alt="Diretor Jurídico"
+            />
+            <AvatarFallback>DJ</AvatarFallback>
+          </Avatar>
+        </Button>
       </div>
     </header>
   )

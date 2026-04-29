@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-29T23:13:05.132Z",
+  "generatedAt": "2026-04-29T23:18:54.208Z",
   "collections": [
     {
       "name": "users",
@@ -48,11 +48,11 @@
       "name": "judicial_assets",
       "type": "base",
       "apiRules": {
-        "list": "user_id = @request.auth.id",
-        "view": "user_id = @request.auth.id",
-        "create": "@request.auth.id != ''",
-        "update": "user_id = @request.auth.id",
-        "delete": "user_id = @request.auth.id"
+        "list": "",
+        "view": "",
+        "create": "",
+        "update": "",
+        "delete": ""
       },
       "fields": [
         {
