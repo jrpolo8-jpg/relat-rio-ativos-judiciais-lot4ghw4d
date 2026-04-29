@@ -17,6 +17,7 @@ interface AssetContextType {
   showSavedIndicator: boolean
   addAsset: (asset: Omit<JudicialAsset, 'id'>) => Promise<void>
   updateAsset: (id: string, asset: Partial<JudicialAsset>) => void
+  updateAssetImmediate: (id: string, asset: Partial<JudicialAsset>) => Promise<void>
   removeAsset: (id: string) => Promise<void>
   saveChanges: () => Promise<void>
   hasChanges: boolean
@@ -85,6 +86,28 @@ export const AssetProvider = ({ children }: { children: ReactNode }) => {
     setDirtyAssetIds((prev) => new Set(prev).add(id))
   }
 
+  const updateAssetImmediate = async (id: string, updatedFields: Partial<JudicialAsset>) => {
+    try {
+      const updatedAsset = await apiUpdateAsset(id, updatedFields)
+      setAssets((prev) =>
+        prev.map((asset) => (asset.id === id ? { ...asset, ...updatedAsset } : asset)),
+      )
+      setOriginalAssets((prev) =>
+        prev.map((asset) => (asset.id === id ? { ...asset, ...updatedAsset } : asset)),
+      )
+      setDirtyAssetIds((prev) => {
+        const next = new Set(prev)
+        next.delete(id)
+        return next
+      })
+      toast({ title: 'Sucesso', description: 'Alterações salvas com sucesso!' })
+    } catch (error) {
+      console.error(error)
+      toast({ title: 'Erro', description: 'Erro ao atualizar ativo.', variant: 'destructive' })
+      throw error
+    }
+  }
+
   const removeAsset = async (id: string) => {
     try {
       await deleteAsset(id)
@@ -127,6 +150,7 @@ export const AssetProvider = ({ children }: { children: ReactNode }) => {
       setOriginalAssets(assets)
       setLastSaved(new Date())
       setShowSavedIndicator(true)
+      toast({ title: 'Sucesso', description: 'Alterações salvas com sucesso!' })
       setTimeout(() => setShowSavedIndicator(false), 3000)
     } catch (error) {
       console.error(error)
@@ -147,17 +171,6 @@ export const AssetProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [assets, dirtyAssetIds, toast])
 
-  // Debounce logic for autosaving
-  useEffect(() => {
-    if (dirtyAssetIds.size === 0) return
-
-    const timeoutId = setTimeout(() => {
-      saveChanges()
-    }, 1000)
-
-    return () => clearTimeout(timeoutId)
-  }, [assets, dirtyAssetIds, saveChanges])
-
   const hasChanges = dirtyAssetIds.size > 0
 
   return (
@@ -170,6 +183,7 @@ export const AssetProvider = ({ children }: { children: ReactNode }) => {
         showSavedIndicator,
         addAsset,
         updateAsset,
+        updateAssetImmediate,
         removeAsset,
         saveChanges,
         hasChanges,

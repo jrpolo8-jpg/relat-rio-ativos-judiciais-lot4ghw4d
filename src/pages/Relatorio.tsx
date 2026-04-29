@@ -30,8 +30,17 @@ import {
 import { ProcessForm } from '@/components/ProcessForm'
 
 export default function Relatorio() {
-  const { assets, updateAsset, removeAsset, addAsset, loading, saving, showSavedIndicator } =
-    useAssets()
+  const {
+    assets,
+    updateAsset,
+    removeAsset,
+    addAsset,
+    loading,
+    saving,
+    showSavedIndicator,
+    saveChanges,
+    hasChanges,
+  } = useAssets()
   const reportRef = useRef<HTMLDivElement>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [isAddOpen, setIsAddOpen] = useState(false)
@@ -178,68 +187,86 @@ export default function Relatorio() {
 
   return (
     <div className="container mx-auto py-8 px-4 relative animate-fade-in-up print:p-0 print:py-0 print:max-w-none print:w-full print:overflow-visible">
-      <div className="sticky top-[80px] z-20 flex justify-end mb-6 gap-2 print-hide">
-        <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-primary text-primary-foreground shadow-sm hover:bg-primary/90">
-              <Plus className="mr-2 h-4 w-4" /> Adicionar Novo Ativo
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Adicionar Novo Ativo Judicial</DialogTitle>
-              <DialogDescription>
-                Preencha os detalhes para incluir diretamente no relatório gerencial.
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleAddAssetSubmit}>
-              <ProcessForm formData={newAssetData} setFormData={setNewAssetData} />
-              <DialogFooter className="mt-4">
-                <Button type="submit">Incluir no Relatório</Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-
-        <div className="flex items-center gap-2 mr-4 min-w-[140px] justify-end">
-          {saving && (
-            <div className="flex items-center text-sm text-slate-500 animate-pulse">
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Salvando...
-            </div>
-          )}
-          {!saving && showSavedIndicator && (
-            <div className="flex items-center text-sm text-emerald-600 animate-fade-in">
-              <Check className="h-4 w-4 mr-2" />
-              Alterações salvas
-            </div>
-          )}
+      <div className="sticky top-[80px] z-20 flex justify-between items-center mb-6 gap-2 print-hide">
+        <div className="flex items-center gap-2">
+          <Button variant="outline" className="bg-background shadow-sm" onClick={handlePrint}>
+            <Download className="mr-2 h-4 w-4" /> Exportar PDF
+          </Button>
+          <Button
+            className="shadow-sm bg-slate-800 text-white hover:bg-slate-700"
+            onClick={handlePrint}
+          >
+            <Printer className="mr-2 h-4 w-4" /> Imprimir Documento
+          </Button>
         </div>
 
-        <Button
-          variant={isEditing ? 'default' : 'outline'}
-          className={cn(
-            'shadow-sm',
-            isEditing ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'bg-background',
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 mr-2 min-w-[140px] justify-end">
+            {saving && (
+              <div className="flex items-center text-sm text-slate-500 animate-pulse">
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Salvando...
+              </div>
+            )}
+            {!saving && showSavedIndicator && (
+              <div className="flex items-center text-sm text-emerald-600 animate-fade-in">
+                <Check className="h-4 w-4 mr-2" />
+                Alterações salvas
+              </div>
+            )}
+          </div>
+
+          {isEditing && (
+            <Button
+              className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+              onClick={() => saveChanges()}
+              disabled={!hasChanges || saving}
+            >
+              <SaveAll className="mr-2 h-4 w-4" /> Salvar Alterações
+            </Button>
           )}
-          onClick={() => setIsEditing(!isEditing)}
-        >
-          {isEditing ? (
-            <>
-              <Save className="mr-2 h-4 w-4" /> Concluir Edição
-            </>
-          ) : (
-            <>
-              <Edit3 className="mr-2 h-4 w-4" /> Editar Relatório
-            </>
-          )}
-        </Button>
-        <Button variant="outline" className="bg-background shadow-sm" onClick={handlePrint}>
-          <Download className="mr-2 h-4 w-4" /> Exportar PDF
-        </Button>
-        <Button className="shadow-sm" onClick={handlePrint}>
-          <Printer className="mr-2 h-4 w-4" /> Imprimir Documento
-        </Button>
+
+          <Button
+            variant={isEditing ? 'default' : 'outline'}
+            className={cn(
+              'shadow-sm',
+              isEditing ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'bg-background',
+            )}
+            onClick={() => setIsEditing(!isEditing)}
+          >
+            {isEditing ? (
+              <>
+                <Check className="mr-2 h-4 w-4" /> Concluir Edição
+              </>
+            ) : (
+              <>
+                <Edit3 className="mr-2 h-4 w-4" /> Editar Relatório
+              </>
+            )}
+          </Button>
+
+          <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 ml-auto">
+                <Plus className="mr-2 h-4 w-4" /> Novo Ativo
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Adicionar Novo Ativo Judicial</DialogTitle>
+                <DialogDescription>
+                  Preencha os detalhes para incluir diretamente no relatório gerencial.
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleAddAssetSubmit}>
+                <ProcessForm formData={newAssetData} setFormData={setNewAssetData} />
+                <DialogFooter className="mt-4">
+                  <Button type="submit">Incluir no Relatório</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <div ref={reportRef} className="paper-document">

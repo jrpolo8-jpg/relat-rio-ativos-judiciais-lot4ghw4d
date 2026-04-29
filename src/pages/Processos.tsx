@@ -134,13 +134,13 @@ function AddProcessModal() {
 }
 
 function EditProcessModal({ asset }: { asset: JudicialAsset }) {
-  const { updateAsset } = useAssets()
+  const { updateAssetImmediate } = useAssets()
   const [open, setOpen] = useState(false)
   const [formData, setFormData] = useState<Partial<JudicialAsset>>(asset)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    updateAsset(asset.id, formData)
+    await updateAssetImmediate(asset.id, formData)
     setOpen(false)
   }
 
