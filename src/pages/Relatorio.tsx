@@ -1,5 +1,15 @@
 import { useRef, useState } from 'react'
-import { Printer, Download, Edit3, Save, Trash2, Plus, LayoutDashboard } from 'lucide-react'
+import {
+  Printer,
+  Download,
+  Edit3,
+  Save,
+  Trash2,
+  Plus,
+  LayoutDashboard,
+  SaveAll,
+  Loader2,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAssets } from '@/hooks/use-assets'
 import { formatCurrency, formatDate } from '@/lib/formatters'
@@ -19,10 +29,22 @@ import {
 import { ProcessForm } from '@/components/ProcessForm'
 
 export default function Relatorio() {
-  const { assets, updateAsset, removeAsset, addAsset } = useAssets()
+  const { assets, updateAsset, removeAsset, addAsset, saveChanges, hasChanges, loading } =
+    useAssets()
   const reportRef = useRef<HTMLDivElement>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [isAddOpen, setIsAddOpen] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+
+  const handleSave = async () => {
+    setIsSaving(true)
+    try {
+      await saveChanges()
+      setIsEditing(false)
+    } finally {
+      setIsSaving(false)
+    }
+  }
 
   const [newAssetData, setNewAssetData] = useState<Partial<JudicialAsset>>({
     processNumber: '',
@@ -155,6 +177,15 @@ export default function Relatorio() {
     })
   }
 
+  if (loading) {
+    return (
+      <div className="container mx-auto py-32 flex flex-col items-center justify-center space-y-4">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="text-slate-500 font-medium animate-pulse">Carregando relatório...</p>
+      </div>
+    )
+  }
+
   return (
     <div className="container mx-auto py-8 px-4 relative animate-fade-in-up print:p-0 print:py-0 print:max-w-none print:w-full print:overflow-visible">
       <div className="sticky top-[80px] z-20 flex justify-end mb-6 gap-2 print-hide">
@@ -180,17 +211,34 @@ export default function Relatorio() {
           </DialogContent>
         </Dialog>
 
+        {hasChanges && (
+          <Button
+            variant="default"
+            onClick={handleSave}
+            disabled={isSaving}
+            className="bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 animate-fade-in"
+          >
+            {isSaving ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <SaveAll className="mr-2 h-4 w-4" />
+            )}
+            Salvar alterações
+          </Button>
+        )}
         <Button
           variant={isEditing ? 'default' : 'outline'}
           className={cn(
             'shadow-sm',
-            isEditing ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'bg-background',
+            isEditing && !hasChanges
+              ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+              : 'bg-background',
           )}
           onClick={() => setIsEditing(!isEditing)}
         >
           {isEditing ? (
             <>
-              <Save className="mr-2 h-4 w-4" /> Concluir Edição
+              <Save className="mr-2 h-4 w-4" /> {hasChanges ? 'Sair da Edição' : 'Concluir Edição'}
             </>
           ) : (
             <>
