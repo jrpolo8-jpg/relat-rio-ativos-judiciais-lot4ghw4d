@@ -98,17 +98,46 @@ export const MOCK_ASSETS: JudicialAsset[] = [
     party: 'DNIT',
     court: 'Justiça Federal - DF',
     lawyer: 'Sayão & Polo',
-    value: 54670749.22,
-    referenceDate: '2023-01-01',
-    risk: 'Possível',
+    value: 50046156.78,
+    valueDetails: 'Sentença: R$ 45.403.566,08 / Apelação: R$ 50.046.156,78',
+    referenceDate: '2026-04-01',
+    risk: 'Provável',
     status: 'Ativo',
     summary:
-      'Pleito de anulação de multas aplicadas administrativamente e cobrança de medições retidas indevidamente pela autarquia federal.',
-    estimatedRecoveryTime: '3 a 5 anos',
+      'Ação ordinária visando a recomposição do equilíbrio econômico-financeiro do contrato DIF nº 008/2008 (CFA). O prazo de execução foi estendido de 720 para 2.420 dias devido a falhas da Administração (revisões de projeto, atrasos na liberação de insumos e desapropriações). Laudos periciais de engenharia e contabilidade convergentes em favor do pleito.',
+    estimatedRecoveryTime: '2 a 3 anos',
     lastDevelopments:
-      'Deferida a produção de prova pericial de engenharia para avaliar as justificativas técnicas dos atrasos.',
-    lastUpdate: '2023-11-20',
-    history: [],
+      'Ação julgada procedente com a seguinte sentença: "JULGO PROCEDENTE O PEDIDO... para CONDENAR o DNIT a pagar à CETENCO ENGENHARIA S.A. o valor de R$ 45.403.566,08... atualizado e acrescido de juros de mora a partir de março de 2023." Atualmente, aguarda-se o julgamento de Embargos de Declaração opostos pelo DNIT e Recurso de Apelação interposto pela Cetenco, buscando a majoração para R$ 50.046.156,78.',
+    lastUpdate: '2026-04-20',
+    history: [
+      {
+        id: 'h1',
+        date: '2023-03-15',
+        description:
+          'Laudos periciais (Engenharia e Contábil) encartados aos autos, com conclusões convergentes atestando o desequilíbrio econômico-financeiro por culpa exclusiva da Administração.',
+        author: 'Sayão & Polo',
+      },
+      {
+        id: 'h2',
+        date: '2025-11-10',
+        description:
+          'Sentença de mérito proferida: "JULGO PROCEDENTE O PEDIDO... para CONDENAR o DNIT a pagar à CETENCO ENGENHARIA S.A. o valor de R$ 45.403.566,08... atualizado e acrescido de juros de mora a partir de março de 2023."',
+        author: 'Sayão & Polo',
+      },
+      {
+        id: 'h3',
+        date: '2025-12-05',
+        description: 'Oposição de Embargos de Declaração pelo DNIT alegando omissões genéricas.',
+        author: 'Sayão & Polo',
+      },
+      {
+        id: 'h4',
+        date: '2026-02-20',
+        description:
+          'Interposição de Recurso de Apelação pela Cetenco visando a adequação de rubricas não contempladas integralmente, pleiteando o valor total de R$ 50.046.156,78.',
+        author: 'Sayão & Polo',
+      },
+    ],
   },
   {
     id: '7',

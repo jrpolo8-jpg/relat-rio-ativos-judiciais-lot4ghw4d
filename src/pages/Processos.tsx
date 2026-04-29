@@ -123,6 +123,15 @@ function EditProcessModal({ asset }: { asset: JudicialAsset }) {
               />
             </div>
             <div className="space-y-2">
+              <Label htmlFor={`referenceDate-${asset.id}`}>Data-Base</Label>
+              <Input
+                id={`referenceDate-${asset.id}`}
+                type="date"
+                value={formData.referenceDate?.substring(0, 10) || ''}
+                onChange={(e) => setFormData({ ...formData, referenceDate: e.target.value })}
+              />
+            </div>
+            <div className="md:col-span-2 space-y-2">
               <Label htmlFor={`risk-${asset.id}`}>Prognóstico</Label>
               <Select
                 value={formData.risk}

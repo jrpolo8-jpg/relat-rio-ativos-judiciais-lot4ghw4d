@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { useAssets } from '@/hooks/use-assets'
 import { formatCurrency, formatDate } from '@/lib/formatters'
 import { JudicialAsset } from '@/lib/types'
+import { cn } from '@/lib/utils'
 
 export default function Relatorio() {
   const { assets } = useAssets()
@@ -13,10 +14,12 @@ export default function Relatorio() {
     window.print()
   }
 
-  const currentDate = new Intl.DateTimeFormat('pt-BR', {
+  const currentDateStr = new Intl.DateTimeFormat('pt-BR', {
     month: 'long',
     year: 'numeric',
   }).format(new Date())
+
+  const capitalizedDate = currentDateStr.charAt(0).toUpperCase() + currentDateStr.slice(1)
 
   const baseDateStr = new Intl.DateTimeFormat('pt-BR').format(new Date())
 
@@ -66,8 +69,8 @@ export default function Relatorio() {
           <h1 className="text-2xl font-bold font-serif uppercase tracking-wider text-slate-900 mb-2">
             Relatório Gerencial de Ativos Judiciais Estratégicos
           </h1>
-          <p className="text-sm font-serif italic text-slate-600 capitalize">
-            São Paulo, {currentDate} • Data Base: {baseDateStr}
+          <p className="text-sm font-serif italic text-slate-600">
+            São Paulo, {capitalizedDate} • Data de Emissão: {baseDateStr}
           </p>
         </div>
 
@@ -92,10 +95,67 @@ export default function Relatorio() {
           </p>
         </section>
 
+        {/* Quadro Resumo */}
+        <section className="mb-12 print-break-inside-avoid">
+          <h3 className="text-sm font-bold uppercase tracking-wider text-primary mb-4 border-b border-slate-200 pb-1">
+            II. Quadro Resumo
+          </h3>
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b-2 border-slate-300 text-[10px] uppercase tracking-wider text-slate-500">
+                <th className="py-2 pr-2 font-bold w-[25%]">Processo / Parte</th>
+                <th className="py-2 px-2 font-bold w-[30%]">Resumo da Demanda</th>
+                <th className="py-2 px-2 font-bold w-[20%]">Valor (Data-Base)</th>
+                <th className="py-2 px-2 font-bold text-center w-[10%]">Risco</th>
+                <th className="py-2 pl-2 font-bold text-right w-[15%]">Estimativa</th>
+              </tr>
+            </thead>
+            <tbody className="text-xs font-serif">
+              {assets.map((asset) => (
+                <tr key={asset.id} className="border-b border-slate-200">
+                  <td className="py-3 pr-2 align-top">
+                    <div className="font-bold text-primary leading-tight">
+                      {asset.processNumber}
+                    </div>
+                    <div className="text-[10px] text-slate-500 uppercase mt-1">{asset.party}</div>
+                  </td>
+                  <td className="py-3 px-2 align-top text-justify leading-snug">
+                    {asset.summary.substring(0, 120)}
+                    {asset.summary.length > 120 ? '...' : ''}
+                  </td>
+                  <td className="py-3 px-2 align-top">
+                    <div className="font-bold">{formatCurrency(asset.value)}</div>
+                    <div className="text-[10px] text-slate-500 mt-1">
+                      Base: {formatDate(asset.referenceDate)}
+                    </div>
+                  </td>
+                  <td className="py-3 px-2 align-top text-center">
+                    <span
+                      className={cn(
+                        'px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider whitespace-nowrap',
+                        asset.risk === 'Provável'
+                          ? 'text-red-700 bg-red-100'
+                          : asset.risk === 'Possível'
+                            ? 'text-amber-700 bg-amber-100'
+                            : 'text-emerald-700 bg-emerald-100',
+                      )}
+                    >
+                      {asset.risk}
+                    </span>
+                  </td>
+                  <td className="py-3 pl-2 align-top text-right font-medium text-slate-700">
+                    {asset.estimatedRecoveryTime}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+
         {/* Detailed Table */}
         <section className="mb-12">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-primary mb-4 border-b border-slate-200 pb-1">
-            II. Quadro Resumo e Andamentos Processuais
+          <h3 className="text-sm font-bold uppercase tracking-wider text-primary mb-4 border-b border-slate-200 pb-1 print-page-break-before">
+            III. Relatório Detalhado e Andamentos Processuais
           </h3>
 
           <div className="space-y-8">
@@ -115,14 +175,14 @@ export default function Relatorio() {
                   </div>
                   <div className="text-right">
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider
-                      ${
+                      className={cn(
+                        'px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider',
                         asset.risk === 'Provável'
                           ? 'text-red-700 bg-red-100'
                           : asset.risk === 'Possível'
                             ? 'text-amber-700 bg-amber-100'
-                            : 'text-emerald-700 bg-emerald-100'
-                      }`}
+                            : 'text-emerald-700 bg-emerald-100',
+                      )}
                     >
                       Prognóstico: {asset.risk}
                     </span>
@@ -134,7 +194,9 @@ export default function Relatorio() {
                     <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
                       Resumo da Demanda
                     </p>
-                    <p className="text-sm font-serif text-justify">{asset.summary}</p>
+                    <p className="text-sm font-serif text-justify leading-relaxed">
+                      {asset.summary}
+                    </p>
                   </div>
                   <div>
                     <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
@@ -161,14 +223,35 @@ export default function Relatorio() {
                   </div>
                 </div>
 
-                <div className="bg-slate-50 p-3 rounded-sm border border-slate-200">
+                <div className="bg-slate-50 p-3 rounded-sm border border-slate-200 mb-4">
                   <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
-                    Últimos Andamentos
+                    Últimos Andamentos / Status Atual
                   </p>
-                  <p className="text-xs font-serif text-slate-800 text-justify">
+                  <p className="text-xs font-serif text-slate-800 text-justify whitespace-pre-line leading-relaxed">
                     {asset.lastDevelopments}
                   </p>
                 </div>
+
+                {asset.history && asset.history.length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">
+                      Histórico Processual Detalhado
+                    </p>
+                    <div className="space-y-3 border-l-2 border-slate-200 ml-1.5 pl-4 py-1">
+                      {asset.history.map((h) => (
+                        <div key={h.id} className="relative">
+                          <div className="absolute -left-[21px] top-1 h-2 w-2 rounded-full bg-slate-400 border border-white" />
+                          <p className="text-[10px] text-slate-500 font-bold mb-0.5">
+                            {formatDate(h.date)} • {h.author}
+                          </p>
+                          <p className="text-xs font-serif text-slate-700 text-justify leading-relaxed">
+                            {h.description}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
