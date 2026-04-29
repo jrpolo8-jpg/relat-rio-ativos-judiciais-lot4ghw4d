@@ -1,5 +1,5 @@
-import { useRef } from 'react'
-import { Printer, Download } from 'lucide-react'
+import { useRef, useState } from 'react'
+import { Printer, Download, Edit3, Save } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAssets } from '@/hooks/use-assets'
 import { formatCurrency, formatDate } from '@/lib/formatters'
@@ -7,41 +7,57 @@ import { JudicialAsset } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
 export default function Relatorio() {
-  const { assets } = useAssets()
+  const { assets, updateAsset } = useAssets()
   const reportRef = useRef<HTMLDivElement>(null)
+  const [isEditing, setIsEditing] = useState(false)
 
-  const handlePrint = () => {
-    window.print()
-  }
+  const [intro1, setIntro1] = useState(
+    'O presente documento consubstancia o Relatório Gerencial dos principais ativos judiciais de natureza estratégica da Cetenco Engenharia S.A. Elaborado com rigor técnico e notável saber jurídico, este escopo visa prover à Diretoria e aos Acionistas uma visão panorâmica e acurada sobre os créditos em persecução e as expectativas de êxito no contencioso ativo.',
+  )
+  const [intro2, setIntro2] = useState(
+    'A condução diligente do escritório Sayão & Polo, em sintonia fina com a Diretoria Jurídica, tem por escopo a maximização do recebimento destes haveres e a célere consecução da prestação jurisdicional.',
+  )
+
+  const handlePrint = () => window.print()
 
   const currentDateStr = new Intl.DateTimeFormat('pt-BR', {
     month: 'long',
     year: 'numeric',
   }).format(new Date())
-
   const capitalizedDate = currentDateStr.charAt(0).toUpperCase() + currentDateStr.slice(1)
-
   const baseDateStr = new Intl.DateTimeFormat('pt-BR').format(new Date())
-
   const totalValue = assets.reduce((acc, a) => acc + a.value, 0)
 
   return (
     <div className="container mx-auto py-8 px-4 relative animate-fade-in-up print:p-0 print:py-0">
-      {/* Floating Action Bar - Hidden on print */}
       <div className="sticky top-[80px] z-20 flex justify-end mb-6 gap-2 print-hide">
+        <Button
+          variant={isEditing ? 'default' : 'outline'}
+          className={cn(
+            'shadow-sm',
+            isEditing ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'bg-background',
+          )}
+          onClick={() => setIsEditing(!isEditing)}
+        >
+          {isEditing ? (
+            <>
+              <Save className="mr-2 h-4 w-4" /> Concluir Edição
+            </>
+          ) : (
+            <>
+              <Edit3 className="mr-2 h-4 w-4" /> Editar Relatório
+            </>
+          )}
+        </Button>
         <Button variant="outline" className="bg-background shadow-sm" onClick={handlePrint}>
-          <Download className="mr-2 h-4 w-4" />
-          Exportar PDF
+          <Download className="mr-2 h-4 w-4" /> Exportar PDF
         </Button>
         <Button className="shadow-sm" onClick={handlePrint}>
-          <Printer className="mr-2 h-4 w-4" />
-          Imprimir Documento
+          <Printer className="mr-2 h-4 w-4" /> Imprimir Documento
         </Button>
       </div>
 
-      {/* A4 Paper Container */}
       <div ref={reportRef} className="paper-document">
-        {/* Letterhead */}
         <div className="flex justify-between items-center border-b-2 border-primary pb-6 mb-8">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-primary text-white flex items-center justify-center font-bold text-xl font-serif">
@@ -64,7 +80,6 @@ export default function Relatorio() {
           </div>
         </div>
 
-        {/* Document Title */}
         <div className="text-center mb-10">
           <h1 className="text-2xl font-bold font-serif uppercase tracking-wider text-slate-900 mb-2">
             Relatório Gerencial de Ativos Judiciais Estratégicos
@@ -74,28 +89,41 @@ export default function Relatorio() {
           </p>
         </div>
 
-        {/* Executive Summary */}
         <section className="mb-10">
           <h3 className="text-sm font-bold uppercase tracking-wider text-primary mb-4 border-b border-slate-200 pb-1">
             I. Apresentação Inicial
           </h3>
-          <p className="text-sm font-serif leading-relaxed text-justify mb-4">
-            O presente documento consubstancia o Relatório Gerencial dos principais ativos judiciais
-            de natureza estratégica da <strong>Cetenco Engenharia S.A.</strong> Elaborado com rigor
-            técnico e notável saber jurídico, este escopo visa prover à Diretoria e aos Acionistas
-            uma visão panorâmica e acurada sobre os créditos em persecução e as expectativas de
-            êxito no contencioso ativo.
-          </p>
+          {isEditing ? (
+            <div
+              contentEditable
+              suppressContentEditableWarning
+              onBlur={(e) => setIntro1(e.currentTarget.textContent || '')}
+              className="text-sm font-serif leading-relaxed text-justify mb-4 outline-none bg-slate-50 border border-slate-300 p-2 rounded"
+            >
+              {intro1}
+            </div>
+          ) : (
+            <p className="text-sm font-serif leading-relaxed text-justify mb-4">{intro1}</p>
+          )}
+
           <p className="text-sm font-serif leading-relaxed text-justify">
             O montante global estimado em discussão, compreendendo os pleitos delineados a seguir,
-            atinge a expressiva cifra de <strong>{formatCurrency(totalValue)}</strong>. A condução
-            diligente do escritório Sayão & Polo, em sintonia fina com a Diretoria Jurídica, tem por
-            escopo a maximização do recebimento destes haveres e a célere consecução da prestação
-            jurisdicional.
+            atinge a expressiva cifra de <strong>{formatCurrency(totalValue)}</strong>.{' '}
+            {isEditing ? (
+              <span
+                contentEditable
+                suppressContentEditableWarning
+                onBlur={(e) => setIntro2(e.currentTarget.textContent || '')}
+                className="outline-none bg-slate-50 border border-slate-300 p-1 rounded"
+              >
+                {intro2}
+              </span>
+            ) : (
+              <span>{intro2}</span>
+            )}
           </p>
         </section>
 
-        {/* Quadro Resumo */}
         <section className="mb-12 print-break-inside-avoid">
           <h3 className="text-sm font-bold uppercase tracking-wider text-primary mb-4 border-b border-slate-200 pb-1">
             II. Quadro Resumo
@@ -120,13 +148,47 @@ export default function Relatorio() {
                     <div className="text-[10px] text-slate-500 uppercase mt-1">{asset.party}</div>
                   </td>
                   <td className="py-3 px-2 align-top text-justify leading-snug">
-                    {asset.summary.substring(0, 120)}
-                    {asset.summary.length > 120 ? '...' : ''}
+                    {isEditing ? (
+                      <div
+                        contentEditable
+                        suppressContentEditableWarning
+                        onBlur={(e) =>
+                          updateAsset(asset.id, { summary: e.currentTarget.textContent || '' })
+                        }
+                        className="outline-none bg-slate-50 border border-slate-300 p-1 rounded min-h-[40px]"
+                      >
+                        {asset.summary}
+                      </div>
+                    ) : (
+                      <>
+                        {asset.summary.substring(0, 120)}
+                        {asset.summary.length > 120 ? '...' : ''}
+                      </>
+                    )}
                   </td>
                   <td className="py-3 px-2 align-top">
-                    <div className="font-bold">{formatCurrency(asset.value)}</div>
+                    {isEditing ? (
+                      <input
+                        type="number"
+                        className="w-full bg-slate-50 border border-slate-300 rounded px-1 mb-1 font-bold font-sans text-xs"
+                        value={asset.value}
+                        onChange={(e) => updateAsset(asset.id, { value: Number(e.target.value) })}
+                      />
+                    ) : (
+                      <div className="font-bold">{formatCurrency(asset.value)}</div>
+                    )}
                     <div className="text-[10px] text-slate-500 mt-1">
-                      Base: {formatDate(asset.referenceDate)}
+                      Base:{' '}
+                      {isEditing ? (
+                        <input
+                          type="date"
+                          value={asset.referenceDate}
+                          onChange={(e) => updateAsset(asset.id, { referenceDate: e.target.value })}
+                          className="bg-slate-50 border border-slate-300 rounded px-1 w-[100px] inline-block font-sans"
+                        />
+                      ) : (
+                        formatDate(asset.referenceDate)
+                      )}
                     </div>
                   </td>
                   <td className="py-3 px-2 align-top text-center">
@@ -144,7 +206,22 @@ export default function Relatorio() {
                     </span>
                   </td>
                   <td className="py-3 pl-2 align-top text-right font-medium text-slate-700">
-                    {asset.estimatedRecoveryTime}
+                    {isEditing ? (
+                      <div
+                        contentEditable
+                        suppressContentEditableWarning
+                        onBlur={(e) =>
+                          updateAsset(asset.id, {
+                            estimatedRecoveryTime: e.currentTarget.textContent || '',
+                          })
+                        }
+                        className="outline-none bg-slate-50 border border-slate-300 p-1 rounded inline-block min-w-[50px]"
+                      >
+                        {asset.estimatedRecoveryTime}
+                      </div>
+                    ) : (
+                      <>{asset.estimatedRecoveryTime}</>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -152,12 +229,10 @@ export default function Relatorio() {
           </table>
         </section>
 
-        {/* Detailed Table */}
         <section className="mb-12">
           <h3 className="text-sm font-bold uppercase tracking-wider text-primary mb-4 border-b border-slate-200 pb-1 print-page-break-before">
             III. Relatório Detalhado e Andamentos Processuais
           </h3>
-
           <div className="space-y-8">
             {assets.map((asset: JudicialAsset) => (
               <div
@@ -194,32 +269,94 @@ export default function Relatorio() {
                     <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
                       Resumo da Demanda
                     </p>
-                    <p className="text-sm font-serif text-justify leading-relaxed">
-                      {asset.summary}
-                    </p>
+                    {isEditing ? (
+                      <div
+                        contentEditable
+                        suppressContentEditableWarning
+                        onBlur={(e) =>
+                          updateAsset(asset.id, { summary: e.currentTarget.textContent || '' })
+                        }
+                        className="text-sm font-serif text-justify leading-relaxed outline-none bg-slate-50 border border-slate-300 p-2 rounded min-h-[60px]"
+                      >
+                        {asset.summary}
+                      </div>
+                    ) : (
+                      <div className="text-sm font-serif text-justify leading-relaxed">
+                        {asset.summary}
+                      </div>
+                    )}
                   </div>
                   <div>
                     <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
                       Valores Envolvidos
                     </p>
-                    <p className="text-sm font-bold text-slate-900">
-                      {formatCurrency(asset.value)}
-                    </p>
-                    {asset.valueDetails && (
-                      <p className="text-[11px] font-serif text-slate-700 mt-1">
-                        {asset.valueDetails}
+                    {isEditing ? (
+                      <input
+                        type="number"
+                        className="w-full bg-slate-50 border border-slate-300 rounded px-2 py-1 mb-1 font-bold text-sm font-sans"
+                        value={asset.value}
+                        onChange={(e) => updateAsset(asset.id, { value: Number(e.target.value) })}
+                      />
+                    ) : (
+                      <p className="text-sm font-bold text-slate-900">
+                        {formatCurrency(asset.value)}
                       </p>
                     )}
+
+                    {isEditing ? (
+                      <div
+                        contentEditable
+                        suppressContentEditableWarning
+                        onBlur={(e) =>
+                          updateAsset(asset.id, { valueDetails: e.currentTarget.textContent || '' })
+                        }
+                        className="text-[11px] font-serif text-slate-700 mt-1 outline-none bg-slate-50 border border-slate-300 p-1 rounded min-h-[20px]"
+                      >
+                        {asset.valueDetails}
+                      </div>
+                    ) : (
+                      asset.valueDetails && (
+                        <p className="text-[11px] font-serif text-slate-700 mt-1">
+                          {asset.valueDetails}
+                        </p>
+                      )
+                    )}
+
                     <p className="text-[10px] text-slate-500 mt-1">
-                      Data Base: {formatDate(asset.referenceDate)}
+                      Data Base:{' '}
+                      {isEditing ? (
+                        <input
+                          type="date"
+                          value={asset.referenceDate}
+                          onChange={(e) => updateAsset(asset.id, { referenceDate: e.target.value })}
+                          className="bg-slate-50 border border-slate-300 rounded px-1 ml-1 font-sans"
+                        />
+                      ) : (
+                        formatDate(asset.referenceDate)
+                      )}
                     </p>
 
                     <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-4 mb-1">
                       Estimativa de Recebimento
                     </p>
-                    <p className="text-sm font-serif text-slate-900">
-                      {asset.estimatedRecoveryTime}
-                    </p>
+                    {isEditing ? (
+                      <div
+                        contentEditable
+                        suppressContentEditableWarning
+                        onBlur={(e) =>
+                          updateAsset(asset.id, {
+                            estimatedRecoveryTime: e.currentTarget.textContent || '',
+                          })
+                        }
+                        className="text-sm font-serif text-slate-900 outline-none bg-slate-50 border border-slate-300 p-1 rounded inline-block min-w-[100px]"
+                      >
+                        {asset.estimatedRecoveryTime}
+                      </div>
+                    ) : (
+                      <p className="text-sm font-serif text-slate-900">
+                        {asset.estimatedRecoveryTime}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -227,9 +364,24 @@ export default function Relatorio() {
                   <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
                     Últimos Andamentos / Status Atual
                   </p>
-                  <p className="text-xs font-serif text-slate-800 text-justify whitespace-pre-line leading-relaxed">
-                    {asset.lastDevelopments}
-                  </p>
+                  {isEditing ? (
+                    <div
+                      contentEditable
+                      suppressContentEditableWarning
+                      onBlur={(e) =>
+                        updateAsset(asset.id, {
+                          lastDevelopments: e.currentTarget.textContent || '',
+                        })
+                      }
+                      className="text-xs font-serif text-slate-800 text-justify whitespace-pre-line leading-relaxed outline-none bg-white border border-slate-300 p-2 rounded min-h-[40px]"
+                    >
+                      {asset.lastDevelopments}
+                    </div>
+                  ) : (
+                    <p className="text-xs font-serif text-slate-800 text-justify whitespace-pre-line leading-relaxed">
+                      {asset.lastDevelopments}
+                    </p>
+                  )}
                 </div>
 
                 {asset.history && asset.history.length > 0 && (
@@ -257,7 +409,6 @@ export default function Relatorio() {
           </div>
         </section>
 
-        {/* Signatures */}
         <section className="mt-20 pt-8 print-break-inside-avoid">
           <div className="grid grid-cols-3 gap-8 text-center text-xs font-serif">
             <div>
