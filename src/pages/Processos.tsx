@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Search, Filter, Eye, FileText, Pencil } from 'lucide-react'
+import { Search, Filter, Eye, FileText, Pencil, Plus, Trash2, ShieldAlert } from 'lucide-react'
 import { useAssets } from '@/hooks/use-assets'
 import { formatCurrency, formatDate } from '@/lib/formatters'
 import { JudicialAsset, RiskLevel } from '@/lib/types'
@@ -8,8 +8,6 @@ import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Textarea } from '@/components/ui/textarea'
-import { Label } from '@/components/ui/label'
 import {
   Table,
   TableBody,
@@ -35,6 +33,18 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 import { Card, CardContent } from '@/components/ui/card'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
+import { ProcessForm } from '@/components/ProcessForm'
 
 function RiskBadge({ risk }: { risk: RiskLevel }) {
   return (
@@ -52,6 +62,73 @@ function RiskBadge({ risk }: { risk: RiskLevel }) {
   )
 }
 
+function AddProcessModal() {
+  const { addAsset } = useAssets()
+  const [open, setOpen] = useState(false)
+  const [formData, setFormData] = useState<Partial<JudicialAsset>>({
+    processNumber: '',
+    party: '',
+    court: '',
+    lawyer: 'Sayão & Polo',
+    value: 0,
+    valueDetails: '',
+    referenceDate: new Date().toISOString().substring(0, 10),
+    risk: 'Possível',
+    status: 'Ativo',
+    summary: '',
+    estimatedRecoveryTime: '',
+    lastDevelopments: '',
+    lastUpdate: new Date().toISOString().substring(0, 10),
+    history: [],
+  })
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    addAsset(formData as Omit<JudicialAsset, 'id'>)
+    setOpen(false)
+    setFormData({
+      processNumber: '',
+      party: '',
+      court: '',
+      lawyer: 'Sayão & Polo',
+      value: 0,
+      valueDetails: '',
+      referenceDate: new Date().toISOString().substring(0, 10),
+      risk: 'Possível',
+      status: 'Ativo',
+      summary: '',
+      estimatedRecoveryTime: '',
+      lastDevelopments: '',
+      lastUpdate: new Date().toISOString().substring(0, 10),
+      history: [],
+    })
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+          <Plus className="h-4 w-4 mr-2" /> Adicionar Processo
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Adicionar Novo Processo</DialogTitle>
+          <DialogDescription>
+            Preencha os dados do novo ativo judicial para incluí-lo no painel e nos relatórios.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit}>
+          <ProcessForm formData={formData} setFormData={setFormData} />
+          <DialogFooter className="mt-4">
+            <Button type="submit">Cadastrar Processo</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
 function EditProcessModal({ asset }: { asset: JudicialAsset }) {
   const { updateAsset } = useAssets()
   const [open, setOpen] = useState(false)
@@ -66,12 +143,11 @@ function EditProcessModal({ asset }: { asset: JudicialAsset }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" className="h-8 gap-1">
-          <Pencil className="h-4 w-4" />
-          <span className="hidden xl:inline-block">Editar</span>
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+          <Pencil className="h-4 w-4 text-muted-foreground" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Editar Processo: {asset.processNumber}</DialogTitle>
           <DialogDescription>
@@ -79,116 +155,9 @@ function EditProcessModal({ asset }: { asset: JudicialAsset }) {
             gerencial.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor={`processNumber-${asset.id}`}>Nº Processo</Label>
-              <Input
-                id={`processNumber-${asset.id}`}
-                value={formData.processNumber}
-                onChange={(e) => setFormData({ ...formData, processNumber: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor={`party-${asset.id}`}>Parte Contraria</Label>
-              <Input
-                id={`party-${asset.id}`}
-                value={formData.party}
-                onChange={(e) => setFormData({ ...formData, party: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor={`court-${asset.id}`}>Vara / Tribunal</Label>
-              <Input
-                id={`court-${asset.id}`}
-                value={formData.court}
-                onChange={(e) => setFormData({ ...formData, court: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor={`lawyer-${asset.id}`}>Advogado Responsável</Label>
-              <Input
-                id={`lawyer-${asset.id}`}
-                value={formData.lawyer}
-                onChange={(e) => setFormData({ ...formData, lawyer: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor={`value-${asset.id}`}>Valor (R$)</Label>
-              <Input
-                id={`value-${asset.id}`}
-                type="number"
-                value={formData.value}
-                onChange={(e) => setFormData({ ...formData, value: parseFloat(e.target.value) })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor={`referenceDate-${asset.id}`}>Data-Base</Label>
-              <Input
-                id={`referenceDate-${asset.id}`}
-                type="date"
-                value={formData.referenceDate?.substring(0, 10) || ''}
-                onChange={(e) => setFormData({ ...formData, referenceDate: e.target.value })}
-              />
-            </div>
-            <div className="md:col-span-2 space-y-2">
-              <Label htmlFor={`risk-${asset.id}`}>Prognóstico</Label>
-              <Select
-                value={formData.risk}
-                onValueChange={(val: RiskLevel) => setFormData({ ...formData, risk: val })}
-              >
-                <SelectTrigger id={`risk-${asset.id}`}>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Provável">Provável</SelectItem>
-                  <SelectItem value="Possível">Possível</SelectItem>
-                  <SelectItem value="Remoto">Remoto</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="md:col-span-2 space-y-2">
-              <Label htmlFor={`valueDetails-${asset.id}`}>
-                Detalhes do Valor (Ex: Incontroverso / Controverso)
-              </Label>
-              <Input
-                id={`valueDetails-${asset.id}`}
-                value={formData.valueDetails || ''}
-                onChange={(e) => setFormData({ ...formData, valueDetails: e.target.value })}
-              />
-            </div>
-            <div className="md:col-span-2 space-y-2">
-              <Label htmlFor={`estimatedRecoveryTime-${asset.id}`}>Estimativa de Recebimento</Label>
-              <Input
-                id={`estimatedRecoveryTime-${asset.id}`}
-                value={formData.estimatedRecoveryTime}
-                onChange={(e) =>
-                  setFormData({ ...formData, estimatedRecoveryTime: e.target.value })
-                }
-              />
-            </div>
-            <div className="md:col-span-2 space-y-2">
-              <Label htmlFor={`summary-${asset.id}`}>Resumo da Demanda</Label>
-              <Textarea
-                id={`summary-${asset.id}`}
-                value={formData.summary}
-                onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
-                className="h-20"
-              />
-            </div>
-            <div className="md:col-span-2 space-y-2">
-              <Label htmlFor={`lastDevelopments-${asset.id}`}>
-                Últimos Andamentos (Visível no Relatório)
-              </Label>
-              <Textarea
-                id={`lastDevelopments-${asset.id}`}
-                value={formData.lastDevelopments}
-                onChange={(e) => setFormData({ ...formData, lastDevelopments: e.target.value })}
-                className="h-24"
-              />
-            </div>
-          </div>
-          <DialogFooter>
+        <form onSubmit={handleSubmit}>
+          <ProcessForm formData={formData} setFormData={setFormData} />
+          <DialogFooter className="mt-4">
             <Button type="submit">Salvar Alterações</Button>
           </DialogFooter>
         </form>
@@ -201,12 +170,11 @@ function ProcessDetailModal({ asset }: { asset: JudicialAsset }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" className="h-8 gap-1">
-          <Eye className="h-4 w-4" />
-          <span className="hidden xl:inline-block">Detalhes</span>
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+          <Eye className="h-4 w-4 text-muted-foreground" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl flex items-center gap-2">
             <FileText className="h-5 w-5 text-primary" />
@@ -257,7 +225,7 @@ function ProcessDetailModal({ asset }: { asset: JudicialAsset }) {
             <h4 className="text-sm font-semibold text-primary uppercase tracking-wider">
               Resumo da Demanda
             </h4>
-            <div className="p-4 rounded-md bg-secondary/50 border text-sm leading-relaxed text-foreground/90 font-serif">
+            <div className="p-4 rounded-md bg-secondary/50 border text-sm leading-relaxed text-foreground/90 font-serif whitespace-pre-wrap">
               {asset.summary}
             </div>
           </div>
@@ -266,7 +234,7 @@ function ProcessDetailModal({ asset }: { asset: JudicialAsset }) {
             <h4 className="text-sm font-semibold text-primary uppercase tracking-wider">
               Últimos Andamentos
             </h4>
-            <div className="p-4 rounded-md border text-sm leading-relaxed text-foreground/90 font-serif">
+            <div className="p-4 rounded-md border text-sm leading-relaxed text-foreground/90 font-serif whitespace-pre-wrap">
               {asset.lastDevelopments}
             </div>
           </div>
@@ -283,7 +251,7 @@ function ProcessDetailModal({ asset }: { asset: JudicialAsset }) {
                     <p className="text-xs text-muted-foreground font-medium mb-0.5">
                       {formatDate(h.date)} • {h.author}
                     </p>
-                    <p className="text-sm">{h.description}</p>
+                    <p className="text-sm whitespace-pre-wrap">{h.description}</p>
                   </div>
                 ))}
               </div>
@@ -292,6 +260,44 @@ function ProcessDetailModal({ asset }: { asset: JudicialAsset }) {
         </div>
       </DialogContent>
     </Dialog>
+  )
+}
+
+function DeleteProcessAction({ asset }: { asset: JudicialAsset }) {
+  const { removeAsset } = useAssets()
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle className="flex items-center gap-2">
+            <ShieldAlert className="h-5 w-5 text-destructive" />
+            Remover Processo
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            Tem certeza que deseja remover o processo <strong>{asset.processNumber}</strong> do
+            painel? Esta ação não poderá ser desfeita.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => removeAsset(asset.id)}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            Sim, Remover
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   )
 }
 
@@ -307,9 +313,7 @@ export default function Processos() {
       asset.court.toLowerCase().includes(term) ||
       asset.party.toLowerCase().includes(term) ||
       asset.lawyer.toLowerCase().includes(term)
-
     const matchesRisk = riskFilter === 'todos' || asset.risk === riskFilter
-
     return matchesSearch && matchesRisk
   })
 
@@ -320,6 +324,7 @@ export default function Processos() {
           <h1 className="text-3xl font-bold tracking-tight text-primary">Ativos Judiciais</h1>
           <p className="text-muted-foreground mt-1">Gestão detalhada do portfólio contencioso.</p>
         </div>
+        <AddProcessModal />
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4 items-center bg-card p-4 rounded-lg border shadow-sm">
@@ -332,7 +337,6 @@ export default function Processos() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <Filter className="h-4 w-4 text-muted-foreground hidden sm:block" />
           <Select value={riskFilter} onValueChange={setRiskFilter}>
@@ -358,15 +362,14 @@ export default function Processos() {
               <TableHead className="text-right font-semibold text-primary">
                 Valor Envolvido
               </TableHead>
-              <TableHead className="font-semibold text-primary">Tempo Estimado</TableHead>
               <TableHead className="font-semibold text-primary text-center">Prognóstico</TableHead>
-              <TableHead className="text-right font-semibold text-primary">Ação</TableHead>
+              <TableHead className="text-right font-semibold text-primary">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredAssets.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
                   Nenhum processo encontrado.
                 </TableCell>
               </TableRow>
@@ -386,14 +389,14 @@ export default function Processos() {
                   <TableCell className="text-right font-medium">
                     {formatCurrency(asset.value)}
                   </TableCell>
-                  <TableCell className="text-sm">{asset.estimatedRecoveryTime}</TableCell>
                   <TableCell className="text-center">
                     <RiskBadge risk={asset.risk} />
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
+                    <div className="flex justify-end gap-1">
                       <ProcessDetailModal asset={asset} />
                       <EditProcessModal asset={asset} />
+                      <DeleteProcessAction asset={asset} />
                     </div>
                   </TableCell>
                 </TableRow>

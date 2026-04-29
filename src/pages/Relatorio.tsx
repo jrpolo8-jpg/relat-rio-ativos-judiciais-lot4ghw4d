@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Printer, Download, Edit3, Save } from 'lucide-react'
+import { Printer, Download, Edit3, Save, Trash2, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAssets } from '@/hooks/use-assets'
 import { formatCurrency, formatDate } from '@/lib/formatters'
@@ -17,6 +17,12 @@ export default function Relatorio() {
   const [intro2, setIntro2] = useState(
     'A condução diligente do escritório Sayão & Polo, em sintonia fina com a Diretoria Jurídica, tem por escopo a maximização do recebimento destes haveres e a célere consecução da prestação jurisdicional.',
   )
+
+  const [signatures, setSignatures] = useState([
+    { title: 'Diretor Jurídico', company: 'Cetenco Engenharia S.A.', name: '' },
+    { title: 'Diretor Financeiro (CFO)', company: 'Cetenco Engenharia S.A.', name: '' },
+    { title: 'CEO', company: 'Cetenco Engenharia S.A.', name: '' },
+  ])
 
   const handlePrint = () => window.print()
 
@@ -60,23 +66,49 @@ export default function Relatorio() {
       <div ref={reportRef} className="paper-document">
         <div className="flex justify-between items-center border-b-2 border-primary pb-6 mb-8">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-primary text-white flex items-center justify-center font-bold text-xl font-serif">
-              C
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-primary uppercase tracking-wider font-serif m-0 leading-none">
-                Cetenco
-              </h2>
-              <p className="text-xs text-primary/70 tracking-widest uppercase">Engenharia S.A.</p>
+            <img
+              src="https://img.usecurling.com/i?q=engineering%20logo&shape=fill&color=blue"
+              alt="Cetenco Engenharia S.A."
+              className="h-12 object-contain hidden"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none'
+                e.currentTarget.nextElementSibling?.classList.remove('hidden')
+              }}
+            />
+            <div className="">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-primary text-white flex items-center justify-center font-bold text-xl font-serif rounded">
+                  C
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-primary uppercase tracking-wider font-serif m-0 leading-none">
+                    Cetenco
+                  </h2>
+                  <p className="text-[10px] text-primary/70 tracking-widest uppercase">
+                    Engenharia S.A.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
           <div className="text-right">
-            <h2 className="text-lg font-bold text-slate-700 font-serif m-0 leading-none">
-              Sayão & Polo
-            </h2>
-            <p className="text-xs text-slate-500 uppercase tracking-widest mt-1">
-              Sociedade de Advogados
-            </p>
+            <img
+              src="https://img.usecurling.com/i?q=law%20firm%20logo&shape=lineal-color"
+              alt="Sayão e Polo"
+              className="h-12 object-contain ml-auto hidden"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none'
+                e.currentTarget.nextElementSibling?.classList.remove('hidden')
+              }}
+            />
+            <div className="">
+              <h2 className="text-lg font-bold text-slate-700 font-serif m-0 leading-none">
+                Sayão e Polo
+              </h2>
+              <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-1">
+                Sociedade de Advogados
+              </p>
+            </div>
           </div>
         </div>
 
@@ -142,10 +174,29 @@ export default function Relatorio() {
               {assets.map((asset) => (
                 <tr key={asset.id} className="border-b border-slate-200">
                   <td className="py-3 pr-2 align-top">
-                    <div className="font-bold text-primary leading-tight">
-                      {asset.processNumber}
-                    </div>
-                    <div className="text-[10px] text-slate-500 uppercase mt-1">{asset.party}</div>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        className="w-full bg-slate-50 border border-slate-300 rounded px-1 mb-1 font-bold font-sans text-xs text-primary"
+                        value={asset.processNumber}
+                        onChange={(e) => updateAsset(asset.id, { processNumber: e.target.value })}
+                      />
+                    ) : (
+                      <div className="font-bold text-primary leading-tight">
+                        {asset.processNumber}
+                      </div>
+                    )}
+
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        className="w-full bg-slate-50 border border-slate-300 rounded px-1 mb-1 font-sans text-[10px] uppercase mt-1"
+                        value={asset.party}
+                        onChange={(e) => updateAsset(asset.id, { party: e.target.value })}
+                      />
+                    ) : (
+                      <div className="text-[10px] text-slate-500 uppercase mt-1">{asset.party}</div>
+                    )}
                   </td>
                   <td className="py-3 px-2 align-top text-justify leading-snug">
                     {isEditing ? (
@@ -182,7 +233,7 @@ export default function Relatorio() {
                       {isEditing ? (
                         <input
                           type="date"
-                          value={asset.referenceDate}
+                          value={asset.referenceDate.substring(0, 10)}
                           onChange={(e) => updateAsset(asset.id, { referenceDate: e.target.value })}
                           className="bg-slate-50 border border-slate-300 rounded px-1 w-[100px] inline-block font-sans"
                         />
@@ -192,18 +243,30 @@ export default function Relatorio() {
                     </div>
                   </td>
                   <td className="py-3 px-2 align-top text-center">
-                    <span
-                      className={cn(
-                        'px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider whitespace-nowrap',
-                        asset.risk === 'Provável'
-                          ? 'text-red-700 bg-red-100'
-                          : asset.risk === 'Possível'
-                            ? 'text-amber-700 bg-amber-100'
-                            : 'text-emerald-700 bg-emerald-100',
-                      )}
-                    >
-                      {asset.risk}
-                    </span>
+                    {isEditing ? (
+                      <select
+                        value={asset.risk}
+                        onChange={(e) => updateAsset(asset.id, { risk: e.target.value as any })}
+                        className="bg-slate-50 border border-slate-300 rounded px-1 text-[10px] uppercase font-bold"
+                      >
+                        <option value="Provável">Provável</option>
+                        <option value="Possível">Possível</option>
+                        <option value="Remoto">Remoto</option>
+                      </select>
+                    ) : (
+                      <span
+                        className={cn(
+                          'px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider whitespace-nowrap',
+                          asset.risk === 'Provável'
+                            ? 'text-red-700 bg-red-100'
+                            : asset.risk === 'Possível'
+                              ? 'text-amber-700 bg-amber-100'
+                              : 'text-emerald-700 bg-emerald-100',
+                        )}
+                      >
+                        {asset.risk}
+                      </span>
+                    )}
                   </td>
                   <td className="py-3 pl-2 align-top text-right font-medium text-slate-700">
                     {isEditing ? (
@@ -215,7 +278,7 @@ export default function Relatorio() {
                             estimatedRecoveryTime: e.currentTarget.textContent || '',
                           })
                         }
-                        className="outline-none bg-slate-50 border border-slate-300 p-1 rounded inline-block min-w-[50px]"
+                        className="outline-none bg-slate-50 border border-slate-300 p-1 rounded inline-block min-w-[50px] text-right"
                       >
                         {asset.estimatedRecoveryTime}
                       </div>
@@ -240,27 +303,64 @@ export default function Relatorio() {
                 className="border border-slate-300 rounded-sm p-4 print-break-inside-avoid shadow-sm"
               >
                 <div className="flex justify-between items-start mb-3 border-b border-slate-200 pb-2">
-                  <div>
-                    <h4 className="font-bold text-primary text-base font-serif">
-                      {asset.processNumber}
-                    </h4>
-                    <p className="text-xs text-slate-600 font-bold uppercase mt-1">
-                      {asset.party} • {asset.court}
-                    </p>
+                  <div className="w-full pr-4">
+                    {isEditing ? (
+                      <input
+                        className="w-full bg-slate-50 border border-slate-300 rounded px-1 font-bold text-primary text-base font-serif"
+                        value={asset.processNumber}
+                        onChange={(e) => updateAsset(asset.id, { processNumber: e.target.value })}
+                      />
+                    ) : (
+                      <h4 className="font-bold text-primary text-base font-serif">
+                        {asset.processNumber}
+                      </h4>
+                    )}
+                    {isEditing ? (
+                      <div className="flex gap-2 mt-1">
+                        <input
+                          className="w-1/2 bg-slate-50 border border-slate-300 rounded px-1 text-xs text-slate-600 font-bold uppercase"
+                          value={asset.party}
+                          onChange={(e) => updateAsset(asset.id, { party: e.target.value })}
+                          placeholder="Parte"
+                        />
+                        <input
+                          className="w-1/2 bg-slate-50 border border-slate-300 rounded px-1 text-xs text-slate-600 font-bold uppercase"
+                          value={asset.court}
+                          onChange={(e) => updateAsset(asset.id, { court: e.target.value })}
+                          placeholder="Vara / Tribunal"
+                        />
+                      </div>
+                    ) : (
+                      <p className="text-xs text-slate-600 font-bold uppercase mt-1">
+                        {asset.party} • {asset.court}
+                      </p>
+                    )}
                   </div>
-                  <div className="text-right">
-                    <span
-                      className={cn(
-                        'px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider',
-                        asset.risk === 'Provável'
-                          ? 'text-red-700 bg-red-100'
-                          : asset.risk === 'Possível'
-                            ? 'text-amber-700 bg-amber-100'
-                            : 'text-emerald-700 bg-emerald-100',
-                      )}
-                    >
-                      Prognóstico: {asset.risk}
-                    </span>
+                  <div className="text-right whitespace-nowrap">
+                    {isEditing ? (
+                      <select
+                        value={asset.risk}
+                        onChange={(e) => updateAsset(asset.id, { risk: e.target.value as any })}
+                        className="bg-slate-50 border border-slate-300 rounded px-2 py-1 text-xs uppercase font-bold"
+                      >
+                        <option value="Provável">Provável</option>
+                        <option value="Possível">Possível</option>
+                        <option value="Remoto">Remoto</option>
+                      </select>
+                    ) : (
+                      <span
+                        className={cn(
+                          'px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider',
+                          asset.risk === 'Provável'
+                            ? 'text-red-700 bg-red-100'
+                            : asset.risk === 'Possível'
+                              ? 'text-amber-700 bg-amber-100'
+                              : 'text-emerald-700 bg-emerald-100',
+                        )}
+                      >
+                        Prognóstico: {asset.risk}
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -281,7 +381,7 @@ export default function Relatorio() {
                         {asset.summary}
                       </div>
                     ) : (
-                      <div className="text-sm font-serif text-justify leading-relaxed">
+                      <div className="text-sm font-serif text-justify leading-relaxed whitespace-pre-wrap">
                         {asset.summary}
                       </div>
                     )}
@@ -327,7 +427,7 @@ export default function Relatorio() {
                       {isEditing ? (
                         <input
                           type="date"
-                          value={asset.referenceDate}
+                          value={asset.referenceDate.substring(0, 10)}
                           onChange={(e) => updateAsset(asset.id, { referenceDate: e.target.value })}
                           className="bg-slate-50 border border-slate-300 rounded px-1 ml-1 font-sans"
                         />
@@ -373,37 +473,122 @@ export default function Relatorio() {
                           lastDevelopments: e.currentTarget.textContent || '',
                         })
                       }
-                      className="text-xs font-serif text-slate-800 text-justify whitespace-pre-line leading-relaxed outline-none bg-white border border-slate-300 p-2 rounded min-h-[40px]"
+                      className="text-xs font-serif text-slate-800 text-justify whitespace-pre-wrap leading-relaxed outline-none bg-white border border-slate-300 p-2 rounded min-h-[40px]"
                     >
                       {asset.lastDevelopments}
                     </div>
                   ) : (
-                    <p className="text-xs font-serif text-slate-800 text-justify whitespace-pre-line leading-relaxed">
+                    <p className="text-xs font-serif text-slate-800 text-justify whitespace-pre-wrap leading-relaxed">
                       {asset.lastDevelopments}
                     </p>
                   )}
                 </div>
 
-                {asset.history && asset.history.length > 0 && (
-                  <div className="mt-4">
-                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">
-                      Histórico Processual Detalhado
-                    </p>
-                    <div className="space-y-3 border-l-2 border-slate-200 ml-1.5 pl-4 py-1">
-                      {asset.history.map((h) => (
-                        <div key={h.id} className="relative">
-                          <div className="absolute -left-[21px] top-1 h-2 w-2 rounded-full bg-slate-400 border border-white" />
-                          <p className="text-[10px] text-slate-500 font-bold mb-0.5">
-                            {formatDate(h.date)} • {h.author}
-                          </p>
-                          <p className="text-xs font-serif text-slate-700 text-justify leading-relaxed">
-                            {h.description}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
+                <div className="mt-4">
+                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">
+                    Histórico Processual Detalhado
+                  </p>
+                  <div className="space-y-3 border-l-2 border-slate-200 ml-1.5 pl-4 py-1">
+                    {asset.history?.map((h) => (
+                      <div key={h.id} className="relative">
+                        <div className="absolute -left-[21px] top-1 h-2 w-2 rounded-full bg-slate-400 border border-white" />
+                        {isEditing ? (
+                          <div className="mb-2 bg-white p-2 border border-dashed border-slate-300 rounded relative group">
+                            <Button
+                              variant="destructive"
+                              size="icon"
+                              className="absolute -top-3 -right-3 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={() =>
+                                updateAsset(asset.id, {
+                                  history: asset.history.filter((x) => x.id !== h.id),
+                                })
+                              }
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                            <div className="flex gap-2 mb-2">
+                              <input
+                                type="date"
+                                value={h.date.substring(0, 10)}
+                                onChange={(e) =>
+                                  updateAsset(asset.id, {
+                                    history: asset.history.map((x) =>
+                                      x.id === h.id ? { ...x, date: e.target.value } : x,
+                                    ),
+                                  })
+                                }
+                                className="border px-1 text-xs bg-slate-50 font-sans w-[110px]"
+                              />
+                              <input
+                                type="text"
+                                value={h.author}
+                                onChange={(e) =>
+                                  updateAsset(asset.id, {
+                                    history: asset.history.map((x) =>
+                                      x.id === h.id ? { ...x, author: e.target.value } : x,
+                                    ),
+                                  })
+                                }
+                                className="border px-1 text-xs bg-slate-50 font-sans flex-1"
+                                placeholder="Autor / Escritório"
+                              />
+                            </div>
+                            <div
+                              contentEditable
+                              suppressContentEditableWarning
+                              onBlur={(e) =>
+                                updateAsset(asset.id, {
+                                  history: asset.history.map((x) =>
+                                    x.id === h.id
+                                      ? { ...x, description: e.currentTarget.textContent || '' }
+                                      : x,
+                                  ),
+                                })
+                              }
+                              className="text-xs font-serif text-slate-700 text-justify leading-relaxed outline-none border border-slate-200 p-1 min-h-[40px] bg-slate-50"
+                            >
+                              {h.description}
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <p className="text-[10px] text-slate-500 font-bold mb-0.5">
+                              {formatDate(h.date)} • {h.author}
+                            </p>
+                            <p className="text-xs font-serif text-slate-700 text-justify leading-relaxed whitespace-pre-wrap">
+                              {h.description}
+                            </p>
+                          </>
+                        )}
+                      </div>
+                    ))}
+                    {(!asset.history || asset.history.length === 0) && !isEditing && (
+                      <p className="text-xs text-slate-400 italic">Nenhum evento registrado.</p>
+                    )}
+                    {isEditing && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="mt-2 text-xs h-7 border-dashed"
+                        onClick={() =>
+                          updateAsset(asset.id, {
+                            history: [
+                              ...(asset.history || []),
+                              {
+                                id: Math.random().toString(36).substring(7),
+                                date: new Date().toISOString().substring(0, 10),
+                                author: 'Sayão & Polo',
+                                description: 'Novo andamento...',
+                              },
+                            ],
+                          })
+                        }
+                      >
+                        <Plus className="h-3 w-3 mr-1" /> Adicionar Andamento
+                      </Button>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
             ))}
           </div>
@@ -411,21 +596,49 @@ export default function Relatorio() {
 
         <section className="mt-20 pt-8 print-break-inside-avoid">
           <div className="grid grid-cols-3 gap-8 text-center text-xs font-serif">
-            <div>
-              <div className="w-full h-px bg-slate-400 mb-2"></div>
-              <p className="font-bold uppercase">Diretor Jurídico</p>
-              <p className="text-slate-500">Cetenco Engenharia S.A.</p>
-            </div>
-            <div>
-              <div className="w-full h-px bg-slate-400 mb-2"></div>
-              <p className="font-bold uppercase">Diretor Financeiro (CFO)</p>
-              <p className="text-slate-500">Cetenco Engenharia S.A.</p>
-            </div>
-            <div>
-              <div className="w-full h-px bg-slate-400 mb-2"></div>
-              <p className="font-bold uppercase">CEO</p>
-              <p className="text-slate-500">Cetenco Engenharia S.A.</p>
-            </div>
+            {signatures.map((sig, idx) => (
+              <div key={idx}>
+                <div className="w-full h-px bg-slate-400 mb-2"></div>
+                {isEditing ? (
+                  <div className="space-y-1">
+                    <input
+                      value={sig.name}
+                      onChange={(e) =>
+                        setSignatures((s) =>
+                          s.map((x, i) => (i === idx ? { ...x, name: e.target.value } : x)),
+                        )
+                      }
+                      placeholder="Nome do Assinante"
+                      className="w-full text-center border bg-slate-50 font-bold outline-none p-1"
+                    />
+                    <input
+                      value={sig.title}
+                      onChange={(e) =>
+                        setSignatures((s) =>
+                          s.map((x, i) => (i === idx ? { ...x, title: e.target.value } : x)),
+                        )
+                      }
+                      className="w-full text-center border bg-slate-50 font-bold uppercase outline-none p-1"
+                    />
+                    <input
+                      value={sig.company}
+                      onChange={(e) =>
+                        setSignatures((s) =>
+                          s.map((x, i) => (i === idx ? { ...x, company: e.target.value } : x)),
+                        )
+                      }
+                      className="w-full text-center border bg-slate-50 text-slate-500 outline-none p-1"
+                    />
+                  </div>
+                ) : (
+                  <>
+                    {sig.name && <p className="font-bold mb-1 text-sm">{sig.name}</p>}
+                    <p className="font-bold uppercase">{sig.title}</p>
+                    <p className="text-slate-500">{sig.company}</p>
+                  </>
+                )}
+              </div>
+            ))}
           </div>
         </section>
       </div>
