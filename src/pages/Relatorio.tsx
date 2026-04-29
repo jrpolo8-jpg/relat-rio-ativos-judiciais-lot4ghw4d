@@ -105,28 +105,28 @@ export default function Relatorio() {
       title: 'Processos Ativos',
       key: 'count',
       val: displayCount,
-      textCls: 'text-primary text-3xl print:text-xl',
+      textCls: 'text-primary text-3xl print:text-lg',
       bgCls: 'bg-slate-50 border-slate-200',
     },
     {
       title: 'Valores Incontroversos',
       key: 'incontroverso',
       val: displayIncontroverso,
-      textCls: 'text-emerald-700 text-xl print:text-base',
+      textCls: 'text-emerald-700 text-xl print:text-sm',
       bgCls: 'bg-emerald-50/50 border-emerald-100',
     },
     {
       title: 'Valores Controversos',
       key: 'controverso',
       val: displayControverso,
-      textCls: 'text-amber-700 text-xl print:text-base',
+      textCls: 'text-amber-700 text-xl print:text-sm',
       bgCls: 'bg-amber-50/50 border-amber-100',
     },
     {
       title: 'Total Global (Disputa)',
       key: 'total',
       val: displayTotal,
-      textCls: 'text-primary text-xl print:text-base',
+      textCls: 'text-primary text-xl print:text-sm',
       bgCls: 'bg-slate-50 border-slate-200',
     },
   ]
@@ -295,13 +295,16 @@ export default function Relatorio() {
                 <th className="py-2 pr-2 font-bold w-[20%]">Processo / Parte</th>
                 <th className="py-2 px-2 font-bold w-[30%]">Resumo da Demanda</th>
                 <th className="py-2 px-2 font-bold w-[25%]">Valores</th>
-                <th className="py-2 px-2 font-bold text-center w-[15%]">Prognóstico</th>
+                <th className="py-2 px-2 font-bold text-center w-[15%]">Prognóstico de ganho</th>
                 <th className="py-2 pl-2 font-bold text-right w-[10%]">Estimativa</th>
               </tr>
             </thead>
             <tbody className="text-xs font-serif">
               {assets.map((asset) => (
-                <tr key={asset.id} className="border-b border-slate-200 relative group">
+                <tr
+                  key={asset.id}
+                  className="border-b border-slate-200 relative group print-break-inside-avoid"
+                >
                   <td className="py-3 pr-2 align-top">
                     {isEditing ? (
                       <input
@@ -340,10 +343,7 @@ export default function Relatorio() {
                         {asset.summary}
                       </div>
                     ) : (
-                      <>
-                        {asset.summary.substring(0, 100)}
-                        {asset.summary.length > 100 ? '...' : ''}
-                      </>
+                      <div className="whitespace-pre-wrap">{asset.summary}</div>
                     )}
                   </td>
                   <td className="py-3 px-2 align-top">
@@ -558,7 +558,7 @@ export default function Relatorio() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 print:grid-cols-3 gap-6 mb-4">
                   <div className="col-span-2">
                     <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
                       Resumo da Demanda
@@ -736,7 +736,7 @@ export default function Relatorio() {
             </h3>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 print:grid-cols-4 gap-6 mb-8">
             {dashboardCards.map((c) => (
               <div
                 key={c.key}
@@ -775,12 +775,12 @@ export default function Relatorio() {
             ))}
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 print-break-inside-avoid">
+          <div className="grid grid-cols-1 lg:grid-cols-2 print:grid-cols-2 gap-8 print-break-inside-avoid">
             <div className="border border-slate-200 rounded p-4 bg-slate-50/50 print:border-slate-300">
               <h4 className="text-xs font-bold uppercase text-slate-500 mb-4 text-center">
                 Distribuição de Valores (Controverso vs Incontroverso)
               </h4>
-              <ChartContainer config={chartConfig} className="h-[280px] w-full">
+              <ChartContainer config={chartConfig} className="h-[280px] print:h-[220px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -836,7 +836,7 @@ export default function Relatorio() {
         </section>
 
         <section className="mt-20 pt-8 print-break-inside-avoid">
-          <div className="grid grid-cols-3 gap-8 text-center text-xs font-serif">
+          <div className="grid grid-cols-3 print:grid-cols-3 gap-8 text-center text-xs font-serif">
             {signatures.map((sig, idx) => (
               <div key={idx}>
                 <div className="w-full h-px bg-slate-400 mb-2 print:bg-slate-400"></div>
