@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Printer, Save, Plus, Loader2, Edit3, Check, Trash2 } from 'lucide-react'
+import { Printer, Plus, Loader2, Pencil, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAssets } from '@/hooks/use-assets'
 import { JudicialAsset } from '@/lib/types'
@@ -17,17 +17,31 @@ import { RelatorioDashboard } from '@/components/relatorio/RelatorioDashboard'
 import { formatCurrency, formatDate } from '@/lib/formatters'
 
 export default function Relatorio() {
-  const { assets, updateAsset, removeAsset, addAsset, loading, saving, saveChanges, hasChanges } =
-    useAssets()
-  const [isEditing, setIsEditing] = useState(false)
+  const { assets, updateAsset, removeAsset, addAsset, loading } = useAssets()
   const [isAddOpen, setIsAddOpen] = useState(false)
   const [newAssetData, setNewAssetData] = useState<Partial<JudicialAsset>>({})
+
+  const [editingAssetId, setEditingAssetId] = useState<string | null>(null)
+  const [editAssetData, setEditAssetData] = useState<Partial<JudicialAsset>>({})
 
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     await addAsset(newAssetData as Omit<JudicialAsset, 'id'>)
     setIsAddOpen(false)
     setNewAssetData({})
+  }
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (editingAssetId) {
+      await updateAsset(editingAssetId, editAssetData)
+      setEditingAssetId(null)
+    }
+  }
+
+  const handleEditOpen = (asset: JudicialAsset) => {
+    setEditAssetData(asset)
+    setEditingAssetId(asset.id)
   }
 
   if (loading) {
@@ -46,35 +60,6 @@ export default function Relatorio() {
         <div className="flex flex-wrap items-center gap-2">
           <Button variant="outline" onClick={() => window.print()}>
             <Printer className="mr-2 h-4 w-4" /> Imprimir / PDF
-          </Button>
-          {saving && (
-            <div className="flex items-center text-sm text-slate-500 animate-pulse px-2">
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Salvando...
-            </div>
-          )}
-          {(isEditing || hasChanges) && (
-            <Button
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-              onClick={() => saveChanges()}
-              disabled={!hasChanges || saving}
-            >
-              <Save className="mr-2 h-4 w-4" /> Salvar
-            </Button>
-          )}
-          <Button
-            variant={isEditing ? 'default' : 'outline'}
-            className={cn(isEditing ? 'bg-emerald-600 hover:bg-emerald-700' : '')}
-            onClick={() => setIsEditing(!isEditing)}
-          >
-            {isEditing ? (
-              <>
-                <Check className="mr-2 h-4 w-4" /> Concluir Edição
-              </>
-            ) : (
-              <>
-                <Edit3 className="mr-2 h-4 w-4" /> Editar Relatório
-              </>
-            )}
           </Button>
           <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
             <DialogTrigger asChild>
@@ -140,15 +125,7 @@ export default function Relatorio() {
                   className="border-b border-slate-200 hover:bg-slate-50/50 transition-colors"
                 >
                   <td className="py-3 pr-2 align-top">
-                    {isEditing ? (
-                      <input
-                        className="w-full bg-slate-50 border rounded px-1 mb-1 text-primary"
-                        value={asset.processNumber}
-                        onChange={(e) => updateAsset(asset.id, { processNumber: e.target.value })}
-                      />
-                    ) : (
-                      <div className="font-bold text-primary">{asset.processNumber}</div>
-                    )}
+                    <div className="font-bold text-primary">{asset.processNumber}</div>
                     <div className="text-[10px] text-slate-500 uppercase mt-1">{asset.party}</div>
                   </td>
                   <td className="py-3 px-2 align-top">
@@ -192,19 +169,31 @@ export default function Relatorio() {
             {assets.map((asset) => (
               <div
                 key={asset.id}
-                className="border border-slate-300 rounded-sm p-4 relative shadow-sm print-break-inside-avoid"
+                className="border border-slate-300 rounded-sm p-4 relative shadow-sm print-break-inside-avoid group"
               >
-                {isEditing && (
+                <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2 print-hide">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8 bg-white"
+                    onClick={() => handleEditOpen(asset)}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
                   <Button
                     variant="destructive"
                     size="icon"
-                    className="absolute -top-3 -right-3 h-8 w-8 rounded-full z-10 print-hide"
-                    onClick={() => removeAsset(asset.id)}
+                    className="h-8 w-8"
+                    onClick={() => {
+                      if (confirm('Tem certeza que deseja excluir este ativo?')) {
+                        removeAsset(asset.id)
+                      }
+                    }}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
-                )}
-                <h4 className="font-bold text-primary text-base font-serif border-b pb-2 mb-3">
+                </div>
+                <h4 className="font-bold text-primary text-base font-serif border-b pb-2 mb-3 pr-20">
                   {asset.processNumber}
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -212,37 +201,17 @@ export default function Relatorio() {
                     <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
                       Resumo da Demanda
                     </p>
-                    {isEditing ? (
-                      <textarea
-                        className="w-full text-sm font-serif p-2 border rounded"
-                        value={asset.summary}
-                        onChange={(e) => updateAsset(asset.id, { summary: e.target.value })}
-                        rows={4}
-                      />
-                    ) : (
-                      <p className="text-sm font-serif text-justify whitespace-pre-wrap">
-                        {asset.summary}
-                      </p>
-                    )}
+                    <p className="text-sm font-serif text-justify whitespace-pre-wrap text-slate-800">
+                      {asset.summary || '-'}
+                    </p>
                   </div>
                   <div>
                     <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
                       Últimos Andamentos
                     </p>
-                    {isEditing ? (
-                      <textarea
-                        className="w-full text-sm font-serif p-2 border rounded"
-                        value={asset.lastDevelopments}
-                        onChange={(e) =>
-                          updateAsset(asset.id, { lastDevelopments: e.target.value })
-                        }
-                        rows={4}
-                      />
-                    ) : (
-                      <p className="text-sm font-serif text-justify whitespace-pre-wrap">
-                        {asset.lastDevelopments}
-                      </p>
-                    )}
+                    <p className="text-sm font-serif text-justify whitespace-pre-wrap text-slate-800">
+                      {asset.lastDevelopments || '-'}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -251,6 +220,23 @@ export default function Relatorio() {
         </section>
         {assets.length > 0 && <RelatorioDashboard assets={assets} />}
       </div>
+
+      <Dialog open={!!editingAssetId} onOpenChange={(open) => !open && setEditingAssetId(null)}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Editar Ativo</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleEditSubmit}>
+            <AssetForm formData={editAssetData} setFormData={setEditAssetData} />
+            <DialogFooter className="mt-4">
+              <Button type="button" variant="outline" onClick={() => setEditingAssetId(null)}>
+                Cancelar
+              </Button>
+              <Button type="submit">Salvar Alterações</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
