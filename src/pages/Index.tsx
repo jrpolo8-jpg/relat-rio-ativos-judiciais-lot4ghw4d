@@ -1,14 +1,6 @@
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import {
-  Scale,
-  AlertCircle,
-  Clock,
-  CheckCircle2,
-  TrendingUp,
-  ArrowRight,
-  Loader2,
-} from 'lucide-react'
+import { Scale, AlertCircle, Clock, CheckCircle2, TrendingUp, ArrowRight } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
@@ -27,7 +19,7 @@ import { useAssets } from '@/hooks/use-assets'
 import { formatCurrency, formatDate } from '@/lib/formatters'
 
 export default function Index() {
-  const { assets, loading } = useAssets()
+  const { assets } = useAssets()
 
   const stats = useMemo(() => {
     const total = assets.reduce((sum, asset) => sum + asset.value, 0)
@@ -57,15 +49,6 @@ export default function Index() {
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     return allUpdates.slice(0, 4)
   }, [assets])
-
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <p className="text-slate-500 font-medium">Sincronizando com Skip Cloud...</p>
-      </div>
-    )
-  }
 
   return (
     <div className="container mx-auto py-8 px-4 md:px-8 space-y-8 animate-fade-in-up">
