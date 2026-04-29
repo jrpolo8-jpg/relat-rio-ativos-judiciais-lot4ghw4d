@@ -105,28 +105,28 @@ export default function Relatorio() {
       title: 'Processos Ativos',
       key: 'count',
       val: displayCount,
-      textCls: 'text-primary text-3xl print:text-lg',
+      textCls: 'text-primary text-3xl print:text-base',
       bgCls: 'bg-slate-50 border-slate-200',
     },
     {
       title: 'Valores Incontroversos',
       key: 'incontroverso',
       val: displayIncontroverso,
-      textCls: 'text-emerald-700 text-xl print:text-sm',
+      textCls: 'text-emerald-700 text-xl print:text-xs',
       bgCls: 'bg-emerald-50/50 border-emerald-100',
     },
     {
       title: 'Valores Controversos',
       key: 'controverso',
       val: displayControverso,
-      textCls: 'text-amber-700 text-xl print:text-sm',
+      textCls: 'text-amber-700 text-xl print:text-xs',
       bgCls: 'bg-amber-50/50 border-amber-100',
     },
     {
       title: 'Total Global (Disputa)',
       key: 'total',
       val: displayTotal,
-      textCls: 'text-primary text-xl print:text-sm',
+      textCls: 'text-primary text-xl print:text-xs',
       bgCls: 'bg-slate-50 border-slate-200',
     },
   ]
@@ -154,7 +154,7 @@ export default function Relatorio() {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 relative animate-fade-in-up print:p-0 print:py-0">
+    <div className="container mx-auto py-8 px-4 relative animate-fade-in-up print:p-0 print:py-0 print:max-w-none print:w-full print:overflow-visible">
       <div className="sticky top-[80px] z-20 flex justify-end mb-6 gap-2 print-hide">
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
           <DialogTrigger asChild>
@@ -295,7 +295,7 @@ export default function Relatorio() {
                 <th className="py-2 pr-2 font-bold w-[20%]">Processo / Parte</th>
                 <th className="py-2 px-2 font-bold w-[30%]">Resumo da Demanda</th>
                 <th className="py-2 px-2 font-bold w-[25%]">Valores</th>
-                <th className="py-2 px-2 font-bold text-center w-[15%]">Prognóstico de ganho</th>
+                <th className="py-2 px-2 font-bold text-center w-[15%]">Prognóstico de Ganho</th>
                 <th className="py-2 pl-2 font-bold text-right w-[10%]">Estimativa</th>
               </tr>
             </thead>
@@ -396,13 +396,13 @@ export default function Relatorio() {
                         <div className="text-xs text-emerald-700 font-semibold">
                           {formatCurrency(asset.incontroversoValue || 0)}{' '}
                           <span className="text-[9px] font-normal text-slate-500 uppercase">
-                            (Inc.)
+                            (Incontroverso)
                           </span>
                         </div>
                         <div className="text-xs text-amber-700 font-semibold">
                           {formatCurrency(asset.controversoValue || 0)}{' '}
                           <span className="text-[9px] font-normal text-slate-500 uppercase">
-                            (Cont.)
+                            (Controverso)
                           </span>
                         </div>
                         <div className="text-[10px] text-slate-500 mt-1">
