@@ -32,8 +32,6 @@ export default function Relatorio() {
     value: 0,
     incontroversoValue: 0,
     controversoValue: 0,
-    expectedGain: 0,
-    gainPercentage: 0,
     referenceDate: new Date().toISOString().substring(0, 10),
     risk: 'Possível',
     status: 'Ativo',
@@ -107,28 +105,28 @@ export default function Relatorio() {
       title: 'Processos Ativos',
       key: 'count',
       val: displayCount,
-      textCls: 'text-primary text-3xl',
+      textCls: 'text-primary text-3xl print:text-xl',
       bgCls: 'bg-slate-50 border-slate-200',
     },
     {
       title: 'Valores Incontroversos',
       key: 'incontroverso',
       val: displayIncontroverso,
-      textCls: 'text-emerald-700 text-xl',
+      textCls: 'text-emerald-700 text-xl print:text-base',
       bgCls: 'bg-emerald-50/50 border-emerald-100',
     },
     {
       title: 'Valores Controversos',
       key: 'controverso',
       val: displayControverso,
-      textCls: 'text-amber-700 text-xl',
+      textCls: 'text-amber-700 text-xl print:text-base',
       bgCls: 'bg-amber-50/50 border-amber-100',
     },
     {
       title: 'Total Global (Disputa)',
       key: 'total',
       val: displayTotal,
-      textCls: 'text-primary text-xl',
+      textCls: 'text-primary text-xl print:text-base',
       bgCls: 'bg-slate-50 border-slate-200',
     },
   ]
@@ -145,8 +143,6 @@ export default function Relatorio() {
       value: 0,
       incontroversoValue: 0,
       controversoValue: 0,
-      expectedGain: 0,
-      gainPercentage: 0,
       referenceDate: new Date().toISOString().substring(0, 10),
       risk: 'Possível',
       status: 'Ativo',
@@ -211,7 +207,7 @@ export default function Relatorio() {
       <div ref={reportRef} className="paper-document">
         <div className="flex justify-between items-center border-b-2 border-primary pb-6 mb-8">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-primary text-white flex items-center justify-center font-bold text-xl font-serif rounded">
+            <div className="w-12 h-12 bg-primary text-white flex items-center justify-center font-bold text-xl font-serif rounded print:border print:border-primary">
               C
             </div>
             <div>
@@ -296,10 +292,10 @@ export default function Relatorio() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b-2 border-slate-300 text-[10px] uppercase tracking-wider text-slate-500">
-                <th className="py-2 pr-2 font-bold w-[25%]">Processo / Parte</th>
+                <th className="py-2 pr-2 font-bold w-[20%]">Processo / Parte</th>
                 <th className="py-2 px-2 font-bold w-[30%]">Resumo da Demanda</th>
-                <th className="py-2 px-2 font-bold w-[20%]">Valor Total</th>
-                <th className="py-2 px-2 font-bold text-center w-[15%]">Prog. Ganho</th>
+                <th className="py-2 px-2 font-bold w-[25%]">Valores</th>
+                <th className="py-2 px-2 font-bold text-center w-[15%]">Prognóstico</th>
                 <th className="py-2 pl-2 font-bold text-right w-[10%]">Estimativa</th>
               </tr>
             </thead>
@@ -352,60 +348,106 @@ export default function Relatorio() {
                   </td>
                   <td className="py-3 px-2 align-top">
                     {isEditing ? (
-                      <input
-                        type="number"
-                        className="w-full bg-slate-50 border border-slate-300 rounded px-1 mb-1 font-bold font-sans text-xs"
-                        value={asset.value}
-                        onChange={(e) => updateAsset(asset.id, { value: Number(e.target.value) })}
-                      />
+                      <div className="flex flex-col gap-1.5">
+                        <div>
+                          <label className="text-[8px] uppercase text-slate-500">Total</label>
+                          <input
+                            type="number"
+                            className="w-full bg-slate-50 border border-slate-300 rounded px-1 font-bold font-sans text-xs"
+                            value={asset.value}
+                            onChange={(e) =>
+                              updateAsset(asset.id, { value: Number(e.target.value) })
+                            }
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[8px] uppercase text-emerald-600">
+                            Incontroverso
+                          </label>
+                          <input
+                            type="number"
+                            className="w-full bg-slate-50 border border-slate-300 rounded px-1 font-bold font-sans text-xs"
+                            value={asset.incontroversoValue || 0}
+                            onChange={(e) =>
+                              updateAsset(asset.id, { incontroversoValue: Number(e.target.value) })
+                            }
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[8px] uppercase text-amber-600">Controverso</label>
+                          <input
+                            type="number"
+                            className="w-full bg-slate-50 border border-slate-300 rounded px-1 font-bold font-sans text-xs"
+                            value={asset.controversoValue || 0}
+                            onChange={(e) =>
+                              updateAsset(asset.id, { controversoValue: Number(e.target.value) })
+                            }
+                          />
+                        </div>
+                      </div>
                     ) : (
-                      <div className="font-bold">{formatCurrency(asset.value)}</div>
+                      <div className="flex flex-col gap-1">
+                        <div className="font-bold text-xs">
+                          {formatCurrency(asset.value)}{' '}
+                          <span className="text-[9px] font-normal text-slate-500 uppercase">
+                            (Total)
+                          </span>
+                        </div>
+                        <div className="text-xs text-emerald-700 font-semibold">
+                          {formatCurrency(asset.incontroversoValue || 0)}{' '}
+                          <span className="text-[9px] font-normal text-slate-500 uppercase">
+                            (Inc.)
+                          </span>
+                        </div>
+                        <div className="text-xs text-amber-700 font-semibold">
+                          {formatCurrency(asset.controversoValue || 0)}{' '}
+                          <span className="text-[9px] font-normal text-slate-500 uppercase">
+                            (Cont.)
+                          </span>
+                        </div>
+                        <div className="text-[10px] text-slate-500 mt-1">
+                          Base:{' '}
+                          {isEditing ? (
+                            <input
+                              type="date"
+                              value={asset.referenceDate.substring(0, 10)}
+                              onChange={(e) =>
+                                updateAsset(asset.id, { referenceDate: e.target.value })
+                              }
+                              className="bg-slate-50 border border-slate-300 rounded px-1 w-[100px] inline-block font-sans"
+                            />
+                          ) : (
+                            formatDate(asset.referenceDate)
+                          )}
+                        </div>
+                      </div>
                     )}
-                    <div className="text-[10px] text-slate-500 mt-1">
-                      Base:{' '}
-                      {isEditing ? (
-                        <input
-                          type="date"
-                          value={asset.referenceDate.substring(0, 10)}
-                          onChange={(e) => updateAsset(asset.id, { referenceDate: e.target.value })}
-                          className="bg-slate-50 border border-slate-300 rounded px-1 w-[100px] inline-block font-sans"
-                        />
-                      ) : (
-                        formatDate(asset.referenceDate)
-                      )}
-                    </div>
                   </td>
                   <td className="py-3 px-2 align-top text-center">
                     {isEditing ? (
-                      <div className="flex flex-col gap-1 items-center">
-                        <div className="flex items-center gap-1">
-                          <input
-                            type="number"
-                            className="w-12 bg-slate-50 border border-slate-300 rounded px-1 font-bold text-xs text-center"
-                            value={asset.gainPercentage || 0}
-                            onChange={(e) =>
-                              updateAsset(asset.id, { gainPercentage: Number(e.target.value) })
-                            }
-                          />
-                          <span className="text-xs font-bold">%</span>
-                        </div>
-                        <input
-                          type="number"
-                          className="w-full bg-slate-50 border border-slate-300 rounded px-1 font-bold text-xs text-center"
-                          value={asset.expectedGain || 0}
-                          onChange={(e) =>
-                            updateAsset(asset.id, { expectedGain: Number(e.target.value) })
-                          }
-                        />
-                      </div>
+                      <select
+                        value={asset.risk}
+                        onChange={(e) => updateAsset(asset.id, { risk: e.target.value as any })}
+                        className="w-full bg-slate-50 border border-slate-300 rounded px-1 py-1 text-xs uppercase font-bold text-center"
+                      >
+                        <option value="Provável">Provável</option>
+                        <option value="Possível">Possível</option>
+                        <option value="Remoto">Remoto</option>
+                      </select>
                     ) : (
-                      <div className="text-center">
-                        <span className="font-bold text-emerald-700 text-xs">
-                          {asset.gainPercentage}%
+                      <div className="text-center mt-1">
+                        <span
+                          className={cn(
+                            'px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider print:border print:border-slate-300',
+                            asset.risk === 'Provável'
+                              ? 'text-red-700 bg-red-50'
+                              : asset.risk === 'Possível'
+                                ? 'text-amber-700 bg-amber-50'
+                                : 'text-blue-700 bg-blue-50',
+                          )}
+                        >
+                          {asset.risk}
                         </span>
-                        <div className="text-[10px] text-slate-500 mt-0.5">
-                          {formatCurrency(asset.expectedGain || 0)}
-                        </div>
                       </div>
                     )}
                   </td>
@@ -502,7 +544,7 @@ export default function Relatorio() {
                     ) : (
                       <span
                         className={cn(
-                          'px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider',
+                          'px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider print:border print:border-slate-300 print:text-black',
                           asset.risk === 'Provável'
                             ? 'text-red-700 bg-red-100'
                             : asset.risk === 'Possível'
@@ -540,51 +582,96 @@ export default function Relatorio() {
                   </div>
                   <div>
                     <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
-                      Valor Total
+                      Valores
                     </p>
                     {isEditing ? (
-                      <input
-                        type="number"
-                        className="w-full bg-slate-50 border border-slate-300 rounded px-2 py-1 mb-1 font-bold text-sm font-sans"
-                        value={asset.value}
-                        onChange={(e) => updateAsset(asset.id, { value: Number(e.target.value) })}
-                      />
+                      <div className="flex flex-col gap-1.5 mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] w-[35%] font-medium">Total:</span>
+                          <input
+                            type="number"
+                            className="w-[65%] bg-slate-50 border border-slate-300 rounded px-1 py-0.5 text-xs font-sans font-bold"
+                            value={asset.value}
+                            onChange={(e) =>
+                              updateAsset(asset.id, { value: Number(e.target.value) })
+                            }
+                          />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] w-[35%] text-emerald-700 font-medium">
+                            Incont.:
+                          </span>
+                          <input
+                            type="number"
+                            className="w-[65%] bg-slate-50 border border-slate-300 rounded px-1 py-0.5 text-xs font-sans font-bold"
+                            value={asset.incontroversoValue || 0}
+                            onChange={(e) =>
+                              updateAsset(asset.id, { incontroversoValue: Number(e.target.value) })
+                            }
+                          />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] w-[35%] text-amber-700 font-medium">
+                            Controv.:
+                          </span>
+                          <input
+                            type="number"
+                            className="w-[65%] bg-slate-50 border border-slate-300 rounded px-1 py-0.5 text-xs font-sans font-bold"
+                            value={asset.controversoValue || 0}
+                            onChange={(e) =>
+                              updateAsset(asset.id, { controversoValue: Number(e.target.value) })
+                            }
+                          />
+                        </div>
+                      </div>
                     ) : (
-                      <p className="text-sm font-bold text-slate-900">
-                        {formatCurrency(asset.value)}
-                      </p>
+                      <div className="flex flex-col gap-1 mb-2">
+                        <p className="text-sm font-bold text-slate-900">
+                          {formatCurrency(asset.value)}{' '}
+                          <span className="text-[10px] font-normal text-slate-500 uppercase">
+                            Total
+                          </span>
+                        </p>
+                        <p className="text-xs font-semibold text-emerald-700">
+                          {formatCurrency(asset.incontroversoValue || 0)}{' '}
+                          <span className="text-[10px] font-normal text-slate-500 uppercase">
+                            Incontroverso
+                          </span>
+                        </p>
+                        <p className="text-xs font-semibold text-amber-700">
+                          {formatCurrency(asset.controversoValue || 0)}{' '}
+                          <span className="text-[10px] font-normal text-slate-500 uppercase">
+                            Controverso
+                          </span>
+                        </p>
+                      </div>
                     )}
 
-                    <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider mb-1 mt-3">
+                    <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider mb-1 mt-4">
                       Prognóstico de Ganho
                     </p>
                     {isEditing ? (
-                      <div className="flex gap-2">
-                        <input
-                          type="number"
-                          className="w-2/3 bg-slate-50 border border-slate-300 rounded px-2 py-1 text-sm font-sans"
-                          value={asset.expectedGain || 0}
-                          onChange={(e) =>
-                            updateAsset(asset.id, { expectedGain: Number(e.target.value) })
-                          }
-                          title="Valor Esperado"
-                        />
-                        <input
-                          type="number"
-                          className="w-1/3 bg-slate-50 border border-slate-300 rounded px-2 py-1 text-sm font-sans"
-                          value={asset.gainPercentage || 0}
-                          onChange={(e) =>
-                            updateAsset(asset.id, { gainPercentage: Number(e.target.value) })
-                          }
-                          title="Percentual"
-                        />
-                      </div>
+                      <select
+                        value={asset.risk}
+                        onChange={(e) => updateAsset(asset.id, { risk: e.target.value as any })}
+                        className="w-full bg-slate-50 border border-slate-300 rounded px-2 py-1 text-xs uppercase font-bold"
+                      >
+                        <option value="Provável">Provável</option>
+                        <option value="Possível">Possível</option>
+                        <option value="Remoto">Remoto</option>
+                      </select>
                     ) : (
-                      <p className="text-sm font-bold text-emerald-700">
-                        {formatCurrency(asset.expectedGain || 0)}{' '}
-                        <span className="text-xs font-normal text-slate-500">
-                          ({asset.gainPercentage}%)
-                        </span>
+                      <p
+                        className={cn(
+                          'text-sm font-bold uppercase',
+                          asset.risk === 'Provável'
+                            ? 'text-red-700'
+                            : asset.risk === 'Possível'
+                              ? 'text-amber-700'
+                              : 'text-blue-700',
+                        )}
+                      >
+                        {asset.risk}
                       </p>
                     )}
 
@@ -612,7 +699,7 @@ export default function Relatorio() {
                   </div>
                 </div>
 
-                <div className="bg-slate-50 p-3 rounded-sm border border-slate-200 mb-4">
+                <div className="bg-slate-50 p-3 rounded-sm border border-slate-200 mb-4 print:border-slate-300">
                   <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
                     Últimos Andamentos / Status Atual
                   </p>
@@ -654,7 +741,7 @@ export default function Relatorio() {
               <div
                 key={c.key}
                 className={cn(
-                  'border rounded p-4 flex flex-col justify-center items-center text-center h-[120px]',
+                  'border rounded p-4 flex flex-col justify-center items-center text-center h-[120px] print:border-slate-300',
                   c.bgCls,
                 )}
               >
@@ -689,7 +776,7 @@ export default function Relatorio() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 print-break-inside-avoid">
-            <div className="border border-slate-200 rounded p-4 bg-slate-50/50">
+            <div className="border border-slate-200 rounded p-4 bg-slate-50/50 print:border-slate-300">
               <h4 className="text-xs font-bold uppercase text-slate-500 mb-4 text-center">
                 Distribuição de Valores (Controverso vs Incontroverso)
               </h4>
@@ -705,6 +792,7 @@ export default function Relatorio() {
                       innerRadius={60}
                       outerRadius={90}
                       paddingAngle={2}
+                      isAnimationActive={false}
                     >
                       {chartData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.fill} />
@@ -716,13 +804,16 @@ export default function Relatorio() {
                 </ResponsiveContainer>
               </ChartContainer>
             </div>
-            <div className="border border-slate-200 rounded p-4 bg-slate-50/50">
+            <div className="border border-slate-200 rounded p-4 bg-slate-50/50 print:border-slate-300">
               <h4 className="text-xs font-bold uppercase text-slate-500 mb-4 text-center">
                 Atualizações Recentes (Todos os Ativos)
               </h4>
               <div className="space-y-4 max-h-[280px] overflow-y-auto pr-2 print:max-h-none print:overflow-visible">
                 {assets.map((a) => (
-                  <div key={a.id} className="border-l-2 border-primary pl-3 py-1">
+                  <div
+                    key={a.id}
+                    className="border-l-2 border-primary pl-3 py-1 print:border-primary"
+                  >
                     <p className="text-xs font-bold text-primary">{a.processNumber}</p>
                     <p className="text-[10px] text-slate-500 mb-1">{a.party}</p>
                     {isEditing ? (
@@ -748,7 +839,7 @@ export default function Relatorio() {
           <div className="grid grid-cols-3 gap-8 text-center text-xs font-serif">
             {signatures.map((sig, idx) => (
               <div key={idx}>
-                <div className="w-full h-px bg-slate-400 mb-2"></div>
+                <div className="w-full h-px bg-slate-400 mb-2 print:bg-slate-400"></div>
                 {isEditing ? (
                   <div className="space-y-1">
                     <input

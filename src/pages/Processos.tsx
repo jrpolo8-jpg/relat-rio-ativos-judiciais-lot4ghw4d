@@ -73,8 +73,6 @@ function AddProcessModal() {
     value: 0,
     incontroversoValue: 0,
     controversoValue: 0,
-    expectedGain: 0,
-    gainPercentage: 0,
     valueDetails: '',
     referenceDate: new Date().toISOString().substring(0, 10),
     risk: 'Possível',
@@ -98,8 +96,6 @@ function AddProcessModal() {
       value: 0,
       incontroversoValue: 0,
       controversoValue: 0,
-      expectedGain: 0,
-      gainPercentage: 0,
       valueDetails: '',
       referenceDate: new Date().toISOString().substring(0, 10),
       risk: 'Possível',
@@ -198,11 +194,32 @@ function ProcessDetailModal({ asset }: { asset: JudicialAsset }) {
             <Card className="bg-muted/30 border-none shadow-none md:col-span-2">
               <CardContent className="p-4">
                 <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-1">
-                  Valor
+                  Valores
                 </p>
-                <p className="text-lg font-bold text-foreground">{formatCurrency(asset.value)}</p>
+                <p className="text-lg font-bold text-foreground">
+                  {formatCurrency(asset.value)}{' '}
+                  <span className="text-xs font-normal text-muted-foreground uppercase">
+                    (Total)
+                  </span>
+                </p>
+                {asset.incontroversoValue !== undefined && (
+                  <p className="text-sm font-semibold text-emerald-600 mt-1">
+                    {formatCurrency(asset.incontroversoValue)}{' '}
+                    <span className="text-xs font-normal text-muted-foreground uppercase">
+                      (Incontroverso)
+                    </span>
+                  </p>
+                )}
+                {asset.controversoValue !== undefined && (
+                  <p className="text-sm font-semibold text-amber-600 mt-1">
+                    {formatCurrency(asset.controversoValue)}{' '}
+                    <span className="text-xs font-normal text-muted-foreground uppercase">
+                      (Controverso)
+                    </span>
+                  </p>
+                )}
                 {asset.valueDetails && (
-                  <p className="text-xs font-medium mt-1">{asset.valueDetails}</p>
+                  <p className="text-xs font-medium mt-2">{asset.valueDetails}</p>
                 )}
                 <p className="text-xs text-muted-foreground mt-1">
                   Data Base: {formatDate(asset.referenceDate)}

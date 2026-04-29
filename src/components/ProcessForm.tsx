@@ -107,26 +107,7 @@ export function ProcessForm({
             }
           />
         </div>
-        <div className="space-y-2">
-          <Label>Ganho Esperado (R$)</Label>
-          <Input
-            type="number"
-            value={formData.expectedGain || 0}
-            onChange={(e) =>
-              setFormData({ ...formData, expectedGain: parseFloat(e.target.value) || 0 })
-            }
-          />
-        </div>
-        <div className="space-y-2">
-          <Label>Percentual de Ganho (%)</Label>
-          <Input
-            type="number"
-            value={formData.gainPercentage || 0}
-            onChange={(e) =>
-              setFormData({ ...formData, gainPercentage: parseFloat(e.target.value) || 0 })
-            }
-          />
-        </div>
+
         <div className="space-y-2">
           <Label>Data-Base</Label>
           <Input
