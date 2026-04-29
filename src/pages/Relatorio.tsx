@@ -30,16 +30,8 @@ import {
 import { ProcessForm } from '@/components/ProcessForm'
 
 export default function Relatorio() {
-  const {
-    assets,
-    updateAsset,
-    removeAsset,
-    addAsset,
-    loading,
-    saving,
-    saveChanges,
-    hasChanges,
-  } = useAssets()
+  const { assets, updateAsset, removeAsset, addAsset, loading, saving, saveChanges, hasChanges } =
+    useAssets()
   const reportRef = useRef<HTMLDivElement>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [isAddOpen, setIsAddOpen] = useState(false)
@@ -243,21 +235,22 @@ export default function Relatorio() {
                   <Plus className="mr-2 h-4 w-4" /> Novo Ativo
                 </Button>
               </DialogTrigger>
-            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Adicionar Novo Ativo Judicial</DialogTitle>
-                <DialogDescription>
-                  Preencha os detalhes para incluir diretamente no relatório gerencial.
-                </DialogDescription>
-              </DialogHeader>
-              <form onSubmit={handleAddAssetSubmit}>
-                <ProcessForm formData={newAssetData} setFormData={setNewAssetData} />
-                <DialogFooter className="mt-4">
-                  <Button type="submit">Incluir no Relatório</Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
+              <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Adicionar Novo Ativo Judicial</DialogTitle>
+                  <DialogDescription>
+                    Preencha os detalhes para incluir diretamente no relatório gerencial.
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleAddAssetSubmit}>
+                  <ProcessForm formData={newAssetData} setFormData={setNewAssetData} />
+                  <DialogFooter className="mt-4">
+                    <Button type="submit">Incluir no Relatório</Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
       </div>
 
