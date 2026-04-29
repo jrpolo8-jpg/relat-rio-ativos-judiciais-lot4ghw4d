@@ -1,5 +1,14 @@
 import { useRef, useState } from 'react'
-import { Printer, Download, Edit3, Save, Trash2, Plus, LayoutDashboard } from 'lucide-react'
+import {
+  Printer,
+  Download,
+  Edit3,
+  Save,
+  Trash2,
+  Plus,
+  LayoutDashboard,
+  Loader2,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAssets } from '@/hooks/use-assets'
 import { formatCurrency, formatDate } from '@/lib/formatters'
@@ -19,7 +28,7 @@ import {
 import { ProcessForm } from '@/components/ProcessForm'
 
 export default function Relatorio() {
-  const { assets, updateAsset, removeAsset, addAsset } = useAssets()
+  const { assets, updateAsset, removeAsset, addAsset, loading } = useAssets()
   const reportRef = useRef<HTMLDivElement>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [isAddOpen, setIsAddOpen] = useState(false)
@@ -133,9 +142,9 @@ export default function Relatorio() {
     },
   ]
 
-  const handleAddAssetSubmit = (e: React.FormEvent) => {
+  const handleAddAssetSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    addAsset(newAssetData as Omit<JudicialAsset, 'id'>)
+    await addAsset(newAssetData as Omit<JudicialAsset, 'id'>)
     setIsAddOpen(false)
     setNewAssetData({
       processNumber: '',
@@ -153,6 +162,15 @@ export default function Relatorio() {
       lastDevelopments: '',
       history: [],
     })
+  }
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="text-slate-500 font-medium">Sincronizando com Skip Cloud...</p>
+      </div>
+    )
   }
 
   return (
