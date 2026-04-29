@@ -18,10 +18,9 @@ export default function Relatorio() {
     year: 'numeric',
   }).format(new Date())
 
+  const baseDateStr = new Intl.DateTimeFormat('pt-BR').format(new Date())
+
   const totalValue = assets.reduce((acc, a) => acc + a.value, 0)
-  const provavelValue = assets
-    .filter((a) => a.risk === 'Provável')
-    .reduce((acc, a) => acc + a.value, 0)
 
   return (
     <div className="container mx-auto py-8 px-4 relative animate-fade-in-up print:p-0 print:py-0">
@@ -64,70 +63,59 @@ export default function Relatorio() {
 
         {/* Document Title */}
         <div className="text-center mb-10">
-          <h1 className="text-xl font-bold font-serif uppercase tracking-wider text-slate-900 mb-2">
-            Relatório Gerencial de Ativos Judiciais e Contingências
+          <h1 className="text-2xl font-bold font-serif uppercase tracking-wider text-slate-900 mb-2">
+            Relatório Gerencial de Ativos Judiciais Estratégicos
           </h1>
           <p className="text-sm font-serif italic text-slate-600 capitalize">
-            São Paulo, {currentDate}
+            São Paulo, {currentDate} • Data Base: {baseDateStr}
           </p>
         </div>
 
         {/* Executive Summary */}
         <section className="mb-10">
           <h3 className="text-sm font-bold uppercase tracking-wider text-primary mb-4 border-b border-slate-200 pb-1">
-            I. Sumário Executivo
+            I. Apresentação Inicial
           </h3>
           <p className="text-sm font-serif leading-relaxed text-justify mb-4">
-            O presente relatório apresenta a compilação e análise do contencioso ativo e passivo da
-            Cetenco Engenharia S.A., atualizado até a presente data. Destaca-se que o valor total em
-            discussão atinge o montante de <strong>{formatCurrency(totalValue)}</strong>, sendo que
-            a parcela com prognóstico de perda <em>"Provável"</em>, objeto de provisionamento,
-            perfaz <strong>{formatCurrency(provavelValue)}</strong>.
+            O presente documento consubstancia o Relatório Gerencial dos principais ativos judiciais
+            de natureza estratégica da <strong>Cetenco Engenharia S.A.</strong> Elaborado com rigor
+            técnico e notável saber jurídico, este escopo visa prover à Diretoria e aos Acionistas
+            uma visão panorâmica e acurada sobre os créditos em persecução e as expectativas de
+            êxito no contencioso ativo.
           </p>
           <p className="text-sm font-serif leading-relaxed text-justify">
-            A condução estratégica dos processos visa a mitigação contínua de riscos financeiros e a
-            preservação do patrimônio corporativo, com acompanhamento diligente do escritório Sayão
-            & Polo em conjunto com a Diretoria Jurídica.
+            O montante global estimado em discussão, compreendendo os pleitos delineados a seguir,
+            atinge a expressiva cifra de <strong>{formatCurrency(totalValue)}</strong>. A condução
+            diligente do escritório Sayão & Polo, em sintonia fina com a Diretoria Jurídica, tem por
+            escopo a maximização do recebimento destes haveres e a célere consecução da prestação
+            jurisdicional.
           </p>
         </section>
 
         {/* Detailed Table */}
         <section className="mb-12">
           <h3 className="text-sm font-bold uppercase tracking-wider text-primary mb-4 border-b border-slate-200 pb-1">
-            II. Detalhamento dos Ativos Judiciais
+            II. Quadro Resumo e Andamentos Processuais
           </h3>
 
-          <table className="w-full text-left border-collapse text-[11px] font-serif">
-            <thead>
-              <tr className="border-b border-slate-300">
-                <th className="py-2 px-1 font-bold text-primary w-[20%]">Processo / Vara</th>
-                <th className="py-2 px-1 font-bold text-primary w-[35%]">Resumo da Demanda</th>
-                <th className="py-2 px-1 font-bold text-primary text-right w-[15%]">Valor (R$)</th>
-                <th className="py-2 px-1 font-bold text-primary text-center w-[15%]">Risco</th>
-                <th className="py-2 px-1 font-bold text-primary text-right w-[15%]">Atualização</th>
-              </tr>
-            </thead>
-            <tbody>
-              {assets.map((asset: JudicialAsset, index: number) => (
-                <tr
-                  key={asset.id}
-                  className={`border-b border-slate-200 ${index % 2 === 0 ? 'bg-slate-50' : 'bg-white'} print-break-inside-avoid`}
-                >
-                  <td className="py-3 px-1 align-top">
-                    <div className="font-bold">{asset.processNumber}</div>
-                    <div className="text-slate-500 mt-1">{asset.court}</div>
-                    <div className="text-[9px] text-slate-400 mt-2 uppercase">{asset.lawyer}</div>
-                  </td>
-                  <td className="py-3 px-1 align-top text-justify">{asset.summary}</td>
-                  <td className="py-3 px-1 align-top text-right font-bold">
-                    {formatCurrency(asset.value)}
-                    <div className="text-[9px] text-slate-400 font-normal mt-1">
-                      Ref: {formatDate(asset.referenceDate)}
-                    </div>
-                  </td>
-                  <td className="py-3 px-1 align-top text-center">
+          <div className="space-y-8">
+            {assets.map((asset: JudicialAsset) => (
+              <div
+                key={asset.id}
+                className="border border-slate-300 rounded-sm p-4 print-break-inside-avoid shadow-sm"
+              >
+                <div className="flex justify-between items-start mb-3 border-b border-slate-200 pb-2">
+                  <div>
+                    <h4 className="font-bold text-primary text-base font-serif">
+                      {asset.processNumber}
+                    </h4>
+                    <p className="text-xs text-slate-600 font-bold uppercase mt-1">
+                      {asset.party} • {asset.court}
+                    </p>
+                  </div>
+                  <div className="text-right">
                     <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider
+                      className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider
                       ${
                         asset.risk === 'Provável'
                           ? 'text-red-700 bg-red-100'
@@ -136,20 +124,58 @@ export default function Relatorio() {
                             : 'text-emerald-700 bg-emerald-100'
                       }`}
                     >
-                      {asset.risk}
+                      Prognóstico: {asset.risk}
                     </span>
-                  </td>
-                  <td className="py-3 px-1 align-top text-right text-slate-600">
-                    {formatDate(asset.lastUpdate)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
+                  <div className="col-span-2">
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                      Resumo da Demanda
+                    </p>
+                    <p className="text-sm font-serif text-justify">{asset.summary}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                      Valores Envolvidos
+                    </p>
+                    <p className="text-sm font-bold text-slate-900">
+                      {formatCurrency(asset.value)}
+                    </p>
+                    {asset.valueDetails && (
+                      <p className="text-[11px] font-serif text-slate-700 mt-1">
+                        {asset.valueDetails}
+                      </p>
+                    )}
+                    <p className="text-[10px] text-slate-500 mt-1">
+                      Data Base: {formatDate(asset.referenceDate)}
+                    </p>
+
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-4 mb-1">
+                      Estimativa de Recebimento
+                    </p>
+                    <p className="text-sm font-serif text-slate-900">
+                      {asset.estimatedRecoveryTime}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-slate-50 p-3 rounded-sm border border-slate-200">
+                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                    Últimos Andamentos
+                  </p>
+                  <p className="text-xs font-serif text-slate-800 text-justify">
+                    {asset.lastDevelopments}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
         </section>
 
         {/* Signatures */}
-        <section className="mt-20 print-break-inside-avoid">
+        <section className="mt-20 pt-8 print-break-inside-avoid">
           <div className="grid grid-cols-3 gap-8 text-center text-xs font-serif">
             <div>
               <div className="w-full h-px bg-slate-400 mb-2"></div>
