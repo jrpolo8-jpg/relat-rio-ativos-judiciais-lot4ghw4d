@@ -15,6 +15,10 @@ export interface JudicialAsset {
   court: string
   lawyer: string
   value: number
+  incontroversoValue?: number
+  controversoValue?: number
+  expectedGain?: number
+  gainPercentage?: number
   valueDetails?: string
   referenceDate: string
   risk: RiskLevel

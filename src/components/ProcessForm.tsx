@@ -79,12 +79,52 @@ export function ProcessForm({
           />
         </div>
         <div className="space-y-2">
-          <Label>Valor (R$)</Label>
+          <Label>Valor Total (R$)</Label>
           <Input
             required
             type="number"
             value={formData.value}
             onChange={(e) => setFormData({ ...formData, value: parseFloat(e.target.value) || 0 })}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>Valor Incontroverso (R$)</Label>
+          <Input
+            type="number"
+            value={formData.incontroversoValue || 0}
+            onChange={(e) =>
+              setFormData({ ...formData, incontroversoValue: parseFloat(e.target.value) || 0 })
+            }
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>Valor Controverso (R$)</Label>
+          <Input
+            type="number"
+            value={formData.controversoValue || 0}
+            onChange={(e) =>
+              setFormData({ ...formData, controversoValue: parseFloat(e.target.value) || 0 })
+            }
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>Ganho Esperado (R$)</Label>
+          <Input
+            type="number"
+            value={formData.expectedGain || 0}
+            onChange={(e) =>
+              setFormData({ ...formData, expectedGain: parseFloat(e.target.value) || 0 })
+            }
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>Percentual de Ganho (%)</Label>
+          <Input
+            type="number"
+            value={formData.gainPercentage || 0}
+            onChange={(e) =>
+              setFormData({ ...formData, gainPercentage: parseFloat(e.target.value) || 0 })
+            }
           />
         </div>
         <div className="space-y-2">
@@ -97,7 +137,7 @@ export function ProcessForm({
           />
         </div>
         <div className="md:col-span-2 space-y-2">
-          <Label>Prognóstico de Perda (Risco)</Label>
+          <Label>Prognóstico de Ganho (Risco)</Label>
           <Select
             value={formData.risk}
             onValueChange={(val: RiskLevel) => setFormData({ ...formData, risk: val })}
