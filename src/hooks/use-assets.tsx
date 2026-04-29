@@ -13,8 +13,6 @@ interface AssetContextType {
   assets: JudicialAsset[]
   loading: boolean
   saving: boolean
-  lastSaved: Date | null
-  showSavedIndicator: boolean
   addAsset: (asset: Omit<JudicialAsset, 'id'>) => Promise<void>
   updateAsset: (id: string, asset: Partial<JudicialAsset>) => void
   updateAssetImmediate: (id: string, asset: Partial<JudicialAsset>) => Promise<void>
@@ -31,8 +29,6 @@ export const AssetProvider = ({ children }: { children: ReactNode }) => {
   const [originalAssets, setOriginalAssets] = useState<JudicialAsset[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [lastSaved, setLastSaved] = useState<Date | null>(null)
-  const [showSavedIndicator, setShowSavedIndicator] = useState(false)
   const [dirtyAssetIds, setDirtyAssetIds] = useState<Set<string>>(new Set())
   const { toast } = useToast()
 
@@ -148,10 +144,7 @@ export const AssetProvider = ({ children }: { children: ReactNode }) => {
       await Promise.all(promises)
 
       setOriginalAssets(assets)
-      setLastSaved(new Date())
-      setShowSavedIndicator(true)
       toast({ title: 'Sucesso', description: 'Alterações salvas com sucesso!' })
-      setTimeout(() => setShowSavedIndicator(false), 3000)
     } catch (error) {
       console.error(error)
       // Re-add failed updates to dirty tracking
@@ -179,8 +172,6 @@ export const AssetProvider = ({ children }: { children: ReactNode }) => {
         assets,
         loading,
         saving,
-        lastSaved,
-        showSavedIndicator,
         addAsset,
         updateAsset,
         updateAssetImmediate,

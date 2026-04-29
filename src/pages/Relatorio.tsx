@@ -37,7 +37,6 @@ export default function Relatorio() {
     addAsset,
     loading,
     saving,
-    showSavedIndicator,
     saveChanges,
     hasChanges,
   } = useAssets()
@@ -201,20 +200,12 @@ export default function Relatorio() {
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2 mr-2 min-w-[140px] justify-end">
-            {saving && (
-              <div className="flex items-center text-sm text-slate-500 animate-pulse">
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Salvando...
-              </div>
-            )}
-            {!saving && showSavedIndicator && (
-              <div className="flex items-center text-sm text-emerald-600 animate-fade-in">
-                <Check className="h-4 w-4 mr-2" />
-                Alterações salvas
-              </div>
-            )}
-          </div>
+          {saving && (
+            <div className="flex items-center text-sm text-slate-500 animate-pulse mr-2">
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Salvando...
+            </div>
+          )}
 
           {isEditing && (
             <Button
@@ -222,7 +213,7 @@ export default function Relatorio() {
               onClick={() => saveChanges()}
               disabled={!hasChanges || saving}
             >
-              <SaveAll className="mr-2 h-4 w-4" /> Salvar Alterações
+              <Save className="mr-2 h-4 w-4" /> Salvar
             </Button>
           )}
 
@@ -245,12 +236,13 @@ export default function Relatorio() {
             )}
           </Button>
 
-          <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 ml-auto">
-                <Plus className="mr-2 h-4 w-4" /> Novo Ativo
-              </Button>
-            </DialogTrigger>
+          <div className="ml-auto pl-2">
+            <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-primary text-primary-foreground shadow-sm hover:bg-primary/90">
+                  <Plus className="mr-2 h-4 w-4" /> Novo Ativo
+                </Button>
+              </DialogTrigger>
             <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Adicionar Novo Ativo Judicial</DialogTitle>
