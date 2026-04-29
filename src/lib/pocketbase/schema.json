@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-29T22:27:55.759Z",
+  "generatedAt": "2026-04-29T22:30:53.383Z",
   "collections": [
     {
       "name": "users",
@@ -48,17 +48,17 @@
       "name": "judicial_assets",
       "type": "base",
       "apiRules": {
-        "list": "@request.auth.id != '' && user_id = @request.auth.id",
-        "view": "@request.auth.id != '' && user_id = @request.auth.id",
-        "create": "@request.auth.id != '' && user_id = @request.auth.id",
-        "update": "@request.auth.id != '' && user_id = @request.auth.id",
-        "delete": "@request.auth.id != '' && user_id = @request.auth.id"
+        "list": "",
+        "view": "",
+        "create": "",
+        "update": "",
+        "delete": ""
       },
       "fields": [
         {
           "name": "user_id",
           "type": "relation",
-          "required": true,
+          "required": false,
           "system": false,
           "collectionRef": "users"
         },
