@@ -204,6 +204,16 @@ export default function Relatorio() {
                     <p className="text-sm font-serif text-justify whitespace-pre-wrap text-slate-800">
                       {asset.summary || '-'}
                     </p>
+                    {asset.valueDetails && (
+                      <div className="mt-4">
+                        <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
+                          Detalhes de Valores
+                        </p>
+                        <p className="text-sm font-serif text-justify whitespace-pre-wrap text-slate-800">
+                          {asset.valueDetails}
+                        </p>
+                      </div>
+                    )}
                   </div>
                   <div>
                     <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
@@ -212,6 +222,38 @@ export default function Relatorio() {
                     <p className="text-sm font-serif text-justify whitespace-pre-wrap text-slate-800">
                       {asset.lastDevelopments || '-'}
                     </p>
+                    <div className="grid grid-cols-2 gap-3 mt-4 bg-slate-50 p-3 rounded border border-slate-100">
+                      <div>
+                        <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
+                          Vara / Tribunal
+                        </p>
+                        <p className="text-xs text-slate-700 font-semibold">{asset.court || '-'}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
+                          Advogado
+                        </p>
+                        <p className="text-xs text-slate-700 font-semibold">
+                          {asset.lawyer || '-'}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
+                          Status
+                        </p>
+                        <p className="text-xs text-slate-700 font-semibold">
+                          {asset.status || '-'}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
+                          Data Base
+                        </p>
+                        <p className="text-xs text-slate-700 font-semibold">
+                          {asset.referenceDate ? formatDate(asset.referenceDate) : '-'}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

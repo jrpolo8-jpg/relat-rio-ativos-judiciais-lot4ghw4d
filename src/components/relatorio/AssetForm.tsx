@@ -113,6 +113,14 @@ export function AssetForm({
         />
       </div>
       <div className="space-y-2 md:col-span-2">
+        <Label>Detalhes de Valores</Label>
+        <Textarea
+          value={formData.valueDetails || ''}
+          onChange={(e) => setFormData({ ...formData, valueDetails: e.target.value })}
+          rows={2}
+        />
+      </div>
+      <div className="space-y-2 md:col-span-2">
         <Label>Últimos Andamentos</Label>
         <Textarea
           value={formData.lastDevelopments || ''}

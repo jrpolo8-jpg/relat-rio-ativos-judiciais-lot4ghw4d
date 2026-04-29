@@ -1,4 +1,4 @@
-import { Bell, Search, User } from 'lucide-react'
+import { Bell, Search, User, LogOut } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { SidebarTrigger } from '@/components/ui/sidebar'
@@ -11,8 +11,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { useAuth } from '@/hooks/use-auth'
 
 export function Header() {
+  const { user, signOut } = useAuth()
+
   return (
     <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-border/40 bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 print-hide">
       <div className="flex items-center gap-4">
@@ -48,9 +51,11 @@ export function Header() {
           <DropdownMenuContent className="w-56" align="end" forceMount>
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">Diretor Jurídico</p>
+                <p className="text-sm font-medium leading-none">
+                  {user?.name || 'Diretor Jurídico'}
+                </p>
                 <p className="text-xs leading-none text-muted-foreground">
-                  juridico@cetenco.com.br
+                  {user?.email || 'juridico@cetenco.com.br'}
                 </p>
               </div>
             </DropdownMenuLabel>
@@ -58,7 +63,10 @@ export function Header() {
             <DropdownMenuItem>Perfil</DropdownMenuItem>
             <DropdownMenuItem>Configurações</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive">Sair</DropdownMenuItem>
+            <DropdownMenuItem className="text-destructive" onClick={signOut}>
+              <LogOut className="mr-2 h-4 w-4" />
+              Sair
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
