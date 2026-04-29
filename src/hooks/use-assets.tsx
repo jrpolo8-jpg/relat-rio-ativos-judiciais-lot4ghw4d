@@ -12,6 +12,9 @@ import { useRealtime } from '@/hooks/use-realtime'
 interface AssetContextType {
   assets: JudicialAsset[]
   loading: boolean
+  saving: boolean
+  lastSaved: Date | null
+  showSavedIndicator: boolean
   addAsset: (asset: Omit<JudicialAsset, 'id'>) => Promise<void>
   updateAsset: (id: string, asset: Partial<JudicialAsset>) => void
   removeAsset: (id: string) => Promise<void>
@@ -26,6 +29,9 @@ export const AssetProvider = ({ children }: { children: ReactNode }) => {
   const [assets, setAssets] = useState<JudicialAsset[]>([])
   const [originalAssets, setOriginalAssets] = useState<JudicialAsset[]>([])
   const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [lastSaved, setLastSaved] = useState<Date | null>(null)
+  const [showSavedIndicator, setShowSavedIndicator] = useState(false)
   const [dirtyAssetIds, setDirtyAssetIds] = useState<Set<string>>(new Set())
   const { toast } = useToast()
 
@@ -97,29 +103,60 @@ export const AssetProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
-  const saveChanges = async () => {
+  const saveChanges = useCallback(async () => {
+    if (dirtyAssetIds.size === 0) return
+    const currentDirty = Array.from(dirtyAssetIds)
+
+    // Clear dirty IDs before calling API to prevent race conditions if user continues typing
+    setDirtyAssetIds((prev) => {
+      const next = new Set(prev)
+      currentDirty.forEach((id) => next.delete(id))
+      return next
+    })
+
     try {
-      const promises = Array.from(dirtyAssetIds).map(async (id) => {
+      setSaving(true)
+      const promises = currentDirty.map(async (id) => {
         const asset = assets.find((a) => a.id === id)
         if (asset) {
           return apiUpdateAsset(asset.id, asset)
         }
       })
       await Promise.all(promises)
+
       setOriginalAssets(assets)
-      setDirtyAssetIds(new Set())
-      toast({ title: 'Sucesso', description: 'Alterações salvas com sucesso.' })
-      fetchAssets()
+      setLastSaved(new Date())
+      setShowSavedIndicator(true)
+      setTimeout(() => setShowSavedIndicator(false), 3000)
     } catch (error) {
       console.error(error)
+      // Re-add failed updates to dirty tracking
+      setDirtyAssetIds((prev) => {
+        const next = new Set(prev)
+        currentDirty.forEach((id) => next.add(id))
+        return next
+      })
       toast({
         title: 'Erro',
-        description: 'Falha ao salvar as alterações.',
+        description: 'Falha ao salvar as alterações automaticamente.',
         variant: 'destructive',
       })
       throw error
+    } finally {
+      setSaving(false)
     }
-  }
+  }, [assets, dirtyAssetIds, toast])
+
+  // Debounce logic for autosaving
+  useEffect(() => {
+    if (dirtyAssetIds.size === 0) return
+
+    const timeoutId = setTimeout(() => {
+      saveChanges()
+    }, 1000)
+
+    return () => clearTimeout(timeoutId)
+  }, [assets, dirtyAssetIds, saveChanges])
 
   const hasChanges = dirtyAssetIds.size > 0
 
@@ -128,6 +165,9 @@ export const AssetProvider = ({ children }: { children: ReactNode }) => {
       value={{
         assets,
         loading,
+        saving,
+        lastSaved,
+        showSavedIndicator,
         addAsset,
         updateAsset,
         removeAsset,

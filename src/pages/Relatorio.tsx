@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   SaveAll,
   Loader2,
+  Check,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAssets } from '@/hooks/use-assets'
@@ -29,22 +30,11 @@ import {
 import { ProcessForm } from '@/components/ProcessForm'
 
 export default function Relatorio() {
-  const { assets, updateAsset, removeAsset, addAsset, saveChanges, hasChanges, loading } =
+  const { assets, updateAsset, removeAsset, addAsset, loading, saving, showSavedIndicator } =
     useAssets()
   const reportRef = useRef<HTMLDivElement>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [isAddOpen, setIsAddOpen] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
-
-  const handleSave = async () => {
-    setIsSaving(true)
-    try {
-      await saveChanges()
-      setIsEditing(false)
-    } finally {
-      setIsSaving(false)
-    }
-  }
 
   const [newAssetData, setNewAssetData] = useState<Partial<JudicialAsset>>({
     processNumber: '',
@@ -211,34 +201,32 @@ export default function Relatorio() {
           </DialogContent>
         </Dialog>
 
-        {hasChanges && (
-          <Button
-            variant="default"
-            onClick={handleSave}
-            disabled={isSaving}
-            className="bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 animate-fade-in"
-          >
-            {isSaving ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <SaveAll className="mr-2 h-4 w-4" />
-            )}
-            Salvar alterações
-          </Button>
-        )}
+        <div className="flex items-center gap-2 mr-4 min-w-[140px] justify-end">
+          {saving && (
+            <div className="flex items-center text-sm text-slate-500 animate-pulse">
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Salvando...
+            </div>
+          )}
+          {!saving && showSavedIndicator && (
+            <div className="flex items-center text-sm text-emerald-600 animate-fade-in">
+              <Check className="h-4 w-4 mr-2" />
+              Alterações salvas
+            </div>
+          )}
+        </div>
+
         <Button
           variant={isEditing ? 'default' : 'outline'}
           className={cn(
             'shadow-sm',
-            isEditing && !hasChanges
-              ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
-              : 'bg-background',
+            isEditing ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'bg-background',
           )}
           onClick={() => setIsEditing(!isEditing)}
         >
           {isEditing ? (
             <>
-              <Save className="mr-2 h-4 w-4" /> {hasChanges ? 'Sair da Edição' : 'Concluir Edição'}
+              <Save className="mr-2 h-4 w-4" /> Concluir Edição
             </>
           ) : (
             <>
