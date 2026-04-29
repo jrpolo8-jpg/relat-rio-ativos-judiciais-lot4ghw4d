@@ -7,7 +7,6 @@ import {
   Trash2,
   Plus,
   LayoutDashboard,
-  SaveAll,
   Loader2,
   Check,
 } from 'lucide-react'
@@ -30,11 +29,23 @@ import {
 import { ProcessForm } from '@/components/ProcessForm'
 
 export default function Relatorio() {
-  const { assets, updateAsset, removeAsset, addAsset, loading, saving, saveChanges, hasChanges } =
-    useAssets()
+  const {
+    assets,
+    updateAsset,
+    removeAsset,
+    addAsset,
+    updateAssetImmediate,
+    loading,
+    saving,
+    saveChanges,
+    hasChanges,
+  } = useAssets()
   const reportRef = useRef<HTMLDivElement>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [isAddOpen, setIsAddOpen] = useState(false)
+  const [isEditOpen, setIsEditOpen] = useState(false)
+  const [editingAssetId, setEditingAssetId] = useState<string | null>(null)
+  const [editingAssetData, setEditingAssetData] = useState<Partial<JudicialAsset>>({})
 
   const [newAssetData, setNewAssetData] = useState<Partial<JudicialAsset>>({
     processNumber: '',
@@ -167,6 +178,20 @@ export default function Relatorio() {
     })
   }
 
+  const handleEditClick = (asset: JudicialAsset) => {
+    setEditingAssetId(asset.id)
+    setEditingAssetData(asset)
+    setIsEditOpen(true)
+  }
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (editingAssetId) {
+      await updateAssetImmediate(editingAssetId, editingAssetData)
+      setIsEditOpen(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="container mx-auto py-32 flex flex-col items-center justify-center space-y-4">
@@ -176,9 +201,45 @@ export default function Relatorio() {
     )
   }
 
+  if (!loading && assets.length === 0) {
+    return (
+      <div className="container mx-auto py-32 flex flex-col items-center justify-center space-y-6 animate-fade-in-up">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-slate-900">Nenhum ativo judicial encontrado</h2>
+          <p className="text-slate-500 mt-2">
+            Comece adicionando seu primeiro processo ao relatório.
+          </p>
+        </div>
+        <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 text-lg py-6 px-8">
+              <Plus className="mr-2 h-5 w-5" /> Novo Ativo
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Adicionar Novo Ativo Judicial</DialogTitle>
+              <DialogDescription>
+                Preencha os detalhes para incluir no relatório gerencial.
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleAddAssetSubmit}>
+              <ProcessForm formData={newAssetData} setFormData={setNewAssetData} />
+              <DialogFooter className="mt-4">
+                <Button type="submit">
+                  <Save className="mr-2 h-4 w-4" /> Salvar
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+    )
+  }
+
   return (
     <div className="container mx-auto py-8 px-4 relative animate-fade-in-up print:p-0 print:py-0 print:max-w-none print:w-full print:overflow-visible">
-      <div className="sticky top-[80px] z-20 flex justify-between items-center mb-6 gap-2 print-hide">
+      <div className="sticky top-[80px] z-20 flex justify-between items-center mb-6 gap-2 print-hide bg-background/80 backdrop-blur-sm p-2 rounded-lg">
         <div className="flex items-center gap-2">
           <Button variant="outline" className="bg-background shadow-sm" onClick={handlePrint}>
             <Download className="mr-2 h-4 w-4" /> Exportar PDF
@@ -199,7 +260,7 @@ export default function Relatorio() {
             </div>
           )}
 
-          {isEditing && (
+          {(isEditing || hasChanges) && (
             <Button
               className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
               onClick={() => saveChanges()}
@@ -245,7 +306,9 @@ export default function Relatorio() {
                 <form onSubmit={handleAddAssetSubmit}>
                   <ProcessForm formData={newAssetData} setFormData={setNewAssetData} />
                   <DialogFooter className="mt-4">
-                    <Button type="submit">Incluir no Relatório</Button>
+                    <Button type="submit">
+                      <Save className="mr-2 h-4 w-4" /> Salvar
+                    </Button>
                   </DialogFooter>
                 </form>
               </DialogContent>
@@ -253,6 +316,23 @@ export default function Relatorio() {
           </div>
         </div>
       </div>
+
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Editar Ativo Judicial</DialogTitle>
+            <DialogDescription>Atualize as informações do processo.</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleEditSubmit}>
+            <ProcessForm formData={editingAssetData} setFormData={setEditingAssetData} />
+            <DialogFooter className="mt-4">
+              <Button type="submit">
+                <Save className="mr-2 h-4 w-4" /> Salvar
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       <div ref={reportRef} className="paper-document">
         <div className="flex justify-between items-end border-b-2 border-primary pb-6 mb-8">
@@ -364,7 +444,7 @@ export default function Relatorio() {
               {assets.map((asset) => (
                 <tr
                   key={asset.id}
-                  className="border-b border-slate-200 relative group print-break-inside-avoid"
+                  className="border-b border-slate-200 relative group print-break-inside-avoid hover:bg-slate-50/50 transition-colors"
                 >
                   <td className="py-3 pr-2 align-top">
                     {isEditing ? (
@@ -375,8 +455,13 @@ export default function Relatorio() {
                         onChange={(e) => updateAsset(asset.id, { processNumber: e.target.value })}
                       />
                     ) : (
-                      <div className="font-bold text-primary leading-tight">
+                      <div
+                        className="font-bold text-primary leading-tight cursor-pointer hover:underline flex items-center group/edit"
+                        onClick={() => handleEditClick(asset)}
+                        title="Editar Processo"
+                      >
                         {asset.processNumber}
+                        <Edit3 className="ml-1.5 h-3 w-3 opacity-0 group-hover/edit:opacity-100 transition-opacity text-primary print-hide" />
                       </div>
                     )}
 
@@ -566,9 +651,20 @@ export default function Relatorio() {
                         onChange={(e) => updateAsset(asset.id, { processNumber: e.target.value })}
                       />
                     ) : (
-                      <h4 className="font-bold text-primary text-base font-serif">
-                        {asset.processNumber}
-                      </h4>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-bold text-primary text-base font-serif">
+                          {asset.processNumber}
+                        </h4>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 text-slate-400 hover:text-primary print-hide"
+                          onClick={() => handleEditClick(asset)}
+                          title="Editar Processo"
+                        >
+                          <Edit3 className="h-3 w-3" />
+                        </Button>
+                      </div>
                     )}
                     {isEditing ? (
                       <div className="flex gap-2 mt-1">
