@@ -151,7 +151,6 @@ export const exportToWord = async (assets: JudicialAsset[], settings?: ReportSet
       <table>
         <tr>
           <th>Identificação</th>
-          <th>Breve Resumo</th>
           <th>Valores</th>
           <th style="text-align: center;">Prognóstico de Ganho</th>
           <th style="text-align: right;">Estimativa de Tempo</th>
@@ -166,7 +165,6 @@ export const exportToWord = async (assets: JudicialAsset[], settings?: ReportSet
             ${a.party}<br/>
             <span class="text-small">${a.court}</span>
           </td>
-          <td>${a.summary || '-'}</td>
           <td>
             <strong>Total:</strong> ${formatCurrency(a.value)}<br/>
             <strong>Incont.:</strong> ${formatCurrency(a.incontroversoValue || 0)}<br/>
@@ -174,6 +172,12 @@ export const exportToWord = async (assets: JudicialAsset[], settings?: ReportSet
           </td>
           <td align="center"><strong>${a.risk}</strong></td>
           <td align="right">${a.estimatedRecoveryTime || '-'}</td>
+        </tr>
+        <tr>
+          <td colspan="4" style="background-color: #f8fafc; border-top: none; padding: 12px;">
+            <p style="margin: 0 0 4px 0; font-size: 8pt; font-weight: bold; text-transform: uppercase; color: #64748b;">Breve Histórico</p>
+            <p style="margin: 0; font-family: serif; font-size: 11pt; text-align: justify; line-height: 1.6; color: #1e293b;">${(a.summary || '-').replace(/\n/g, '<br/>')}</p>
+          </td>
         </tr>
     `
   })
@@ -196,7 +200,7 @@ export const exportToWord = async (assets: JudicialAsset[], settings?: ReportSet
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
             <tr>
                 <td style="background-color: #f8fafc; border: 1px solid #cbd5e1; padding: 16px;">
-                    <p style="margin: 0 0 8px 0; font-size: 8pt; font-weight: bold; text-transform: uppercase; color: #64748b;">Breve Resumo</p>
+                    <p style="margin: 0 0 8px 0; font-size: 8pt; font-weight: bold; text-transform: uppercase; color: #64748b;">Breve Histórico</p>
                     <p style="margin: 0; font-family: serif; font-size: 11pt; text-align: justify; line-height: 1.6; color: #1e293b;">${(a.summary || '-').replace(/\n/g, '<br/>')}</p>
                 </td>
             </tr>
