@@ -241,7 +241,7 @@ export const exportToWord = async (assets: JudicialAsset[], settings?: ReportSet
       <table class="dashboard-table">
          <tr>
            <th style="text-align: center;">Total de Processos</th>
-           <th style="text-align: center;">Valor Total da Causa</th>
+           <th style="text-align: center;">Valor total dos ativos</th>
            <th style="text-align: center;">Incontroversos</th>
            <th style="text-align: center;">Controversos</th>
          </tr>

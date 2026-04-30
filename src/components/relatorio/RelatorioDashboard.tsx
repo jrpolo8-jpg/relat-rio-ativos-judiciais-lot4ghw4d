@@ -64,47 +64,38 @@ export function RelatorioDashboard({ assets }: { assets: JudicialAsset[] }) {
             </p>
           </CardContent>
         </Card>
-        <Card className="bg-slate-50 border-slate-200 shadow-sm print:shadow-none print:border flex flex-col justify-center overflow-hidden">
+        <Card className="bg-slate-50 border-slate-200 shadow-sm print:shadow-none print:border flex flex-col justify-center">
           <CardHeader className="pb-1 sm:pb-2">
             <CardTitle className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-600 text-center">
-              Valor Total da Causa
+              Valor total dos ativos
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-center p-2 sm:p-4 overflow-hidden">
-            <p
-              className="text-slate-900 text-base sm:text-lg font-bold print:text-xs truncate"
-              title={formatCurrency(totalValue)}
-            >
+          <CardContent className="text-center p-2 sm:p-3 flex items-center justify-center">
+            <p className="text-slate-900 text-sm sm:text-base font-bold print:text-xs break-words leading-tight">
               {formatCurrency(totalValue)}
             </p>
           </CardContent>
         </Card>
-        <Card className="bg-emerald-50/50 border-emerald-100 shadow-sm print:shadow-none print:border flex flex-col justify-center overflow-hidden">
+        <Card className="bg-emerald-50/50 border-emerald-100 shadow-sm print:shadow-none print:border flex flex-col justify-center">
           <CardHeader className="pb-1 sm:pb-2">
             <CardTitle className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-600 text-center">
               Incontroversos
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-center p-2 sm:p-4 overflow-hidden">
-            <p
-              className="text-emerald-700 text-base sm:text-lg font-bold print:text-xs truncate"
-              title={formatCurrency(incontroversoValue)}
-            >
+          <CardContent className="text-center p-2 sm:p-3 flex items-center justify-center">
+            <p className="text-emerald-700 text-sm sm:text-base font-bold print:text-xs break-words leading-tight">
               {formatCurrency(incontroversoValue)}
             </p>
           </CardContent>
         </Card>
-        <Card className="bg-amber-50/50 border-amber-100 shadow-sm print:shadow-none print:border flex flex-col justify-center overflow-hidden">
+        <Card className="bg-amber-50/50 border-amber-100 shadow-sm print:shadow-none print:border flex flex-col justify-center">
           <CardHeader className="pb-1 sm:pb-2">
             <CardTitle className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-600 text-center">
               Controversos
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-center p-2 sm:p-4 overflow-hidden">
-            <p
-              className="text-amber-700 text-base sm:text-lg font-bold print:text-xs truncate"
-              title={formatCurrency(controversoValue)}
-            >
+          <CardContent className="text-center p-2 sm:p-3 flex items-center justify-center">
+            <p className="text-amber-700 text-sm sm:text-base font-bold print:text-xs break-words leading-tight">
               {formatCurrency(controversoValue)}
             </p>
           </CardContent>
