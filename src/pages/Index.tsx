@@ -1,206 +1,175 @@
-import { useMemo } from 'react'
-import { Link } from 'react-router-dom'
-import { Scale, AlertCircle, Clock, CheckCircle2, TrendingUp, ArrowRight } from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
+import { useAssets } from '@/hooks/use-assets'
+import { formatCurrency } from '@/lib/formatters'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
   BarChart,
   Bar,
   XAxis,
   YAxis,
   CartesianGrid,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
 } from 'recharts'
-import { useAssets } from '@/hooks/use-assets'
-import { formatCurrency, formatDate } from '@/lib/formatters'
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
+import { Loader2, Scale, Landmark, CircleDollarSign } from 'lucide-react'
 
 export default function Index() {
-  const { assets } = useAssets()
+  const { assets, loading } = useAssets()
 
-  const stats = useMemo(() => {
-    const total = assets.reduce((sum, asset) => sum + asset.value, 0)
-    const active = assets.filter((a) => a.status === 'Ativo').length
-    const provavel = assets
-      .filter((a) => a.risk === 'Provável')
-      .reduce((sum, a) => sum + a.value, 0)
+  if (loading) {
+    return (
+      <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
 
-    return { total, active, provavel }
-  }, [assets])
+  const totalProcessos = assets.length
+  const valorIncontroverso = assets.reduce((acc, asset) => acc + (asset.incontroversoValue || 0), 0)
+  const valorControverso = assets.reduce((acc, asset) => acc + (asset.controversoValue || 0), 0)
 
-  const riskData = useMemo(() => {
-    const counts = { Provável: 0, Possível: 0, Remoto: 0 }
-    assets.forEach((a) => counts[a.risk]++)
-    return [
-      { name: 'Provável', value: counts['Provável'], color: 'hsl(var(--chart-1))' },
-      { name: 'Possível', value: counts['Possível'], color: 'hsl(var(--chart-2))' },
-      { name: 'Remoto', value: counts['Remoto'], color: 'hsl(var(--chart-3))' },
-    ]
-  }, [assets])
+  const countProvavel = assets.filter((a) => a.risk === 'Provável').length
+  const countPossivel = assets.filter((a) => a.risk === 'Possível').length
+  const countRemoto = assets.filter((a) => a.risk === 'Remoto').length
 
-  const recentUpdates = useMemo(() => {
-    const allUpdates = assets
-      .flatMap((a) =>
-        a.history.map((h) => ({ ...h, processNumber: a.processNumber, assetId: a.id })),
-      )
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    return allUpdates.slice(0, 4)
-  }, [assets])
+  const prognosticoData = [
+    { name: 'Provável', count: countProvavel, fill: 'hsl(var(--chart-1))' },
+    { name: 'Possível', count: countPossivel, fill: 'hsl(var(--chart-2))' },
+    { name: 'Remoto', count: countRemoto, fill: 'hsl(var(--chart-3))' },
+  ]
+
+  const prognosticoConfig = {
+    count: { label: 'Quantidade' },
+  }
+
+  const valoresData = [
+    { name: 'Incontroverso', value: valorIncontroverso, fill: 'hsl(var(--chart-4))' },
+    { name: 'Controverso', value: valorControverso, fill: 'hsl(var(--chart-5))' },
+  ]
+
+  const valoresConfig = {
+    value: { label: 'Valor' },
+  }
 
   return (
-    <div className="container mx-auto py-8 px-4 md:px-8 space-y-8 animate-fade-in-up">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-primary">Dashboard Executivo</h1>
-          <p className="text-muted-foreground mt-1">
-            Visão geral do contencioso ativo e contingências.
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <Button variant="outline" asChild>
-            <Link to="/processos">Ver Processos</Link>
-          </Button>
-          <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
-            <Link to="/relatorio">Gerar Relatório</Link>
-          </Button>
-        </div>
+    <div className="container mx-auto p-4 py-8 space-y-8 animate-fade-in-up">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900 mb-2">
+          Visão geral do contencioso ativos e contingência
+        </h1>
+        <p className="text-slate-500">
+          Acompanhamento estratégico e financeiro dos ativos judiciais.
+        </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="shadow-subtle hover:shadow-md transition-shadow">
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card className="shadow-sm border-slate-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Valor Total em Litígio</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-slate-700">Total de processos</CardTitle>
+            <Scale className="h-4 w-4 text-slate-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(stats.total)}</div>
-            <p className="text-xs text-muted-foreground mt-1">Referência mês atual</p>
+            <div className="text-3xl font-bold text-slate-900">{totalProcessos}</div>
           </CardContent>
         </Card>
 
-        <Card className="shadow-subtle hover:shadow-md transition-shadow">
+        <Card className="shadow-sm border-emerald-100 bg-emerald-50/30">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Risco Provável (Contingenciado)</CardTitle>
-            <AlertCircle className="h-4 w-4 text-destructive" />
+            <CardTitle className="text-sm font-medium text-emerald-800">
+              Valor Incontroverso
+            </CardTitle>
+            <Landmark className="h-4 w-4 text-emerald-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-destructive">
-              {formatCurrency(stats.provavel)}
+            <div className="text-3xl font-bold text-emerald-700">
+              {formatCurrency(valorIncontroverso)}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">Impacto direto projetado</p>
           </CardContent>
         </Card>
 
-        <Card className="shadow-subtle hover:shadow-md transition-shadow">
+        <Card className="shadow-sm border-amber-100 bg-amber-50/30">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Processos Ativos</CardTitle>
-            <Scale className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-amber-800">Valor Controverso</CardTitle>
+            <CircleDollarSign className="h-4 w-4 text-amber-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.active}</div>
-            <p className="text-xs text-muted-foreground mt-1">Em acompanhamento</p>
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-subtle hover:shadow-md transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Atualizações Pendentes</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">2</div>
-            <p className="text-xs text-muted-foreground mt-1">Revisão jurídica necessária</p>
+            <div className="text-3xl font-bold text-amber-700">
+              {formatCurrency(valorControverso)}
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="lg:col-span-3 shadow-subtle">
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card className="shadow-sm border-slate-200">
           <CardHeader>
-            <CardTitle>Distribuição de Risco</CardTitle>
-            <CardDescription>Quantidade de processos por prognóstico de perda</CardDescription>
+            <CardTitle className="text-lg">Prognóstico de Ganho</CardTitle>
+            <CardDescription>Quantidade de processos por prognóstico de ganho</CardDescription>
           </CardHeader>
-          <CardContent className="h-[300px]">
-            <ChartContainer
-              config={{
-                Provável: { label: 'Provável', color: 'hsl(var(--chart-1))' },
-                Possível: { label: 'Possível', color: 'hsl(var(--chart-2))' },
-                Remoto: { label: 'Remoto', color: 'hsl(var(--chart-3))' },
-              }}
-              className="h-full w-full"
-            >
+          <CardContent>
+            <ChartContainer config={prognosticoConfig} className="h-[300px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={prognosticoData}
+                  margin={{ top: 20, right: 0, left: 0, bottom: 20 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <XAxis
+                    dataKey="name"
+                    tickLine={false}
+                    axisLine={false}
+                    tick={{ fontSize: 12, fill: '#64748b' }}
+                  />
+                  <YAxis
+                    allowDecimals={false}
+                    tickLine={false}
+                    axisLine={false}
+                    tick={{ fontSize: 12, fill: '#64748b' }}
+                  />
+                  <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                  <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+                    {prognosticoData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.fill} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm border-slate-200">
+          <CardHeader>
+            <CardTitle className="text-lg">Valores Controversos e Incontroversos</CardTitle>
+            <CardDescription>Distribuição financeira dos valores em discussão</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ChartContainer config={valoresConfig} className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={riskData}
+                    data={valoresData}
+                    dataKey="value"
+                    nameKey="name"
                     cx="50%"
                     cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={5}
-                    dataKey="value"
+                    innerRadius={65}
+                    outerRadius={105}
+                    paddingAngle={3}
+                    isAnimationActive={true}
                   >
-                    {riskData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    {valoresData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.fill} />
                     ))}
                   </Pie>
                   <ChartTooltip content={<ChartTooltipContent />} />
+                  <Legend verticalAlign="bottom" height={36} iconType="circle" />
                 </PieChart>
               </ResponsiveContainer>
             </ChartContainer>
-            <div className="flex justify-center gap-4 mt-4 text-sm">
-              {riskData.map((r) => (
-                <div key={r.name} className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: r.color }} />
-                  <span>
-                    {r.name} ({r.value})
-                  </span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="lg:col-span-4 shadow-subtle flex flex-col">
-          <CardHeader>
-            <CardTitle>Atualizações Recentes</CardTitle>
-            <CardDescription>Últimos andamentos cadastrados no sistema</CardDescription>
-          </CardHeader>
-          <CardContent className="flex-1">
-            <div className="space-y-6">
-              {recentUpdates.map((update, i) => (
-                <div key={i} className="flex gap-4">
-                  <div className="mt-0.5 relative">
-                    <div className="absolute top-5 left-1/2 -ml-[1px] h-full w-[2px] bg-border last:hidden" />
-                    <div className="relative z-10 flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary ring-4 ring-background">
-                      <CheckCircle2 className="h-4 w-4" />
-                    </div>
-                  </div>
-                  <div className="flex-1 pb-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1">
-                      <p className="font-medium text-sm leading-none">{update.processNumber}</p>
-                      <time className="text-xs text-muted-foreground">
-                        {formatDate(update.date)}
-                      </time>
-                    </div>
-                    <p className="text-sm text-muted-foreground leading-snug">
-                      {update.description}
-                    </p>
-                    <div className="mt-2 flex items-center gap-2">
-                      <span className="text-xs font-medium text-primary bg-primary/5 px-2 py-0.5 rounded-full">
-                        {update.author}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <Button variant="link" className="w-full mt-2 text-muted-foreground hover:text-primary">
-              Ver histórico completo <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
           </CardContent>
         </Card>
       </div>
