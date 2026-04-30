@@ -39,6 +39,7 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogFooter,
+  DialogDescription,
 } from '@/components/ui/dialog'
 import {
   AlertDialog,
@@ -80,6 +81,10 @@ export default function Relatorio() {
   const [isEditMode, setIsEditMode] = useState(false)
   const [drafts, setDrafts] = useState<Record<string, Partial<JudicialAsset>>>({})
   const [savingEdits, setSavingEdits] = useState(false)
+
+  const [summaryOverrides, setSummaryOverrides] = useState<Record<string, string>>({})
+  const [editingSummaryId, setEditingSummaryId] = useState<string | null>(null)
+  const [editingSummaryText, setEditingSummaryText] = useState('')
 
   const { settings, loading: loadingSettings, updateSettings } = useReportSettings()
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
@@ -189,6 +194,11 @@ export default function Relatorio() {
     setEditingAssetId(asset.id)
   }
 
+  const handleOpenSummaryEdit = (asset: JudicialAsset) => {
+    setEditingSummaryId(asset.id)
+    setEditingSummaryText(summaryOverrides[asset.id] ?? asset.summary ?? '')
+  }
+
   const totalValue = selectedAssets.reduce((acc, a) => acc + (a.value || 0), 0)
   const formattedTotal = formatCurrency(totalValue)
   const preambleHtml = settings?.preamble_text
@@ -284,7 +294,11 @@ export default function Relatorio() {
             variant="outline"
             onClick={async () => {
               try {
-                await exportToWord(selectedAssets, settings)
+                const assetsForExport = selectedAssets.map((a) => ({
+                  ...a,
+                  summary: summaryOverrides[a.id] ?? a.summary,
+                }))
+                await exportToWord(assetsForExport, settings)
                 toast({ title: 'Sucesso', description: 'Relatório Word gerado com sucesso.' })
               } catch (err) {
                 toast({
@@ -434,7 +448,7 @@ export default function Relatorio() {
                             </TableCell>
                             <TableCell className="align-top py-4">
                               <p className="text-[11px] text-slate-700 font-serif leading-snug line-clamp-3 print:line-clamp-none">
-                                {asset.summary || '-'}
+                                {summaryOverrides[asset.id] ?? asset.summary ?? '-'}
                               </p>
                             </TableCell>
                             <TableCell className="align-top py-4">
@@ -722,13 +736,28 @@ export default function Relatorio() {
                                 )}
                               </div>
 
-                              <Card className="shadow-sm print:shadow-none print:border print:border-slate-300 mb-6 bg-slate-50/50 w-full">
+                              <Card className="shadow-sm print:shadow-none print:border print:border-slate-300 mb-6 bg-slate-50/50 w-full relative group/summary">
                                 <CardContent className="p-4 sm:p-6">
-                                  <p className="text-[9px] font-bold text-slate-500 uppercase mb-3">
-                                    Breve Resumo
-                                  </p>
+                                  <div className="flex justify-between items-start mb-3">
+                                    <p className="text-[9px] font-bold text-slate-500 uppercase flex items-center gap-2">
+                                      Breve Resumo
+                                      {summaryOverrides[asset.id] !== undefined && (
+                                        <span className="text-[8px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded print:hidden font-medium">
+                                          Editado para exportação
+                                        </span>
+                                      )}
+                                    </p>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-6 px-2 text-xs print-hide opacity-0 group-hover/summary:opacity-100 transition-opacity"
+                                      onClick={() => handleOpenSummaryEdit(asset)}
+                                    >
+                                      <Pencil className="h-3 w-3 mr-1" /> Editar para Relatório
+                                    </Button>
+                                  </div>
                                   <p className="text-sm sm:text-base font-serif text-justify whitespace-pre-wrap text-slate-800 leading-relaxed w-full">
-                                    {asset.summary || '-'}
+                                    {summaryOverrides[asset.id] ?? asset.summary ?? '-'}
                                   </p>
                                 </CardContent>
                               </Card>
@@ -993,6 +1022,52 @@ export default function Relatorio() {
               <Button type="submit">Salvar Alterações</Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!editingSummaryId} onOpenChange={(open) => !open && setEditingSummaryId(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Editar Resumo para Exportação</DialogTitle>
+            <DialogDescription>
+              O texto abaixo será usado apenas na exportação atual e não alterará o registro
+              original no banco de dados.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Textarea
+              rows={10}
+              value={editingSummaryText}
+              onChange={(e) => setEditingSummaryText(e.target.value)}
+              placeholder="Digite o resumo simplificado..."
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                const next = { ...summaryOverrides }
+                delete next[editingSummaryId!]
+                setSummaryOverrides(next)
+                setEditingSummaryId(null)
+              }}
+            >
+              Restaurar Original
+            </Button>
+            <Button
+              type="button"
+              onClick={() => {
+                setSummaryOverrides({
+                  ...summaryOverrides,
+                  [editingSummaryId!]: editingSummaryText,
+                })
+                setEditingSummaryId(null)
+              }}
+            >
+              Aplicar ao Relatório
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
