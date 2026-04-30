@@ -722,14 +722,16 @@ export default function Relatorio() {
                                 )}
                               </div>
 
-                              <div className="mb-6 w-full">
-                                <p className="text-xs font-bold text-slate-500 uppercase mb-2">
-                                  Resumo do processo
-                                </p>
-                                <p className="text-base font-serif text-justify whitespace-pre-wrap text-slate-800 leading-relaxed w-full">
-                                  {asset.summary || '-'}
-                                </p>
-                              </div>
+                              <Card className="shadow-sm print:shadow-none print:border print:border-slate-300 mb-6 bg-slate-50/50 w-full">
+                                <CardContent className="p-4 sm:p-6">
+                                  <p className="text-[9px] font-bold text-slate-500 uppercase mb-3">
+                                    Resumo do processo
+                                  </p>
+                                  <p className="text-sm sm:text-base font-serif text-justify whitespace-pre-wrap text-slate-800 leading-relaxed w-full">
+                                    {asset.summary || '-'}
+                                  </p>
+                                </CardContent>
+                              </Card>
 
                               <Card className="shadow-sm print:shadow-none print:border print:border-slate-300 mb-6 bg-slate-50/50">
                                 <CardContent className="p-4 sm:p-6">
