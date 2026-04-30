@@ -50,7 +50,7 @@ export function ProcessForm({
           <Label>Nº Processo</Label>
           <Input
             required
-            value={formData.processNumber}
+            value={formData.processNumber || ''}
             onChange={(e) => setFormData({ ...formData, processNumber: e.target.value })}
           />
         </div>
@@ -58,7 +58,7 @@ export function ProcessForm({
           <Label>Parte Contraria</Label>
           <Input
             required
-            value={formData.party}
+            value={formData.party || ''}
             onChange={(e) => setFormData({ ...formData, party: e.target.value })}
           />
         </div>
@@ -66,7 +66,7 @@ export function ProcessForm({
           <Label>Vara / Tribunal</Label>
           <Input
             required
-            value={formData.court}
+            value={formData.court || ''}
             onChange={(e) => setFormData({ ...formData, court: e.target.value })}
           />
         </div>
@@ -74,7 +74,7 @@ export function ProcessForm({
           <Label>Advogado Responsável</Label>
           <Input
             required
-            value={formData.lawyer}
+            value={formData.lawyer || ''}
             onChange={(e) => setFormData({ ...formData, lawyer: e.target.value })}
           />
         </div>
@@ -83,7 +83,7 @@ export function ProcessForm({
           <Input
             required
             type="number"
-            value={formData.value}
+            value={formData.value || ''}
             onChange={(e) => setFormData({ ...formData, value: parseFloat(e.target.value) || 0 })}
           />
         </div>
@@ -120,7 +120,7 @@ export function ProcessForm({
         <div className="md:col-span-2 space-y-2">
           <Label>Prognóstico de Ganho (Risco)</Label>
           <Select
-            value={formData.risk}
+            value={formData.risk || 'Possível'}
             onValueChange={(val: RiskLevel) => setFormData({ ...formData, risk: val })}
           >
             <SelectTrigger>

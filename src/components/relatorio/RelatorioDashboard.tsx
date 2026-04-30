@@ -32,7 +32,7 @@ export function RelatorioDashboard({ assets }: { assets: JudicialAsset[] }) {
           Painel Estratégico Integrado
         </h3>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 print:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 print:grid-cols-4 gap-4 mb-8">
         <Card className="bg-slate-50 border-slate-200 shadow-sm print:shadow-none print:border">
           <CardHeader className="pb-2">
             <CardTitle className="text-[10px] font-bold uppercase tracking-wider text-slate-600 text-center">
@@ -40,7 +40,7 @@ export function RelatorioDashboard({ assets }: { assets: JudicialAsset[] }) {
             </CardTitle>
           </CardHeader>
           <CardContent className="text-center">
-            <p className="text-slate-900 text-2xl font-bold print:text-xl">
+            <p className="text-slate-900 text-xl font-bold print:text-lg">
               {formatCurrency(totalValue)}
             </p>
           </CardContent>
@@ -52,30 +52,42 @@ export function RelatorioDashboard({ assets }: { assets: JudicialAsset[] }) {
             </CardTitle>
           </CardHeader>
           <CardContent className="text-center">
-            <p className="text-emerald-700 text-2xl font-bold print:text-xl">
+            <p className="text-emerald-700 text-xl font-bold print:text-lg">
               {formatCurrency(incontroversoValue)}
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="bg-amber-50/50 border-amber-100 shadow-sm print:shadow-none print:border">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-[10px] font-bold uppercase tracking-wider text-slate-600 text-center">
+              Valores Controversos
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-center">
+            <p className="text-amber-700 text-xl font-bold print:text-lg">
+              {formatCurrency(controversoValue)}
             </p>
           </CardContent>
         </Card>
         <Card className="bg-slate-50 border-slate-200 shadow-sm print:shadow-none print:border">
           <CardHeader className="pb-2">
             <CardTitle className="text-[10px] font-bold uppercase tracking-wider text-slate-600 text-center">
-              Distribuição por Prognóstico
+              Prognóstico (Qtd)
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex justify-between items-center text-sm font-semibold mt-1">
               <div className="flex flex-col items-center">
-                <span className="text-[10px] uppercase text-red-700 mb-1">Provável</span>
-                <span className="text-lg text-slate-800">{countProvavel}</span>
+                <span className="text-[9px] uppercase text-red-700 mb-1">Provável</span>
+                <span className="text-base text-slate-800">{countProvavel}</span>
               </div>
               <div className="flex flex-col items-center">
-                <span className="text-[10px] uppercase text-amber-700 mb-1">Possível</span>
-                <span className="text-lg text-slate-800">{countPossivel}</span>
+                <span className="text-[9px] uppercase text-amber-700 mb-1">Possível</span>
+                <span className="text-base text-slate-800">{countPossivel}</span>
               </div>
               <div className="flex flex-col items-center">
-                <span className="text-[10px] uppercase text-blue-700 mb-1">Remoto</span>
-                <span className="text-lg text-slate-800">{countRemoto}</span>
+                <span className="text-[9px] uppercase text-blue-700 mb-1">Remoto</span>
+                <span className="text-base text-slate-800">{countRemoto}</span>
               </div>
             </div>
           </CardContent>
