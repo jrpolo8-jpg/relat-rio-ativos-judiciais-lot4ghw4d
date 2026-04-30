@@ -261,10 +261,16 @@ export const exportToWord = async (assets: JudicialAsset[], settings?: ReportSet
             : ''
         }
 
+        ${
+          a.lastDevelopments
+            ? `
         <div style="margin-top: 20px; border-top: 1px solid #cbd5e1; padding-top: 16px; width: 100%;">
             <p style="margin: 0 0 6px 0; font-size: 9pt; font-weight: bold; text-transform: uppercase; color: #64748b;">Último andamento</p>
-            <p style="margin: 0; font-family: serif; font-size: 11pt; text-align: justify; line-height: 1.6; color: #1e293b;">${(a.lastDevelopments || '-').replace(/\n/g, '<br/>')}</p>
+            <p style="margin: 0; font-family: serif; font-size: 11pt; text-align: justify; line-height: 1.6; color: #1e293b;">${a.lastDevelopments.replace(/\n/g, '<br/>')}</p>
         </div>
+        `
+            : ''
+        }
       </div>
     `
   })

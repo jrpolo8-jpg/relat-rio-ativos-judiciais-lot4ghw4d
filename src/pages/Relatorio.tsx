@@ -847,14 +847,16 @@ export default function Relatorio() {
                                 </div>
                               )}
 
-                              <div className="pt-4 border-t border-slate-200 print:border-slate-300 w-full">
-                                <p className="text-xs font-bold text-slate-500 uppercase mb-2">
-                                  Último andamento
-                                </p>
-                                <p className="text-base font-serif text-justify whitespace-pre-wrap text-slate-800 leading-relaxed w-full">
-                                  {asset.lastDevelopments || '-'}
-                                </p>
-                              </div>
+                              {asset.lastDevelopments && (
+                                <div className="pt-4 border-t border-slate-200 print:border-slate-300 w-full">
+                                  <p className="text-xs font-bold text-slate-500 uppercase mb-2">
+                                    Último andamento
+                                  </p>
+                                  <p className="text-base font-serif text-justify whitespace-pre-wrap text-slate-800 leading-relaxed w-full">
+                                    {asset.lastDevelopments}
+                                  </p>
+                                </div>
+                              )}
                             </div>
                           )}
                         </div>
