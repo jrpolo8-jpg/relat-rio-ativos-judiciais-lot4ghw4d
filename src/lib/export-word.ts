@@ -151,7 +151,7 @@ export const exportToWord = async (assets: JudicialAsset[], settings?: ReportSet
       <table>
         <tr>
           <th>Identificação</th>
-          <th>Valores</th>
+          <th>Valores com Datas-Bases</th>
           <th style="text-align: center;">Prognóstico de Ganho</th>
           <th style="text-align: right;">Estimativa de Tempo</th>
         </tr>
@@ -163,21 +163,17 @@ export const exportToWord = async (assets: JudicialAsset[], settings?: ReportSet
           <td>
             <strong>${a.processNumber}</strong><br/>
             ${a.party}<br/>
-            <span class="text-small">${a.court}</span>
+            <span class="text-small">${a.court}</span><br/>
+            ${a.lawyer ? `<span class="text-small"><strong>Patrono:</strong> ${a.lawyer}</span>` : ''}
           </td>
           <td>
             <strong>Total:</strong> ${formatCurrency(a.value)}<br/>
             <strong>Incont.:</strong> ${formatCurrency(a.incontroversoValue || 0)}<br/>
-            <strong>Cont.:</strong> ${formatCurrency(a.controversoValue || 0)}
+            <strong>Cont.:</strong> ${formatCurrency(a.controversoValue || 0)}<br/>
+            ${a.referenceDate ? `<span class="text-small"><strong>Ref:</strong> ${formatDate(a.referenceDate)}</span>` : ''}
           </td>
           <td align="center"><strong>${a.risk}</strong></td>
           <td align="right">${a.estimatedRecoveryTime || '-'}</td>
-        </tr>
-        <tr>
-          <td colspan="4" style="background-color: #f8fafc; border-top: none; padding: 12px;">
-            <p style="margin: 0 0 4px 0; font-size: 8pt; font-weight: bold; text-transform: uppercase; color: #64748b;">Breve Histórico</p>
-            <p style="margin: 0; font-family: serif; font-size: 11pt; text-align: justify; line-height: 1.6; color: #1e293b;">${(a.summary || '-').replace(/\n/g, '<br/>')}</p>
-          </td>
         </tr>
     `
   })

@@ -428,91 +428,70 @@ export default function Relatorio() {
                       </TableHeader>
                       <TableBody>
                         {selectedAssets.map((asset) => (
-                          <Fragment key={asset.id}>
-                            <TableRow className="hover:bg-slate-50/50 print:border-t print:border-slate-200 border-b-0">
-                              <TableCell className="align-top pt-4 pb-2">
-                                <div className="font-bold text-slate-900 text-xs">
-                                  {asset.processNumber}
+                          <TableRow
+                            key={asset.id}
+                            className="hover:bg-slate-50/50 border-b print:border-slate-200"
+                          >
+                            <TableCell className="align-top pt-4 pb-4">
+                              <div className="font-bold text-slate-900 text-xs">
+                                {asset.processNumber}
+                              </div>
+                              <div className="text-[10px] text-slate-600 font-medium mt-1">
+                                {asset.party}
+                              </div>
+                              <div className="text-[9px] text-slate-400 mt-1 uppercase">
+                                {asset.court}
+                              </div>
+                              {asset.lawyer && (
+                                <div className="text-[9px] text-slate-500 mt-1">
+                                  <span className="font-semibold uppercase">Patrono:</span>{' '}
+                                  {asset.lawyer}
                                 </div>
-                                <div className="text-[10px] text-slate-600 font-medium mt-1">
-                                  {asset.party}
-                                </div>
-                                <div className="text-[9px] text-slate-400 mt-1 uppercase">
-                                  {asset.court}
-                                </div>
-                              </TableCell>
-                              <TableCell className="align-top pt-4 pb-2">
-                                <div className="font-bold text-xs text-slate-800">
-                                  {formatCurrency(asset.value)}{' '}
-                                  <span className="text-[9px] font-normal text-slate-500">
-                                    (Total)
-                                  </span>
-                                </div>
-                                <div className="text-[11px] text-emerald-700 font-semibold mt-1">
-                                  {formatCurrency(asset.incontroversoValue || 0)}{' '}
-                                  <span className="text-[9px] font-normal text-slate-500">
-                                    (Incont.)
-                                  </span>
-                                </div>
-                                <div className="text-[11px] text-amber-700 font-semibold mt-1">
-                                  {formatCurrency(asset.controversoValue || 0)}{' '}
-                                  <span className="text-[9px] font-normal text-slate-500">
-                                    (Cont.)
-                                  </span>
-                                </div>
-                                {asset.referenceDate && (
-                                  <div className="text-[9px] text-slate-500 uppercase mt-2 font-semibold">
-                                    Ref: {formatDate(asset.referenceDate)}
-                                  </div>
-                                )}
-                              </TableCell>
-                              <TableCell className="align-top pt-4 pb-2 text-center">
-                                <span
-                                  className={cn(
-                                    'px-2 py-1 rounded text-[10px] font-bold uppercase',
-                                    asset.risk === 'Provável'
-                                      ? 'text-red-700 bg-red-50 print:border print:border-red-200'
-                                      : asset.risk === 'Possível'
-                                        ? 'text-amber-700 bg-amber-50 print:border print:border-amber-200'
-                                        : 'text-blue-700 bg-blue-50 print:border print:border-blue-200',
-                                  )}
-                                >
-                                  {asset.risk}
+                              )}
+                            </TableCell>
+                            <TableCell className="align-top pt-4 pb-4">
+                              <div className="font-bold text-xs text-slate-800">
+                                {formatCurrency(asset.value)}{' '}
+                                <span className="text-[9px] font-normal text-slate-500">
+                                  (Total)
                                 </span>
-                              </TableCell>
-                              <TableCell className="align-top pt-4 pb-2 text-right font-medium text-[11px] text-slate-700">
-                                {asset.estimatedRecoveryTime || '-'}
-                              </TableCell>
-                            </TableRow>
-                            <TableRow className="border-b print:border-slate-200 bg-slate-50/30 print:bg-transparent">
-                              <TableCell colSpan={4} className="align-top pb-6 pt-2">
-                                <div className="print:hidden">
-                                  <Label className="text-[10px] font-bold text-slate-500 uppercase mb-2 block">
-                                    Breve Histórico
-                                  </Label>
-                                  <Textarea
-                                    className="text-[11px] font-serif min-h-[80px] w-full resize-y bg-white"
-                                    value={summaryOverrides[asset.id] ?? asset.summary ?? ''}
-                                    onChange={(e) =>
-                                      setSummaryOverrides({
-                                        ...summaryOverrides,
-                                        [asset.id]: e.target.value,
-                                      })
-                                    }
-                                    placeholder="Breve Histórico..."
-                                  />
+                              </div>
+                              <div className="text-[11px] text-emerald-700 font-semibold mt-1">
+                                {formatCurrency(asset.incontroversoValue || 0)}{' '}
+                                <span className="text-[9px] font-normal text-slate-500">
+                                  (Incont.)
+                                </span>
+                              </div>
+                              <div className="text-[11px] text-amber-700 font-semibold mt-1">
+                                {formatCurrency(asset.controversoValue || 0)}{' '}
+                                <span className="text-[9px] font-normal text-slate-500">
+                                  (Cont.)
+                                </span>
+                              </div>
+                              {asset.referenceDate && (
+                                <div className="text-[9px] text-slate-500 uppercase mt-2 font-semibold">
+                                  Ref: {formatDate(asset.referenceDate)}
                                 </div>
-                                <div className="hidden print:block bg-slate-50/50 p-3 rounded border border-slate-200">
-                                  <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
-                                    Breve Histórico
-                                  </p>
-                                  <p className="text-[11px] text-slate-800 font-serif leading-snug whitespace-pre-wrap text-justify">
-                                    {summaryOverrides[asset.id] ?? asset.summary ?? '-'}
-                                  </p>
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          </Fragment>
+                              )}
+                            </TableCell>
+                            <TableCell className="align-top pt-4 pb-4 text-center">
+                              <span
+                                className={cn(
+                                  'px-2 py-1 rounded text-[10px] font-bold uppercase',
+                                  asset.risk === 'Provável'
+                                    ? 'text-red-700 bg-red-50 print:border print:border-red-200'
+                                    : asset.risk === 'Possível'
+                                      ? 'text-amber-700 bg-amber-50 print:border print:border-amber-200'
+                                      : 'text-blue-700 bg-blue-50 print:border print:border-blue-200',
+                                )}
+                              >
+                                {asset.risk}
+                              </span>
+                            </TableCell>
+                            <TableCell className="align-top pt-4 pb-4 text-right font-medium text-[11px] text-slate-700">
+                              {asset.estimatedRecoveryTime || '-'}
+                            </TableCell>
+                          </TableRow>
                         ))}
                       </TableBody>
                     </Table>
