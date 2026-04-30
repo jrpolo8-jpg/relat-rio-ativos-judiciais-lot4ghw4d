@@ -193,9 +193,14 @@ export default function Relatorio() {
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
-                <h4 className="font-bold text-primary text-base font-serif border-b pb-2 mb-3 pr-20">
-                  {asset.processNumber}
-                </h4>
+                <div className="border-b pb-2 mb-3 pr-20">
+                  <h4 className="font-bold text-primary text-base font-serif">
+                    {asset.processNumber}
+                  </h4>
+                  {asset.party && (
+                    <p className="text-sm text-slate-600 font-serif mt-1">{asset.party}</p>
+                  )}
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
@@ -204,6 +209,32 @@ export default function Relatorio() {
                     <p className="text-sm font-serif text-justify whitespace-pre-wrap text-slate-800">
                       {asset.summary || '-'}
                     </p>
+                    <div className="mt-4 grid grid-cols-3 gap-2 bg-slate-50 p-2 rounded border border-slate-100">
+                      <div>
+                        <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
+                          Valor Total
+                        </p>
+                        <p className="text-xs text-slate-800 font-semibold">
+                          {formatCurrency(asset.value || 0)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
+                          Incontroverso
+                        </p>
+                        <p className="text-xs text-emerald-700 font-semibold">
+                          {formatCurrency(asset.incontroversoValue || 0)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
+                          Controverso
+                        </p>
+                        <p className="text-xs text-amber-700 font-semibold">
+                          {formatCurrency(asset.controversoValue || 0)}
+                        </p>
+                      </div>
+                    </div>
                     {asset.valueDetails && (
                       <div className="mt-4">
                         <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
@@ -252,6 +283,20 @@ export default function Relatorio() {
                         <p className="text-xs text-slate-700 font-semibold">
                           {asset.referenceDate ? formatDate(asset.referenceDate) : '-'}
                         </p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
+                          Estimativa
+                        </p>
+                        <p className="text-xs text-slate-700 font-semibold">
+                          {asset.estimatedRecoveryTime || '-'}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
+                          Prognóstico
+                        </p>
+                        <p className="text-xs text-slate-700 font-semibold">{asset.risk || '-'}</p>
                       </div>
                     </div>
                   </div>
