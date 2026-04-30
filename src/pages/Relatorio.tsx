@@ -683,7 +683,7 @@ export default function Relatorio() {
                                     />
                                   </div>
                                   <div className="col-span-1 md:col-span-2 space-y-2">
-                                    <Label>Resumo do processo</Label>
+                                    <Label>Breve Resumo</Label>
                                     <Textarea
                                       rows={3}
                                       value={draft.summary || ''}
@@ -725,7 +725,7 @@ export default function Relatorio() {
                               <Card className="shadow-sm print:shadow-none print:border print:border-slate-300 mb-6 bg-slate-50/50 w-full">
                                 <CardContent className="p-4 sm:p-6">
                                   <p className="text-[9px] font-bold text-slate-500 uppercase mb-3">
-                                    Resumo do processo
+                                    Breve Resumo
                                   </p>
                                   <p className="text-sm sm:text-base font-serif text-justify whitespace-pre-wrap text-slate-800 leading-relaxed w-full">
                                     {asset.summary || '-'}

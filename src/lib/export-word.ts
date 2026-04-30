@@ -193,10 +193,14 @@ export const exportToWord = async (assets: JudicialAsset[], settings?: ReportSet
             ${a.party ? `<p style="margin: 0; font-family: serif; font-size: 11pt; color: #475569;">${a.party}</p>` : ''}
         </div>
         
-        <div style="background-color: #f8fafc; border: 1px solid #cbd5e1; padding: 16px; border-radius: 6px; margin-bottom: 20px; width: 100%; box-sizing: border-box;">
-            <p style="margin: 0 0 8px 0; font-size: 8pt; font-weight: bold; text-transform: uppercase; color: #64748b;">Resumo do processo</p>
-            <p style="margin: 0; font-family: serif; font-size: 11pt; text-align: justify; line-height: 1.6; color: #1e293b;">${(a.summary || '-').replace(/\n/g, '<br/>')}</p>
-        </div>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <tr>
+                <td style="background-color: #f8fafc; border: 1px solid #cbd5e1; padding: 16px;">
+                    <p style="margin: 0 0 8px 0; font-size: 8pt; font-weight: bold; text-transform: uppercase; color: #64748b;">Breve Resumo</p>
+                    <p style="margin: 0; font-family: serif; font-size: 11pt; text-align: justify; line-height: 1.6; color: #1e293b;">${(a.summary || '-').replace(/\n/g, '<br/>')}</p>
+                </td>
+            </tr>
+        </table>
         
         <div style="background-color: #f8fafc; border: 1px solid #cbd5e1; padding: 16px; border-radius: 6px; margin-bottom: 20px;">
             <table style="width: 100%; border-collapse: collapse; border: none; margin: 0;">
