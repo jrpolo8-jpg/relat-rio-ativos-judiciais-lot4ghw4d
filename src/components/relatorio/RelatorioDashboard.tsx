@@ -213,7 +213,7 @@ export function RelatorioDashboard({ assets }: { assets: JudicialAsset[] }) {
                 <div key={a.id} className="border-l-2 border-slate-800 pl-3 py-1">
                   <p className="text-xs font-bold text-slate-900">{a.processNumber}</p>
                   <p className="text-[10px] text-slate-500 mb-1">{a.party}</p>
-                  <p className="text-xs font-serif text-slate-700 leading-snug line-clamp-4 whitespace-pre-wrap break-words">
+                  <p className="text-xs font-serif text-slate-700 leading-snug whitespace-pre-wrap break-words">
                     {a.lastDevelopments}
                   </p>
                 </div>
