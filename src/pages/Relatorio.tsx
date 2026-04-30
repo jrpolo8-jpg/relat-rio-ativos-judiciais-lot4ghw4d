@@ -139,12 +139,6 @@ export default function Relatorio() {
                   </div>
                 </div>
 
-                {assets.length > 0 && (
-                  <div className="mb-10">
-                    <RelatorioDashboard assets={assets} />
-                  </div>
-                )}
-
                 <div className="text-center mb-12">
                   <h1 className="text-2xl font-bold font-serif uppercase tracking-widest text-slate-900 mb-2 border-b-2 border-slate-200 inline-block pb-2 px-8">
                     Relatório Gerencial de Ativos Judiciais
@@ -152,7 +146,7 @@ export default function Relatorio() {
                   <p className="text-sm font-serif italic text-slate-600 mt-4 font-bold">
                     Data-Base: {formatDate(new Date().toISOString())}
                   </p>
-                  <div className="mt-6 mb-8 text-left max-w-3xl mx-auto hidden print:block">
+                  <div className="mt-6 mb-8 text-left max-w-3xl mx-auto block">
                     <p className="text-sm font-serif text-slate-800 leading-relaxed text-justify">
                       Trata-se dos principais ativos estratégicos da Cetenco, com a devida
                       qualificação de valores envolvidos, avaliação de riscos (prognóstico de
@@ -435,6 +429,12 @@ export default function Relatorio() {
                     ))}
                   </div>
                 </section>
+
+                {assets.length > 0 && (
+                  <div className="mt-12 print-page-break-before">
+                    <RelatorioDashboard assets={assets} />
+                  </div>
+                )}
 
                 <div className="mt-32 pt-8 print-break-inside-avoid">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8 text-center">
