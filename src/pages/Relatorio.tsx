@@ -490,16 +490,13 @@ export default function Relatorio() {
                   <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 mb-4 border-b border-slate-200 pb-1 print-page-break-before">
                     II. Detalhamento Estratégico
                   </h3>
-                  <div className="space-y-6">
+                  <div className="space-y-12">
                     {selectedAssets.map((asset) => {
                       const draft = drafts[asset.id] || asset
                       return (
-                        <Card
-                          key={asset.id}
-                          className="relative shadow-sm print:shadow-none print:border print:border-slate-300 print-break-inside-avoid group"
-                        >
+                        <div key={asset.id} className="relative print-break-inside-avoid group">
                           {!isEditMode && (
-                            <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2 print-hide">
+                            <div className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2 print-hide">
                               <Button
                                 variant="outline"
                                 size="icon"
@@ -540,179 +537,181 @@ export default function Relatorio() {
                           )}
 
                           {isEditMode ? (
-                            <CardContent className="pt-6">
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                  <Label>Número do Processo</Label>
-                                  <Input
-                                    value={draft.processNumber || ''}
-                                    onChange={(e) =>
-                                      handleDraftChange(asset.id, 'processNumber', e.target.value)
-                                    }
-                                  />
+                            <Card className="shadow-sm mt-8">
+                              <CardContent className="pt-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div className="space-y-2">
+                                    <Label>Número do Processo</Label>
+                                    <Input
+                                      value={draft.processNumber || ''}
+                                      onChange={(e) =>
+                                        handleDraftChange(asset.id, 'processNumber', e.target.value)
+                                      }
+                                    />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label>Parte</Label>
+                                    <Input
+                                      value={draft.party || ''}
+                                      onChange={(e) =>
+                                        handleDraftChange(asset.id, 'party', e.target.value)
+                                      }
+                                    />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label>Juízo</Label>
+                                    <Input
+                                      value={draft.court || ''}
+                                      onChange={(e) =>
+                                        handleDraftChange(asset.id, 'court', e.target.value)
+                                      }
+                                    />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label>Data de Referência</Label>
+                                    <Input
+                                      type="date"
+                                      value={
+                                        draft.referenceDate
+                                          ? draft.referenceDate.substring(0, 10)
+                                          : ''
+                                      }
+                                      onChange={(e) => {
+                                        const val = e.target.value
+                                        handleDraftChange(
+                                          asset.id,
+                                          'referenceDate',
+                                          val ? new Date(val).toISOString() : '',
+                                        )
+                                      }}
+                                    />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label>Status</Label>
+                                    <Select
+                                      value={draft.status || 'Ativo'}
+                                      onValueChange={(v) =>
+                                        handleDraftChange(asset.id, 'status', v as any)
+                                      }
+                                    >
+                                      <SelectTrigger>
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="Ativo">Ativo</SelectItem>
+                                        <SelectItem value="Encerrado">Encerrado</SelectItem>
+                                        <SelectItem value="Suspenso">Suspenso</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label>Prognóstico de Ganho</Label>
+                                    <Select
+                                      value={draft.risk || 'Possível'}
+                                      onValueChange={(v) =>
+                                        handleDraftChange(asset.id, 'risk', v as any)
+                                      }
+                                    >
+                                      <SelectTrigger>
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="Provável">Provável</SelectItem>
+                                        <SelectItem value="Possível">Possível</SelectItem>
+                                        <SelectItem value="Remoto">Remoto</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label>Expectativa de Recuperação</Label>
+                                    <Input
+                                      value={draft.estimatedRecoveryTime || ''}
+                                      onChange={(e) =>
+                                        handleDraftChange(
+                                          asset.id,
+                                          'estimatedRecoveryTime',
+                                          e.target.value,
+                                        )
+                                      }
+                                    />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label>Valor da Causa</Label>
+                                    <Input
+                                      type="number"
+                                      value={draft.value || 0}
+                                      onChange={(e) =>
+                                        handleDraftChange(asset.id, 'value', Number(e.target.value))
+                                      }
+                                    />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label>Valor Incontroverso</Label>
+                                    <Input
+                                      type="number"
+                                      value={draft.incontroversoValue || 0}
+                                      onChange={(e) =>
+                                        handleDraftChange(
+                                          asset.id,
+                                          'incontroversoValue',
+                                          Number(e.target.value),
+                                        )
+                                      }
+                                    />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label>Valor Controverso</Label>
+                                    <Input
+                                      type="number"
+                                      value={draft.controversoValue || 0}
+                                      onChange={(e) =>
+                                        handleDraftChange(
+                                          asset.id,
+                                          'controversoValue',
+                                          Number(e.target.value),
+                                        )
+                                      }
+                                    />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label>Patrono</Label>
+                                    <Input
+                                      value={draft.lawyer || ''}
+                                      onChange={(e) =>
+                                        handleDraftChange(asset.id, 'lawyer', e.target.value)
+                                      }
+                                    />
+                                  </div>
+                                  <div className="col-span-1 md:col-span-2 space-y-2">
+                                    <Label>Resumo do processo</Label>
+                                    <Textarea
+                                      rows={3}
+                                      value={draft.summary || ''}
+                                      onChange={(e) =>
+                                        handleDraftChange(asset.id, 'summary', e.target.value)
+                                      }
+                                    />
+                                  </div>
+                                  <div className="col-span-1 md:col-span-2 space-y-2">
+                                    <Label>Último andamento</Label>
+                                    <Textarea
+                                      rows={3}
+                                      value={draft.lastDevelopments || ''}
+                                      onChange={(e) =>
+                                        handleDraftChange(
+                                          asset.id,
+                                          'lastDevelopments',
+                                          e.target.value,
+                                        )
+                                      }
+                                    />
+                                  </div>
                                 </div>
-                                <div className="space-y-2">
-                                  <Label>Parte</Label>
-                                  <Input
-                                    value={draft.party || ''}
-                                    onChange={(e) =>
-                                      handleDraftChange(asset.id, 'party', e.target.value)
-                                    }
-                                  />
-                                </div>
-                                <div className="space-y-2">
-                                  <Label>Juízo</Label>
-                                  <Input
-                                    value={draft.court || ''}
-                                    onChange={(e) =>
-                                      handleDraftChange(asset.id, 'court', e.target.value)
-                                    }
-                                  />
-                                </div>
-                                <div className="space-y-2">
-                                  <Label>Data de Referência</Label>
-                                  <Input
-                                    type="date"
-                                    value={
-                                      draft.referenceDate
-                                        ? draft.referenceDate.substring(0, 10)
-                                        : ''
-                                    }
-                                    onChange={(e) => {
-                                      const val = e.target.value
-                                      handleDraftChange(
-                                        asset.id,
-                                        'referenceDate',
-                                        val ? new Date(val).toISOString() : '',
-                                      )
-                                    }}
-                                  />
-                                </div>
-                                <div className="space-y-2">
-                                  <Label>Status</Label>
-                                  <Select
-                                    value={draft.status || 'Ativo'}
-                                    onValueChange={(v) =>
-                                      handleDraftChange(asset.id, 'status', v as any)
-                                    }
-                                  >
-                                    <SelectTrigger>
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="Ativo">Ativo</SelectItem>
-                                      <SelectItem value="Encerrado">Encerrado</SelectItem>
-                                      <SelectItem value="Suspenso">Suspenso</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                                <div className="space-y-2">
-                                  <Label>Prognóstico de Ganho</Label>
-                                  <Select
-                                    value={draft.risk || 'Possível'}
-                                    onValueChange={(v) =>
-                                      handleDraftChange(asset.id, 'risk', v as any)
-                                    }
-                                  >
-                                    <SelectTrigger>
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="Provável">Provável</SelectItem>
-                                      <SelectItem value="Possível">Possível</SelectItem>
-                                      <SelectItem value="Remoto">Remoto</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                                <div className="space-y-2">
-                                  <Label>Expectativa de Recuperação</Label>
-                                  <Input
-                                    value={draft.estimatedRecoveryTime || ''}
-                                    onChange={(e) =>
-                                      handleDraftChange(
-                                        asset.id,
-                                        'estimatedRecoveryTime',
-                                        e.target.value,
-                                      )
-                                    }
-                                  />
-                                </div>
-                                <div className="space-y-2">
-                                  <Label>Valor da Causa</Label>
-                                  <Input
-                                    type="number"
-                                    value={draft.value || 0}
-                                    onChange={(e) =>
-                                      handleDraftChange(asset.id, 'value', Number(e.target.value))
-                                    }
-                                  />
-                                </div>
-                                <div className="space-y-2">
-                                  <Label>Valor Incontroverso</Label>
-                                  <Input
-                                    type="number"
-                                    value={draft.incontroversoValue || 0}
-                                    onChange={(e) =>
-                                      handleDraftChange(
-                                        asset.id,
-                                        'incontroversoValue',
-                                        Number(e.target.value),
-                                      )
-                                    }
-                                  />
-                                </div>
-                                <div className="space-y-2">
-                                  <Label>Valor Controverso</Label>
-                                  <Input
-                                    type="number"
-                                    value={draft.controversoValue || 0}
-                                    onChange={(e) =>
-                                      handleDraftChange(
-                                        asset.id,
-                                        'controversoValue',
-                                        Number(e.target.value),
-                                      )
-                                    }
-                                  />
-                                </div>
-                                <div className="space-y-2">
-                                  <Label>Patrono</Label>
-                                  <Input
-                                    value={draft.lawyer || ''}
-                                    onChange={(e) =>
-                                      handleDraftChange(asset.id, 'lawyer', e.target.value)
-                                    }
-                                  />
-                                </div>
-                                <div className="col-span-1 md:col-span-2 space-y-2">
-                                  <Label>Resumo do processo</Label>
-                                  <Textarea
-                                    rows={3}
-                                    value={draft.summary || ''}
-                                    onChange={(e) =>
-                                      handleDraftChange(asset.id, 'summary', e.target.value)
-                                    }
-                                  />
-                                </div>
-                                <div className="col-span-1 md:col-span-2 space-y-2">
-                                  <Label>Último andamento</Label>
-                                  <Textarea
-                                    rows={3}
-                                    value={draft.lastDevelopments || ''}
-                                    onChange={(e) =>
-                                      handleDraftChange(
-                                        asset.id,
-                                        'lastDevelopments',
-                                        e.target.value,
-                                      )
-                                    }
-                                  />
-                                </div>
-                              </div>
-                            </CardContent>
+                              </CardContent>
+                            </Card>
                           ) : (
-                            <CardContent className="pt-6">
-                              <div className="border-b border-slate-200 pb-3 mb-4 pr-20">
+                            <div>
+                              <div className="border-b-2 border-slate-300 pb-2 mb-4 pr-20">
                                 <h4 className="font-bold text-slate-900 text-lg font-serif">
                                   {asset.processNumber}
                                 </h4>
@@ -722,15 +721,19 @@ export default function Relatorio() {
                                   </p>
                                 )}
                               </div>
-                              <div className="space-y-6">
-                                <div>
-                                  <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
-                                    Resumo do processo
-                                  </p>
-                                  <p className="text-sm font-serif text-justify whitespace-pre-wrap text-slate-800 leading-relaxed">
-                                    {asset.summary || '-'}
-                                  </p>
-                                  <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-md border border-slate-100 print:border-slate-200">
+
+                              <div className="mb-6 w-full">
+                                <p className="text-xs font-bold text-slate-500 uppercase mb-2">
+                                  Resumo do processo
+                                </p>
+                                <p className="text-base font-serif text-justify whitespace-pre-wrap text-slate-800 leading-relaxed w-full">
+                                  {asset.summary || '-'}
+                                </p>
+                              </div>
+
+                              <Card className="shadow-sm print:shadow-none print:border print:border-slate-300 mb-6 bg-slate-50/50">
+                                <CardContent className="p-4 sm:p-6">
+                                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
                                     <div>
                                       <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
                                         Valor estimado do pedido
@@ -790,42 +793,42 @@ export default function Relatorio() {
                                       </p>
                                     </div>
                                   </div>
-                                </div>
+                                </CardContent>
+                              </Card>
 
-                                {asset.history && asset.history.length > 0 && (
-                                  <div className="pt-4 border-t border-slate-100 print:border-slate-200">
-                                    <p className="text-[10px] font-bold text-slate-500 uppercase mb-3">
-                                      Histórico Processual
-                                    </p>
-                                    <div className="space-y-3">
-                                      {asset.history.map((h, i) => (
-                                        <div key={i} className="flex gap-4">
-                                          <div className="w-24 shrink-0 text-xs font-semibold text-slate-600 border-r border-slate-200 pr-2 text-right py-0.5">
-                                            {formatDate(h.date)}
-                                          </div>
-                                          <div className="flex-1 pb-2">
-                                            <p className="text-sm font-serif text-slate-800 text-justify leading-relaxed">
-                                              {h.description}
-                                            </p>
-                                          </div>
+                              {asset.history && asset.history.length > 0 && (
+                                <div className="pt-4 mb-6 w-full">
+                                  <p className="text-xs font-bold text-slate-500 uppercase mb-3">
+                                    Histórico Processual
+                                  </p>
+                                  <div className="space-y-3">
+                                    {asset.history.map((h, i) => (
+                                      <div key={i} className="flex gap-4">
+                                        <div className="w-24 shrink-0 text-xs font-semibold text-slate-600 border-r border-slate-200 pr-2 text-right py-0.5">
+                                          {formatDate(h.date)}
                                         </div>
-                                      ))}
-                                    </div>
+                                        <div className="flex-1 pb-2">
+                                          <p className="text-sm font-serif text-slate-800 text-justify leading-relaxed">
+                                            {h.description}
+                                          </p>
+                                        </div>
+                                      </div>
+                                    ))}
                                   </div>
-                                )}
-
-                                <div className="pt-4 border-t border-slate-100 print:border-slate-200">
-                                  <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
-                                    Último andamento
-                                  </p>
-                                  <p className="text-sm font-serif text-justify whitespace-pre-wrap text-slate-800 leading-relaxed">
-                                    {asset.lastDevelopments || '-'}
-                                  </p>
                                 </div>
+                              )}
+
+                              <div className="pt-4 border-t border-slate-200 print:border-slate-300 w-full">
+                                <p className="text-xs font-bold text-slate-500 uppercase mb-2">
+                                  Último andamento
+                                </p>
+                                <p className="text-base font-serif text-justify whitespace-pre-wrap text-slate-800 leading-relaxed w-full">
+                                  {asset.lastDevelopments || '-'}
+                                </p>
                               </div>
-                            </CardContent>
+                            </div>
                           )}
-                        </Card>
+                        </div>
                       )
                     })}
                   </div>

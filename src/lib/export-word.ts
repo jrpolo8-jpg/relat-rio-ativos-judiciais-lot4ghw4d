@@ -187,18 +187,18 @@ export const exportToWord = async (assets: JudicialAsset[], settings?: ReportSet
 
   assets.forEach((a) => {
     html += `
-      <div style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 24px; margin-bottom: 24px; background-color: #ffffff;">
-        <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 16px;">
-            <h3 style="margin: 0 0 4px 0; font-family: serif; font-size: 14pt; color: #0f172a;">${a.processNumber}</h3>
-            ${a.party ? `<p style="margin: 0; font-family: serif; font-size: 10pt; color: #475569;">${a.party}</p>` : ''}
+      <div style="margin-bottom: 40px; width: 100%;">
+        <div style="border-bottom: 2px solid #cbd5e1; padding-bottom: 8px; margin-bottom: 16px;">
+            <h3 style="margin: 0 0 4px 0; font-family: serif; font-size: 16pt; color: #0f172a;">${a.processNumber}</h3>
+            ${a.party ? `<p style="margin: 0; font-family: serif; font-size: 11pt; color: #475569;">${a.party}</p>` : ''}
         </div>
         
-        <div>
-            <p style="margin: 0 0 4px 0; font-size: 8pt; font-weight: bold; text-transform: uppercase; color: #64748b;">Resumo do processo</p>
-            <p style="margin: 0; font-family: serif; font-size: 10pt; text-align: justify; line-height: 1.5; color: #1e293b;">${(a.summary || '-').replace(/\n/g, '<br/>')}</p>
+        <div style="margin-bottom: 20px; width: 100%;">
+            <p style="margin: 0 0 6px 0; font-size: 9pt; font-weight: bold; text-transform: uppercase; color: #64748b;">Resumo do processo</p>
+            <p style="margin: 0; font-family: serif; font-size: 11pt; text-align: justify; line-height: 1.6; color: #1e293b;">${(a.summary || '-').replace(/\n/g, '<br/>')}</p>
         </div>
         
-        <div style="margin-top: 16px; background-color: #f8fafc; border: 1px solid #f1f5f9; padding: 16px; border-radius: 6px;">
+        <div style="background-color: #f8fafc; border: 1px solid #cbd5e1; padding: 16px; border-radius: 6px; margin-bottom: 20px;">
             <table style="width: 100%; border-collapse: collapse; border: none; margin: 0;">
                 <tr>
                     <td style="width: 33%; padding: 0 8px 12px 0; border: none;">
@@ -234,8 +234,8 @@ export const exportToWord = async (assets: JudicialAsset[], settings?: ReportSet
         ${
           a.history && a.history.length > 0
             ? `
-        <div style="margin-top: 16px; border-top: 1px solid #f1f5f9; padding-top: 16px;">
-            <p style="margin: 0 0 12px 0; font-size: 8pt; font-weight: bold; text-transform: uppercase; color: #64748b;">Histórico Processual</p>
+        <div style="margin-top: 20px; width: 100%;">
+            <p style="margin: 0 0 12px 0; font-size: 9pt; font-weight: bold; text-transform: uppercase; color: #64748b;">Histórico Processual</p>
             <table style="width: 100%; border-collapse: collapse; border: none; margin: 0;">
             ${a.history
               .map(
@@ -257,9 +257,9 @@ export const exportToWord = async (assets: JudicialAsset[], settings?: ReportSet
             : ''
         }
 
-        <div style="margin-top: 16px; border-top: 1px solid #f1f5f9; padding-top: 16px;">
-            <p style="margin: 0 0 4px 0; font-size: 8pt; font-weight: bold; text-transform: uppercase; color: #64748b;">Último andamento</p>
-            <p style="margin: 0; font-family: serif; font-size: 10pt; text-align: justify; line-height: 1.5; color: #1e293b;">${(a.lastDevelopments || '-').replace(/\n/g, '<br/>')}</p>
+        <div style="margin-top: 20px; border-top: 1px solid #cbd5e1; padding-top: 16px; width: 100%;">
+            <p style="margin: 0 0 6px 0; font-size: 9pt; font-weight: bold; text-transform: uppercase; color: #64748b;">Último andamento</p>
+            <p style="margin: 0; font-family: serif; font-size: 11pt; text-align: justify; line-height: 1.6; color: #1e293b;">${(a.lastDevelopments || '-').replace(/\n/g, '<br/>')}</p>
         </div>
       </div>
     `
