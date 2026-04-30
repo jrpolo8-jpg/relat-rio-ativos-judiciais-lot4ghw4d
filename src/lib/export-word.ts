@@ -253,28 +253,25 @@ export const exportToWord = async (assets: JudicialAsset[], settings?: ReportSet
          </tr>
       </table>
 
-      <table class="header-table" style="width: 100%; margin-top: 20px;">
-        <tr>
-          <td style="width: 50%; padding-right: 10px; text-align: center; vertical-align: top;">
-              ${riskChartImg ? `<img src="${riskChartImg}" style="max-width: 100%; height: auto; margin-bottom: 15px;" />` : ''}
-              <table style="width: 100%;">
-                  <tr><th colspan="2" style="text-align: center;">Prognóstico de Ganho</th></tr>
-                  <tr><td>Provável</td><td align="center"><strong>${countProvavel}</strong></td></tr>
-                  <tr><td>Possível</td><td align="center"><strong>${countPossivel}</strong></td></tr>
-                  <tr><td>Remoto</td><td align="center"><strong>${countRemoto}</strong></td></tr>
-              </table>
-          </td>
-          <td style="width: 50%; padding-left: 10px; text-align: center; vertical-align: top;">
-              ${financialChartImg ? `<img src="${financialChartImg}" style="max-width: 100%; height: auto; margin-bottom: 15px;" />` : ''}
-              <table style="width: 100%;">
-                  <tr><th colspan="2" style="text-align: center;">Composição Financeira</th></tr>
-                  <tr><td>Incontroversos</td><td align="right"><strong>${formatCurrency(incontroversoValue)}</strong></td></tr>
-                  <tr><td>Controversos</td><td align="right"><strong>${formatCurrency(controversoValue)}</strong></td></tr>
-                  <tr><td><strong>Total</strong></td><td align="right"><strong>${formatCurrency(totalValue)}</strong></td></tr>
-              </table>
-          </td>
-        </tr>
-      </table>
+      <div style="margin-top: 40px; margin-bottom: 50px; text-align: center;">
+          <h3 style="text-align: center; font-size: 14pt; margin-bottom: 20px;">Prognóstico de Ganho</h3>
+          ${riskChartImg ? `<p style="text-align: center; margin-bottom: 20px;"><img src="${riskChartImg}" style="max-width: 70%; height: auto;" /></p>` : ''}
+          <table style="width: 70%; margin: 0 auto;">
+              <tr><td>Provável</td><td align="center"><strong>${countProvavel}</strong></td></tr>
+              <tr><td>Possível</td><td align="center"><strong>${countPossivel}</strong></td></tr>
+              <tr><td>Remoto</td><td align="center"><strong>${countRemoto}</strong></td></tr>
+          </table>
+      </div>
+
+      <div style="margin-top: 40px; margin-bottom: 50px; text-align: center;">
+          <h3 style="text-align: center; font-size: 14pt; margin-bottom: 20px;">Composição Financeira</h3>
+          ${financialChartImg ? `<p style="text-align: center; margin-bottom: 20px;"><img src="${financialChartImg}" style="max-width: 70%; height: auto;" /></p>` : ''}
+          <table style="width: 70%; margin: 0 auto;">
+              <tr><td>Incontroversos</td><td align="right"><strong>${formatCurrency(incontroversoValue)}</strong></td></tr>
+              <tr><td>Controversos</td><td align="right"><strong>${formatCurrency(controversoValue)}</strong></td></tr>
+              <tr><td><strong>Total</strong></td><td align="right"><strong>${formatCurrency(totalValue)}</strong></td></tr>
+          </table>
+      </div>
 
       <div class="page-break"></div>
 

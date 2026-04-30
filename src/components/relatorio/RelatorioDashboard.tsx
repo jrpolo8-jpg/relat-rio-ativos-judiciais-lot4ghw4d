@@ -58,8 +58,8 @@ export function RelatorioDashboard({ assets }: { assets: JudicialAsset[] }) {
               Total de Processos
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-center p-3 sm:p-6">
-            <p className="text-slate-900 text-2xl sm:text-3xl font-bold print:text-2xl">
+          <CardContent className="text-center p-2 sm:p-4">
+            <p className="text-slate-900 text-xl sm:text-2xl font-bold print:text-xl">
               {assets.length}
             </p>
           </CardContent>
@@ -70,9 +70,9 @@ export function RelatorioDashboard({ assets }: { assets: JudicialAsset[] }) {
               Valor Total da Causa
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-center p-3 sm:p-6 overflow-hidden">
+          <CardContent className="text-center p-2 sm:p-4 overflow-hidden">
             <p
-              className="text-slate-900 text-lg sm:text-xl font-bold print:text-sm truncate"
+              className="text-slate-900 text-base sm:text-lg font-bold print:text-xs truncate"
               title={formatCurrency(totalValue)}
             >
               {formatCurrency(totalValue)}
@@ -85,9 +85,9 @@ export function RelatorioDashboard({ assets }: { assets: JudicialAsset[] }) {
               Incontroversos
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-center p-3 sm:p-6 overflow-hidden">
+          <CardContent className="text-center p-2 sm:p-4 overflow-hidden">
             <p
-              className="text-emerald-700 text-lg sm:text-xl font-bold print:text-sm truncate"
+              className="text-emerald-700 text-base sm:text-lg font-bold print:text-xs truncate"
               title={formatCurrency(incontroversoValue)}
             >
               {formatCurrency(incontroversoValue)}
@@ -100,9 +100,9 @@ export function RelatorioDashboard({ assets }: { assets: JudicialAsset[] }) {
               Controversos
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-center p-3 sm:p-6 overflow-hidden">
+          <CardContent className="text-center p-2 sm:p-4 overflow-hidden">
             <p
-              className="text-amber-700 text-lg sm:text-xl font-bold print:text-sm truncate"
+              className="text-amber-700 text-base sm:text-lg font-bold print:text-xs truncate"
               title={formatCurrency(controversoValue)}
             >
               {formatCurrency(controversoValue)}
@@ -115,7 +115,7 @@ export function RelatorioDashboard({ assets }: { assets: JudicialAsset[] }) {
               Prognóstico de Ganho
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-2 sm:p-4 pt-0 sm:pt-0">
             <div className="flex justify-between items-center text-sm font-semibold mt-1">
               <div className="flex flex-col items-center">
                 <span className="text-[8px] uppercase text-red-700 mb-1">Prov.</span>
@@ -133,21 +133,21 @@ export function RelatorioDashboard({ assets }: { assets: JudicialAsset[] }) {
           </CardContent>
         </Card>
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 print:grid-cols-2 gap-8 print-break-inside-avoid">
-        <Card className="shadow-sm print:shadow-none print:border print:border-slate-300">
-          <CardHeader className="print:pb-0">
+      <div className="grid grid-cols-1 lg:grid-cols-2 print:grid-cols-1 gap-8 print:gap-12 print-break-inside-avoid">
+        <Card className="shadow-sm print:shadow-none print:border print:border-slate-300 print:mb-8">
+          <CardHeader className="print:pb-2">
             <CardTitle className="text-xs font-bold uppercase text-slate-500 text-center">
               Valores Incontroversos vs. Controversos
             </CardTitle>
           </CardHeader>
-          <CardContent className="print:pt-0">
+          <CardContent className="print:pt-2">
             <ChartContainer
               id="word-export-chart-financial"
               config={financialConfig}
-              className="h-[280px] print:h-[200px] w-full print:overflow-visible"
+              className="h-[280px] print:h-[280px] w-full print:overflow-visible"
             >
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+                <PieChart margin={{ top: 0, right: 0, bottom: 20, left: 0 }}>
                   <Pie
                     data={financialData}
                     dataKey="value"
@@ -171,17 +171,17 @@ export function RelatorioDashboard({ assets }: { assets: JudicialAsset[] }) {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm print:shadow-none print:border print:border-slate-300">
-          <CardHeader className="print:pb-0">
+        <Card className="shadow-sm print:shadow-none print:border print:border-slate-300 print:mb-8">
+          <CardHeader className="print:pb-2">
             <CardTitle className="text-xs font-bold uppercase text-slate-500 text-center">
               Prognóstico de Ganho
             </CardTitle>
           </CardHeader>
-          <CardContent className="print:pt-0">
+          <CardContent className="print:pt-2">
             <ChartContainer
               id="word-export-chart-risk"
               config={riskConfig}
-              className="h-[280px] print:h-[200px] w-full print:overflow-visible"
+              className="h-[280px] print:h-[280px] w-full print:overflow-visible"
             >
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={riskData} margin={{ top: 20, right: 0, left: 0, bottom: 0 }}>
@@ -210,7 +210,7 @@ export function RelatorioDashboard({ assets }: { assets: JudicialAsset[] }) {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm print:shadow-none print:border print:border-slate-300 lg:col-span-2 print:col-span-2">
+        <Card className="shadow-sm print:shadow-none print:border print:border-slate-300 lg:col-span-2 print:col-span-1 print:mt-4">
           <CardHeader>
             <CardTitle className="text-xs font-bold uppercase text-slate-500 text-center">
               Atualizações Recentes
