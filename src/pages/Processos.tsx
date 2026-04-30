@@ -308,8 +308,7 @@ function DeleteProcessAction({ asset }: { asset: JudicialAsset }) {
             Remover Processo
           </AlertDialogTitle>
           <AlertDialogDescription>
-            Tem certeza que deseja remover o processo <strong>{asset.processNumber}</strong> do
-            painel? Esta ação não poderá ser desfeita.
+            Deseja realmente excluir este ativo? Esta ação não poderá ser desfeita.{' '}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -366,7 +365,7 @@ export default function Processos() {
           <Filter className="h-4 w-4 text-muted-foreground hidden sm:block" />
           <Select value={riskFilter} onValueChange={setRiskFilter}>
             <SelectTrigger className="w-full sm:w-[180px]">
-              <SelectValue placeholder="Prognóstico" />
+              <SelectValue placeholder="Prognóstico de Ganho" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="todos">Todos os Riscos</SelectItem>
@@ -387,7 +386,9 @@ export default function Processos() {
               <TableHead className="text-right font-semibold text-primary">
                 Valor Envolvido
               </TableHead>
-              <TableHead className="font-semibold text-primary text-center">Prognóstico</TableHead>
+              <TableHead className="font-semibold text-primary text-center">
+                Prognóstico de Ganho
+              </TableHead>
               <TableHead className="text-right font-semibold text-primary">Ações</TableHead>
             </TableRow>
           </TableHeader>

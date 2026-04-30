@@ -1,9 +1,19 @@
 import { LayoutDashboard } from 'lucide-react'
-import { cn } from '@/lib/utils'
 import { JudicialAsset } from '@/lib/types'
 import { formatCurrency } from '@/lib/formatters'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts'
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Legend,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+} from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export function RelatorioDashboard({ assets }: { assets: JudicialAsset[] }) {
@@ -15,13 +25,22 @@ export function RelatorioDashboard({ assets }: { assets: JudicialAsset[] }) {
   const countPossivel = assets.filter((a) => a.risk === 'Possível').length
   const countRemoto = assets.filter((a) => a.risk === 'Remoto').length
 
-  const chartData = [
+  const financialData = [
     { name: 'incontroverso', value: incontroversoValue, fill: 'hsl(var(--chart-3))' },
     { name: 'controverso', value: controversoValue, fill: 'hsl(var(--chart-2))' },
   ]
-  const chartConfig = {
+  const financialConfig = {
     incontroverso: { label: 'Incontroversos', color: 'hsl(var(--chart-3))' },
     controverso: { label: 'Controversos', color: 'hsl(var(--chart-2))' },
+  }
+
+  const riskData = [
+    { name: 'Provável', count: countProvavel, fill: '#b91c1c' },
+    { name: 'Possível', count: countPossivel, fill: '#b45309' },
+    { name: 'Remoto', count: countRemoto, fill: '#1d4ed8' },
+  ]
+  const riskConfig = {
+    count: { label: 'Quantidade', color: 'hsl(var(--chart-1))' },
   }
 
   return (
@@ -82,7 +101,7 @@ export function RelatorioDashboard({ assets }: { assets: JudicialAsset[] }) {
         <Card className="bg-slate-50 border-slate-200 shadow-sm print:shadow-none print:border flex flex-col justify-center">
           <CardHeader className="pb-2">
             <CardTitle className="text-[10px] font-bold uppercase tracking-wider text-slate-600 text-center">
-              Prognóstico
+              Prognóstico de Ganho
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -107,15 +126,15 @@ export function RelatorioDashboard({ assets }: { assets: JudicialAsset[] }) {
         <Card className="shadow-sm print:shadow-none print:border print:border-slate-300">
           <CardHeader>
             <CardTitle className="text-xs font-bold uppercase text-slate-500 text-center">
-              Distribuição de Valores
+              Valores Incontroversos vs. Controversos
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ChartContainer config={chartConfig} className="h-[280px] print:h-[220px] w-full">
+            <ChartContainer config={financialConfig} className="h-[280px] print:h-[220px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={chartData}
+                    data={financialData}
                     dataKey="value"
                     nameKey="name"
                     cx="50%"
@@ -125,7 +144,7 @@ export function RelatorioDashboard({ assets }: { assets: JudicialAsset[] }) {
                     paddingAngle={2}
                     isAnimationActive={false}
                   >
-                    {chartData.map((entry, index) => (
+                    {financialData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.fill} />
                     ))}
                   </Pie>
@@ -136,14 +155,50 @@ export function RelatorioDashboard({ assets }: { assets: JudicialAsset[] }) {
             </ChartContainer>
           </CardContent>
         </Card>
+
         <Card className="shadow-sm print:shadow-none print:border print:border-slate-300">
+          <CardHeader>
+            <CardTitle className="text-xs font-bold uppercase text-slate-500 text-center">
+              Prognóstico de Ganho
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ChartContainer config={riskConfig} className="h-[280px] print:h-[220px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={riskData} margin={{ top: 20, right: 0, left: 0, bottom: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <XAxis
+                    dataKey="name"
+                    tickLine={false}
+                    axisLine={false}
+                    tick={{ fontSize: 12, fill: '#64748b' }}
+                  />
+                  <YAxis
+                    allowDecimals={false}
+                    tickLine={false}
+                    axisLine={false}
+                    tick={{ fontSize: 12, fill: '#64748b' }}
+                  />
+                  <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                  <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+                    {riskData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.fill} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm print:shadow-none print:border print:border-slate-300 lg:col-span-2 print:col-span-2">
           <CardHeader>
             <CardTitle className="text-xs font-bold uppercase text-slate-500 text-center">
               Atualizações Recentes
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4 max-h-[280px] overflow-y-auto pr-2 print:max-h-none print:overflow-visible">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[280px] overflow-y-auto pr-2 print:max-h-none print:overflow-visible">
               {assets.map((a) => (
                 <div key={a.id} className="border-l-2 border-slate-800 pl-3 py-1">
                   <p className="text-xs font-bold text-slate-900">{a.processNumber}</p>

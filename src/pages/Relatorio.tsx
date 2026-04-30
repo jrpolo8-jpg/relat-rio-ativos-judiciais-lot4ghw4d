@@ -12,6 +12,18 @@ import {
   DialogTrigger,
   DialogFooter,
 } from '@/components/ui/dialog'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
+import { ShieldAlert } from 'lucide-react'
 import { ProcessForm } from '@/components/ProcessForm'
 import { RelatorioDashboard } from '@/components/relatorio/RelatorioDashboard'
 import { formatCurrency, formatDate } from '@/lib/formatters'
@@ -174,7 +186,7 @@ export default function Relatorio() {
                             Valores com Datas-Bases
                           </TableHead>
                           <TableHead className="text-[11px] uppercase font-bold text-slate-700 text-center">
-                            Prognóstico
+                            Prognóstico de Ganho
                           </TableHead>
                           <TableHead className="text-[11px] uppercase font-bold text-slate-700 text-right">
                             Estimativa de Tempo
@@ -271,18 +283,34 @@ export default function Relatorio() {
                           >
                             <Pencil className="h-4 w-4" />
                           </Button>
-                          <Button
-                            variant="destructive"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => {
-                              if (confirm('Tem certeza que deseja excluir este ativo?')) {
-                                removeAsset(asset.id)
-                              }
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="destructive" size="icon" className="h-8 w-8">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle className="flex items-center gap-2">
+                                  <ShieldAlert className="h-5 w-5 text-destructive" />
+                                  Excluir Ativo
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Deseja realmente excluir este ativo? Esta ação não poderá ser
+                                  desfeita.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => removeAsset(asset.id)}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Sim, Excluir
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
                         <CardContent className="pt-6">
                           <div className="border-b border-slate-200 pb-3 mb-4 pr-20">
@@ -390,7 +418,7 @@ export default function Relatorio() {
                                 </div>
                                 <div>
                                   <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
-                                    Prognóstico
+                                    Prognóstico de Ganho
                                   </p>
                                   <p className="text-xs text-slate-800 font-semibold">
                                     {asset.risk || '-'}
