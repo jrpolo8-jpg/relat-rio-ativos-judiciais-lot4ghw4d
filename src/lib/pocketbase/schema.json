@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-30T15:06:02.437Z",
+  "generatedAt": "2026-04-30T15:14:31.314Z",
   "collections": [
     {
       "name": "users",
@@ -151,6 +151,76 @@
         {
           "name": "history",
           "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": []
+    },
+    {
+      "name": "report_settings",
+      "type": "base",
+      "apiRules": {
+        "list": "",
+        "view": "",
+        "create": "",
+        "update": "",
+        "delete": ""
+      },
+      "fields": [
+        {
+          "name": "preamble_text",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "signature1_name",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "signature1_title",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "signature2_name",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "signature2_title",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "signature3_name",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "signature3_title",
+          "type": "text",
           "required": false,
           "system": false
         },

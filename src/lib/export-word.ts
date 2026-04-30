@@ -1,7 +1,9 @@
 import { JudicialAsset } from '@/lib/types'
 import { formatCurrency, formatDate } from '@/lib/formatters'
 
-export const exportToWord = async (assets: JudicialAsset[]) => {
+import { ReportSettings } from '@/lib/types'
+
+export const exportToWord = async (assets: JudicialAsset[], settings?: ReportSettings | null) => {
   const totalValue = assets.reduce((acc, a) => acc + (a.value || 0), 0)
   const incontroversoValue = assets.reduce((acc, a) => acc + (a.incontroversoValue || 0), 0)
   const controversoValue = assets.reduce((acc, a) => acc + (a.controversoValue || 0), 0)
@@ -81,6 +83,22 @@ export const exportToWord = async (assets: JudicialAsset[]) => {
   const financialChartImg = await getChartDataURL('word-export-chart-financial')
   const riskChartImg = await getChartDataURL('word-export-chart-risk')
 
+  const formattedTotal = formatCurrency(totalValue)
+  const preambleText = settings?.preamble_text
+    ? settings.preamble_text.replace(/{valor_total}/g, formattedTotal)
+    : 'Trata-se dos principais ativos estratégicos da Cetenco, com a devida qualificação de valores envolvidos, avaliação de riscos (prognóstico de ganho) e relato circunstanciado sobre os andamentos recentes de cada demanda patrocinada por nosso escritório.'
+  const preambleHtml = preambleText
+    .split('\n')
+    .map((p) => `<p>${p}</p>`)
+    .join('')
+
+  const sig1Title = settings?.signature1_title || 'Diretor Jurídico'
+  const sig1Name = settings?.signature1_name || ''
+  const sig2Title = settings?.signature2_title || 'Diretor Financeiro'
+  const sig2Name = settings?.signature2_name || ''
+  const sig3Title = settings?.signature3_title || 'CEO'
+  const sig3Name = settings?.signature3_name || ''
+
   let html = `
     <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
     <head>
@@ -126,7 +144,7 @@ export const exportToWord = async (assets: JudicialAsset[]) => {
       <p style="text-align: center; font-style: italic; font-weight: bold;">Data-Base: ${formatDate(new Date().toISOString())}</p>
       
       <div style="margin: 20px 40px; text-align: justify;">
-        <p>Trata-se dos principais ativos estratégicos da Cetenco, com a devida qualificação de valores envolvidos, avaliação de riscos (prognóstico de ganho) e relato circunstanciado sobre os andamentos recentes de cada demanda patrocinada por nosso escritório.</p>
+        ${preambleHtml}
       </div>
 
       <h2>I. Quadro Resumo</h2>
@@ -260,9 +278,9 @@ export const exportToWord = async (assets: JudicialAsset[]) => {
 
       <table class="signatures-table" style="margin-top: 80px; width: 100%;">
         <tr>
-          <td><div class="line">Diretor Jurídico</div></td>
-          <td><div class="line">Diretor Financeiro</div></td>
-          <td><div class="line">CEO</div></td>
+          ${sig1Title ? `<td><div class="line">${sig1Title}</div>${sig1Name ? `<div style="font-weight:bold;font-size:10pt;margin-top:5px;">${sig1Name}</div>` : ''}</td>` : '<td></td>'}
+          ${sig2Title ? `<td><div class="line">${sig2Title}</div>${sig2Name ? `<div style="font-weight:bold;font-size:10pt;margin-top:5px;">${sig2Name}</div>` : ''}</td>` : '<td></td>'}
+          ${sig3Title ? `<td><div class="line">${sig3Title}</div>${sig3Name ? `<div style="font-weight:bold;font-size:10pt;margin-top:5px;">${sig3Name}</div>` : ''}</td>` : '<td></td>'}
         </tr>
       </table>
 

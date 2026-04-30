@@ -11,6 +11,7 @@ import {
   X,
   FileDown,
   FileText,
+  Settings,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -26,7 +27,8 @@ import {
 } from '@/components/ui/select'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useAssets } from '@/hooks/use-assets'
-import { JudicialAsset } from '@/lib/types'
+import { useReportSettings } from '@/hooks/use-report-settings'
+import { JudicialAsset, ReportSettings } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { exportToWord } from '@/lib/export-word'
 import { useToast } from '@/hooks/use-toast'
@@ -77,6 +79,28 @@ export default function Relatorio() {
   const [isEditMode, setIsEditMode] = useState(false)
   const [drafts, setDrafts] = useState<Record<string, Partial<JudicialAsset>>>({})
   const [savingEdits, setSavingEdits] = useState(false)
+
+  const { settings, loading: loadingSettings, updateSettings } = useReportSettings()
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+  const [editSettings, setEditSettings] = useState<Partial<ReportSettings>>({})
+
+  const handleSettingsOpen = () => {
+    if (settings) {
+      setEditSettings(settings)
+      setIsSettingsOpen(true)
+    }
+  }
+
+  const handleSettingsSave = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      await updateSettings(editSettings)
+      setIsSettingsOpen(false)
+      toast({ title: 'Sucesso', description: 'Configurações salvas.' })
+    } catch (err) {
+      toast({ title: 'Erro', description: 'Erro ao salvar configurações.', variant: 'destructive' })
+    }
+  }
 
   useEffect(() => {
     if (assets.length > 0 && !initialized) {
@@ -143,7 +167,13 @@ export default function Relatorio() {
     setEditingAssetId(asset.id)
   }
 
-  if (loading) {
+  const totalValue = selectedAssets.reduce((acc, a) => acc + (a.value || 0), 0)
+  const formattedTotal = formatCurrency(totalValue)
+  const preambleHtml = settings?.preamble_text
+    ? settings.preamble_text.replace(/{valor_total}/g, formattedTotal)
+    : 'Trata-se dos principais ativos estratégicos da Cetenco, com a devida qualificação de valores envolvidos, avaliação de riscos (prognóstico de ganho) e relato circunstanciado sobre os andamentos recentes de cada demanda patrocinada por nosso escritório.'
+
+  if (loading || loadingSettings) {
     return (
       <div className="container mx-auto py-32 flex flex-col items-center justify-center space-y-4">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -224,11 +254,15 @@ export default function Relatorio() {
             </Button>
           )}
 
+          <Button variant="outline" onClick={handleSettingsOpen}>
+            <Settings className="mr-2 h-4 w-4" /> Configurações
+          </Button>
+
           <Button
             variant="outline"
             onClick={async () => {
               try {
-                await exportToWord(selectedAssets)
+                await exportToWord(selectedAssets, settings)
                 toast({ title: 'Sucesso', description: 'Relatório Word gerado com sucesso.' })
               } catch (err) {
                 toast({
@@ -328,11 +362,8 @@ export default function Relatorio() {
                     Data-Base: {formatDate(new Date().toISOString())}
                   </p>
                   <div className="mt-6 mb-8 text-left max-w-3xl mx-auto block">
-                    <p className="text-sm font-serif text-slate-800 leading-relaxed text-justify">
-                      Trata-se dos principais ativos estratégicos da Cetenco, com a devida
-                      qualificação de valores envolvidos, avaliação de riscos (prognóstico de ganho)
-                      e relato circunstanciado sobre os andamentos recentes de cada demanda
-                      patrocinada por nosso escritório.
+                    <p className="text-sm font-serif text-slate-800 leading-relaxed text-justify whitespace-pre-wrap">
+                      {preambleHtml}
                     </p>
                   </div>
                 </div>
@@ -826,24 +857,51 @@ export default function Relatorio() {
 
                 <div className="mt-32 pt-8 print-break-inside-avoid">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8 text-center">
-                    <div>
-                      <div className="border-t-2 border-slate-800 mx-auto w-48 mb-3"></div>
-                      <p className="font-bold text-slate-900 uppercase text-xs tracking-wider">
-                        Diretor Jurídico
-                      </p>
-                    </div>
-                    <div>
-                      <div className="border-t-2 border-slate-800 mx-auto w-48 mb-3"></div>
-                      <p className="font-bold text-slate-900 uppercase text-xs tracking-wider">
-                        Diretor Financeiro
-                      </p>
-                    </div>
-                    <div>
-                      <div className="border-t-2 border-slate-800 mx-auto w-48 mb-3"></div>
-                      <p className="font-bold text-slate-900 uppercase text-xs tracking-wider">
-                        CEO
-                      </p>
-                    </div>
+                    {settings?.signature1_title ? (
+                      <div>
+                        <div className="border-t-2 border-slate-800 mx-auto w-48 mb-3"></div>
+                        {settings.signature1_name && (
+                          <p className="font-bold text-slate-900 text-sm mb-1">
+                            {settings.signature1_name}
+                          </p>
+                        )}
+                        <p className="font-bold text-slate-900 uppercase text-xs tracking-wider">
+                          {settings.signature1_title}
+                        </p>
+                      </div>
+                    ) : (
+                      <div />
+                    )}
+                    {settings?.signature2_title ? (
+                      <div>
+                        <div className="border-t-2 border-slate-800 mx-auto w-48 mb-3"></div>
+                        {settings.signature2_name && (
+                          <p className="font-bold text-slate-900 text-sm mb-1">
+                            {settings.signature2_name}
+                          </p>
+                        )}
+                        <p className="font-bold text-slate-900 uppercase text-xs tracking-wider">
+                          {settings.signature2_title}
+                        </p>
+                      </div>
+                    ) : (
+                      <div />
+                    )}
+                    {settings?.signature3_title ? (
+                      <div>
+                        <div className="border-t-2 border-slate-800 mx-auto w-48 mb-3"></div>
+                        {settings.signature3_name && (
+                          <p className="font-bold text-slate-900 text-sm mb-1">
+                            {settings.signature3_name}
+                          </p>
+                        )}
+                        <p className="font-bold text-slate-900 uppercase text-xs tracking-wider">
+                          {settings.signature3_title}
+                        </p>
+                      </div>
+                    ) : (
+                      <div />
+                    )}
                   </div>
                 </div>
               </td>
@@ -851,6 +909,88 @@ export default function Relatorio() {
           </tbody>
         </table>
       </div>
+
+      <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Configurações do Relatório</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSettingsSave} className="space-y-4 mt-2">
+            <div className="space-y-2">
+              <Label>Preâmbulo (Use {'{valor_total}'} para inserir o valor total dos ativos)</Label>
+              <Textarea
+                rows={6}
+                value={editSettings.preamble_text || ''}
+                onChange={(e) =>
+                  setEditSettings({ ...editSettings, preamble_text: e.target.value })
+                }
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-slate-200 pt-4">
+              <div className="space-y-2">
+                <Label>Assinatura 1 - Nome</Label>
+                <Input
+                  value={editSettings.signature1_name || ''}
+                  onChange={(e) =>
+                    setEditSettings({ ...editSettings, signature1_name: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Assinatura 1 - Título</Label>
+                <Input
+                  value={editSettings.signature1_title || ''}
+                  onChange={(e) =>
+                    setEditSettings({ ...editSettings, signature1_title: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Assinatura 2 - Nome</Label>
+                <Input
+                  value={editSettings.signature2_name || ''}
+                  onChange={(e) =>
+                    setEditSettings({ ...editSettings, signature2_name: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Assinatura 2 - Título</Label>
+                <Input
+                  value={editSettings.signature2_title || ''}
+                  onChange={(e) =>
+                    setEditSettings({ ...editSettings, signature2_title: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Assinatura 3 - Nome</Label>
+                <Input
+                  value={editSettings.signature3_name || ''}
+                  onChange={(e) =>
+                    setEditSettings({ ...editSettings, signature3_name: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Assinatura 3 - Título</Label>
+                <Input
+                  value={editSettings.signature3_title || ''}
+                  onChange={(e) =>
+                    setEditSettings({ ...editSettings, signature3_title: e.target.value })
+                  }
+                />
+              </div>
+            </div>
+            <DialogFooter className="mt-4">
+              <Button type="button" variant="outline" onClick={() => setIsSettingsOpen(false)}>
+                Cancelar
+              </Button>
+              <Button type="submit">Salvar Configurações</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={!!editingAssetId} onOpenChange={(open) => !open && setEditingAssetId(null)}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">

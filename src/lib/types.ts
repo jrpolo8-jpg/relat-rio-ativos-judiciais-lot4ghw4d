@@ -1,6 +1,17 @@
 export type RiskLevel = 'Provável' | 'Possível' | 'Remoto'
 export type Status = 'Ativo' | 'Encerrado' | 'Suspenso'
 
+export interface ReportSettings {
+  id: string
+  preamble_text: string
+  signature1_name: string
+  signature1_title: string
+  signature2_name: string
+  signature2_title: string
+  signature3_name: string
+  signature3_title: string
+}
+
 export interface ProcessUpdate {
   id: string
   date: string
