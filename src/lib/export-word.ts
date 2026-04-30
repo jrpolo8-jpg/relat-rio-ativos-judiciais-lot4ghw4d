@@ -191,42 +191,44 @@ export const exportToWord = async (assets: JudicialAsset[], settings?: ReportSet
         <h3 style="margin-bottom: 5px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">${a.processNumber}</h3>
         <p style="margin-top: 0;"><strong>Parte:</strong> ${a.party || '-'}</p>
         
-        <table class="header-table" style="margin-bottom: 10px; width: 100%;">
-            <tr>
-                <td style="width: 50%;"><strong>Juízo:</strong> ${a.court || '-'}</td>
-                <td style="width: 50%;"><strong>Status:</strong> ${a.status || '-'}</td>
-            </tr>
-            <tr>
-                <td style="width: 50%;"><strong>Patrono:</strong> ${a.lawyer || '-'}</td>
-                <td style="width: 50%;"><strong>Ref:</strong> ${a.referenceDate ? formatDate(a.referenceDate) : '-'}</td>
-            </tr>
-        </table>
+        <p style="margin-top: 15px;"><strong>Resumo do processo:</strong><br/>${(a.summary || '-').replace(/\n/g, '<br/>')}</p>
         
-        <p><strong>Resumo do Ocorrido:</strong><br/>${(a.summary || '-').replace(/\n/g, '<br/>')}</p>
-        
-        <table style="width: 100%; margin-top: 10px; margin-bottom: 5px;">
+        <table class="header-table" style="margin-top: 15px; margin-bottom: 15px; width: 100%;">
             <tr>
-                <th style="text-align: center;">Valor da Causa</th>
-                <th style="text-align: center;">Incontroverso</th>
-                <th style="text-align: center;">Controverso</th>
+                <td style="width: 50%;"><strong>Valor Incontroverso:</strong> ${formatCurrency(a.incontroversoValue || 0)}</td>
+                <td style="width: 50%;"><strong>Valor Controverso:</strong> ${formatCurrency(a.controversoValue || 0)}</td>
             </tr>
             <tr>
-                <td align="center">${formatCurrency(a.value)}</td>
-                <td align="center">${formatCurrency(a.incontroversoValue || 0)}</td>
-                <td align="center">${formatCurrency(a.controversoValue || 0)}</td>
-            </tr>
-        </table>
-
-        ${a.valueDetails ? `<p style="margin-bottom: 15px; font-size: 10pt;"><strong>Composição de Valores:</strong><br/>${a.valueDetails.replace(/\n/g, '<br/>')}</p>` : '<div style="margin-bottom: 15px;"></div>'}
-
-        <p><strong>Últimos Andamentos:</strong><br/>${(a.lastDevelopments || '-').replace(/\n/g, '<br/>')}</p>
-        
-        <table class="header-table" style="margin-top: 10px; margin-bottom: 10px; width: 100%;">
-            <tr>
+                <td style="width: 50%;"><strong>Data de Referência dos Valores:</strong> ${a.referenceDate ? formatDate(a.referenceDate) : '-'}</td>
                 <td style="width: 50%;"><strong>Prognóstico de Ganho:</strong> ${a.risk}</td>
-                <td style="width: 50%;"><strong>Expectativa de Recuperação:</strong> ${a.estimatedRecoveryTime || '-'}</td>
+            </tr>
+            <tr>
+                <td style="width: 50%;"><strong>Expectativa de Monetização do Ativo:</strong> ${a.estimatedRecoveryTime || '-'}</td>
+                <td style="width: 50%;"><strong>Patrono Responsável:</strong> ${a.lawyer || '-'}</td>
             </tr>
         </table>
+
+        ${
+          a.history && a.history.length > 0
+            ? `
+        <p style="margin-top: 15px; margin-bottom: 5px;"><strong>Histórico Processual:</strong></p>
+        <table style="width: 100%; margin-bottom: 15px; font-size: 10pt;">
+          ${a.history
+            .map(
+              (h) => `
+          <tr>
+            <td style="width: 20%; border: none; border-bottom: 1px solid #eee; padding: 4px 0; vertical-align: top;"><strong>${formatDate(h.date)}</strong></td>
+            <td style="width: 80%; border: none; border-bottom: 1px solid #eee; padding: 4px 0; vertical-align: top;">${h.description}<br/><span style="font-size: 8pt; color: #666;">Por: ${h.author}</span></td>
+          </tr>
+          `,
+            )
+            .join('')}
+        </table>
+        `
+            : ''
+        }
+
+        <p><strong>Último andamento:</strong><br/>${(a.lastDevelopments || '-').replace(/\n/g, '<br/>')}</p>
       </div>
       <hr style="border: 0; border-bottom: 1px solid #ccc; margin: 20px 0;" />
     `

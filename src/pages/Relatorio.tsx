@@ -663,7 +663,7 @@ export default function Relatorio() {
                                   />
                                 </div>
                                 <div className="col-span-1 md:col-span-2 space-y-2">
-                                  <Label>Resumo do Ocorrido</Label>
+                                  <Label>Resumo do processo</Label>
                                   <Textarea
                                     rows={3}
                                     value={draft.summary || ''}
@@ -673,7 +673,7 @@ export default function Relatorio() {
                                   />
                                 </div>
                                 <div className="col-span-1 md:col-span-2 space-y-2">
-                                  <Label>Últimos Andamentos e Andamento</Label>
+                                  <Label>Último andamento</Label>
                                   <Textarea
                                     rows={3}
                                     value={draft.lastDevelopments || ''}
@@ -683,16 +683,6 @@ export default function Relatorio() {
                                         'lastDevelopments',
                                         e.target.value,
                                       )
-                                    }
-                                  />
-                                </div>
-                                <div className="col-span-1 md:col-span-2 space-y-2">
-                                  <Label>Composição de Valores (Detalhes)</Label>
-                                  <Textarea
-                                    rows={3}
-                                    value={draft.valueDetails || ''}
-                                    onChange={(e) =>
-                                      handleDraftChange(asset.id, 'valueDetails', e.target.value)
                                     }
                                   />
                                 </div>
@@ -710,26 +700,18 @@ export default function Relatorio() {
                                   </p>
                                 )}
                               </div>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              <div className="space-y-6">
                                 <div>
                                   <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
-                                    Resumo do Ocorrido
+                                    Resumo do processo
                                   </p>
                                   <p className="text-sm font-serif text-justify whitespace-pre-wrap text-slate-800 leading-relaxed">
                                     {asset.summary || '-'}
                                   </p>
-                                  <div className="mt-4 grid grid-cols-3 gap-2 bg-slate-50 p-3 rounded-md border border-slate-100 print:border-slate-200">
+                                  <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-md border border-slate-100 print:border-slate-200">
                                     <div>
                                       <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
-                                        Valor da Causa
-                                      </p>
-                                      <p className="text-xs text-slate-900 font-bold">
-                                        {formatCurrency(asset.value || 0)}
-                                      </p>
-                                    </div>
-                                    <div>
-                                      <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
-                                        Incontroverso
+                                        Valor Incontroverso
                                       </p>
                                       <p className="text-xs text-emerald-700 font-bold">
                                         {formatCurrency(asset.incontroversoValue || 0)}
@@ -737,59 +719,15 @@ export default function Relatorio() {
                                     </div>
                                     <div>
                                       <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
-                                        Controverso
+                                        Valor Controverso
                                       </p>
                                       <p className="text-xs text-amber-700 font-bold">
                                         {formatCurrency(asset.controversoValue || 0)}
                                       </p>
                                     </div>
-                                  </div>
-                                  {asset.valueDetails && (
-                                    <div className="mt-4">
-                                      <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
-                                        Composição de Valores
-                                      </p>
-                                      <p className="text-sm font-serif text-justify whitespace-pre-wrap text-slate-800">
-                                        {asset.valueDetails}
-                                      </p>
-                                    </div>
-                                  )}
-                                </div>
-                                <div>
-                                  <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
-                                    Últimos Andamentos e Andamento
-                                  </p>
-                                  <p className="text-sm font-serif text-justify whitespace-pre-wrap text-slate-800 leading-relaxed">
-                                    {asset.lastDevelopments || '-'}
-                                  </p>
-                                  <div className="grid grid-cols-2 gap-4 mt-4 bg-slate-50 p-3 rounded-md border border-slate-100 print:border-slate-200">
                                     <div>
-                                      <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
-                                        Juízo
-                                      </p>
-                                      <p className="text-xs text-slate-800 font-semibold">
-                                        {asset.court || '-'}
-                                      </p>
-                                    </div>
-                                    <div>
-                                      <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
-                                        Patrono
-                                      </p>
-                                      <p className="text-xs text-slate-800 font-semibold">
-                                        {asset.lawyer || '-'}
-                                      </p>
-                                    </div>
-                                    <div>
-                                      <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
-                                        Status
-                                      </p>
-                                      <p className="text-xs text-slate-800 font-semibold">
-                                        {asset.status || '-'}
-                                      </p>
-                                    </div>
-                                    <div>
-                                      <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
-                                        Data de Referência
+                                      <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
+                                        Data de Referência dos Valores
                                       </p>
                                       <p className="text-xs text-slate-800 font-semibold">
                                         {asset.referenceDate
@@ -798,26 +736,34 @@ export default function Relatorio() {
                                       </p>
                                     </div>
                                     <div>
-                                      <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
-                                        Expectativa de Recuperação
-                                      </p>
-                                      <p className="text-xs text-slate-800 font-semibold">
-                                        {asset.estimatedRecoveryTime || '-'}
-                                      </p>
-                                    </div>
-                                    <div>
-                                      <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
+                                      <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
                                         Prognóstico de Ganho
                                       </p>
                                       <p className="text-xs text-slate-800 font-semibold">
                                         {asset.risk || '-'}
                                       </p>
                                     </div>
+                                    <div>
+                                      <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
+                                        Expectativa de Monetização do Ativo
+                                      </p>
+                                      <p className="text-xs text-slate-800 font-semibold">
+                                        {asset.estimatedRecoveryTime || '-'}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
+                                        Patrono Responsável
+                                      </p>
+                                      <p className="text-xs text-slate-800 font-semibold">
+                                        {asset.lawyer || '-'}
+                                      </p>
+                                    </div>
                                   </div>
                                 </div>
 
                                 {asset.history && asset.history.length > 0 && (
-                                  <div className="mt-6 md:col-span-2 pt-4 border-t border-slate-100 print:border-slate-200">
+                                  <div className="pt-4 border-t border-slate-100 print:border-slate-200">
                                     <p className="text-[10px] font-bold text-slate-500 uppercase mb-3">
                                       Histórico Processual
                                     </p>
@@ -840,6 +786,15 @@ export default function Relatorio() {
                                     </div>
                                   </div>
                                 )}
+
+                                <div className="pt-4 border-t border-slate-100 print:border-slate-200">
+                                  <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
+                                    Último andamento
+                                  </p>
+                                  <p className="text-sm font-serif text-justify whitespace-pre-wrap text-slate-800 leading-relaxed">
+                                    {asset.lastDevelopments || '-'}
+                                  </p>
+                                </div>
                               </div>
                             </CardContent>
                           )}
