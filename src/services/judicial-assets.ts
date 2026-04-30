@@ -48,7 +48,11 @@ const mapToFrontend = (data: any): JudicialAsset => ({
 })
 
 export const getAssets = async (): Promise<JudicialAsset[]> => {
-  const records = await pb.collection('judicial_assets').getFullList({ sort: '-created' })
+  const records = await pb.collection('judicial_assets').getFullList({
+    sort: '-created',
+    batch: 500,
+    requestKey: null,
+  })
   return records.map(mapToFrontend)
 }
 

@@ -75,6 +75,7 @@ export default function Relatorio() {
   const [editAssetData, setEditAssetData] = useState<Partial<JudicialAsset>>({})
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [knownAssetIds, setKnownAssetIds] = useState<Set<string>>(new Set())
   const [initialized, setInitialized] = useState(false)
   const [isEditMode, setIsEditMode] = useState(false)
   const [drafts, setDrafts] = useState<Record<string, Partial<JudicialAsset>>>({})
@@ -103,11 +104,32 @@ export default function Relatorio() {
   }
 
   useEffect(() => {
-    if (assets.length > 0 && !initialized) {
-      setSelectedIds(new Set(assets.map((a) => a.id)))
+    if (loading) return
+
+    let changed = false
+    const nextSelected = new Set(selectedIds)
+    const currentIds = new Set(assets.map((a) => a.id))
+
+    assets.forEach((a) => {
+      if (!knownAssetIds.has(a.id)) {
+        changed = true
+        nextSelected.add(a.id)
+      }
+    })
+
+    knownAssetIds.forEach((id) => {
+      if (!currentIds.has(id)) {
+        changed = true
+        nextSelected.delete(id)
+      }
+    })
+
+    if (changed || !initialized) {
+      setKnownAssetIds(currentIds)
+      setSelectedIds(nextSelected)
       setInitialized(true)
     }
-  }, [assets, initialized])
+  }, [assets, loading, initialized, knownAssetIds, selectedIds])
 
   const selectedAssets = assets.filter((a) => selectedIds.has(a.id))
 
@@ -205,7 +227,7 @@ export default function Relatorio() {
                   Desmarcar Todos
                 </Button>
               </div>
-              <ScrollArea className="flex-1 -mx-6 px-6">
+              <ScrollArea className="flex-1 h-[50vh] overflow-y-auto -mx-6 px-6 pb-4">
                 <div className="space-y-4">
                   {assets.map((a) => (
                     <div key={a.id} className="flex items-start space-x-3">
