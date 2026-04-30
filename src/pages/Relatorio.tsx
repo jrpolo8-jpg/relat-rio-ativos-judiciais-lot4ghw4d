@@ -754,7 +754,7 @@ export default function Relatorio() {
                                       <Pencil className="h-3 w-3 mr-1" /> Editar para Relatório
                                     </Button>
                                   </div>
-                                  <p className="text-sm sm:text-base font-serif text-justify whitespace-pre-wrap text-slate-800 leading-relaxed w-full">
+                                  <p className="text-sm sm:text-base font-serif text-justify whitespace-pre-wrap break-words text-slate-800 leading-relaxed w-full">
                                     {summaryOverrides[asset.id] ?? asset.summary ?? '-'}
                                   </p>
                                 </CardContent>
@@ -837,7 +837,7 @@ export default function Relatorio() {
                                           {formatDate(h.date)}
                                         </div>
                                         <div className="flex-1 pb-2">
-                                          <p className="text-sm font-serif text-slate-800 text-justify leading-relaxed">
+                                          <p className="text-sm font-serif text-slate-800 text-justify leading-relaxed whitespace-pre-wrap break-words">
                                             {h.description}
                                           </p>
                                         </div>
@@ -852,7 +852,7 @@ export default function Relatorio() {
                                   <p className="text-xs font-bold text-slate-500 uppercase mb-2">
                                     Último andamento
                                   </p>
-                                  <p className="text-base font-serif text-justify whitespace-pre-wrap text-slate-800 leading-relaxed w-full">
+                                  <p className="text-base font-serif text-justify whitespace-pre-wrap break-words text-slate-800 leading-relaxed w-full">
                                     {asset.lastDevelopments}
                                   </p>
                                 </div>
