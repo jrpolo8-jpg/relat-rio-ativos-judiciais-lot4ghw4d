@@ -8,6 +8,7 @@ import {
 } from '@/services/judicial-assets'
 import { useToast } from '@/hooks/use-toast'
 import { useRealtime } from '@/hooks/use-realtime'
+import { getErrorMessage } from '@/lib/pocketbase/errors'
 
 interface AssetContextType {
   assets: JudicialAsset[]
@@ -34,7 +35,7 @@ export const AssetProvider = ({ children }: { children: ReactNode }) => {
       console.error(error)
       toast({
         title: 'Erro',
-        description: 'Não foi possível carregar os ativos.',
+        description: getErrorMessage(error) || 'Não foi possível carregar os ativos.',
         variant: 'destructive',
       })
     } finally {
@@ -58,7 +59,11 @@ export const AssetProvider = ({ children }: { children: ReactNode }) => {
       toast({ title: 'Sucesso', description: 'Ativo adicionado com sucesso.' })
     } catch (error) {
       console.error(error)
-      toast({ title: 'Erro', description: 'Erro ao adicionar ativo.', variant: 'destructive' })
+      toast({
+        title: 'Erro',
+        description: getErrorMessage(error) || 'Erro ao adicionar ativo.',
+        variant: 'destructive',
+      })
       throw error
     }
   }
@@ -72,7 +77,11 @@ export const AssetProvider = ({ children }: { children: ReactNode }) => {
       toast({ title: 'Sucesso', description: 'Ativo atualizado com sucesso!' })
     } catch (error) {
       console.error(error)
-      toast({ title: 'Erro', description: 'Erro ao atualizar ativo.', variant: 'destructive' })
+      toast({
+        title: 'Erro',
+        description: getErrorMessage(error) || 'Erro ao atualizar ativo.',
+        variant: 'destructive',
+      })
       throw error
     }
   }
@@ -84,7 +93,11 @@ export const AssetProvider = ({ children }: { children: ReactNode }) => {
       toast({ title: 'Sucesso', description: 'Ativo removido com sucesso.' })
     } catch (error) {
       console.error(error)
-      toast({ title: 'Erro', description: 'Erro ao remover ativo.', variant: 'destructive' })
+      toast({
+        title: 'Erro',
+        description: getErrorMessage(error) || 'Erro ao remover ativo.',
+        variant: 'destructive',
+      })
       throw error
     }
   }

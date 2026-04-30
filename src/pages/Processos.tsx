@@ -134,13 +134,13 @@ function AddProcessModal() {
 }
 
 function EditProcessModal({ asset }: { asset: JudicialAsset }) {
-  const { updateAssetImmediate } = useAssets()
+  const { updateAsset } = useAssets()
   const [open, setOpen] = useState(false)
   const [formData, setFormData] = useState<Partial<JudicialAsset>>(asset)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    await updateAssetImmediate(asset.id, formData)
+    await updateAsset(asset.id, formData)
     setOpen(false)
   }
 
@@ -248,8 +248,8 @@ function ProcessDetailModal({ asset }: { asset: JudicialAsset }) {
 
           <div className="space-y-2">
             <h4 className="text-sm font-semibold text-primary uppercase tracking-wider">
-              Resumo da Demanda
-            </h4>
+              Resumo do Processo
+            </h4>{' '}
             <div className="p-4 rounded-md bg-secondary/50 border text-sm leading-relaxed text-foreground/90 font-serif whitespace-pre-wrap">
               {asset.summary}
             </div>
@@ -355,7 +355,7 @@ export default function Processos() {
         <div className="relative w-full sm:max-w-xs">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Buscar processo, parte ou vara..."
+            placeholder="Buscar processo, parte ou tribunal..."
             className="pl-9 w-full"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -368,7 +368,7 @@ export default function Processos() {
               <SelectValue placeholder="Prognóstico de Ganho" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="todos">Todos os Riscos</SelectItem>
+              <SelectItem value="todos">Todos os Prognósticos</SelectItem>
               <SelectItem value="Provável">Provável</SelectItem>
               <SelectItem value="Possível">Possível</SelectItem>
               <SelectItem value="Remoto">Remoto</SelectItem>
@@ -381,7 +381,9 @@ export default function Processos() {
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/50 hover:bg-muted/50">
-              <TableHead className="font-semibold text-primary">Nº Processo / Parte</TableHead>
+              <TableHead className="font-semibold text-primary">
+                Número do Processo / Parte
+              </TableHead>
               <TableHead className="font-semibold text-primary">Advogado(a)</TableHead>
               <TableHead className="text-right font-semibold text-primary">
                 Valor Envolvido

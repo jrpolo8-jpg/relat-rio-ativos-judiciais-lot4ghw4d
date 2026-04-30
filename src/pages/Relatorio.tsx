@@ -141,7 +141,7 @@ export default function Relatorio() {
       setIsEditMode(false)
       toast({ title: 'Sucesso', description: 'Alterações salvas com sucesso.' })
     } catch (e) {
-      toast({ title: 'Erro', description: 'Erro ao salvar alterações.', variant: 'destructive' })
+      // Error toast is handled by updateAsset
     } finally {
       setSavingEdits(false)
     }

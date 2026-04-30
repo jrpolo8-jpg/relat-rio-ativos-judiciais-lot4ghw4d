@@ -47,7 +47,7 @@ export function ProcessForm({
     <div className="grid gap-4 py-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>Nº Processo</Label>
+          <Label>Número do Processo</Label>
           <Input
             required
             value={formData.processNumber || ''}
@@ -55,7 +55,7 @@ export function ProcessForm({
           />
         </div>
         <div className="space-y-2">
-          <Label>Parte Contraria</Label>
+          <Label>Parte</Label>
           <Input
             required
             value={formData.party || ''}
@@ -63,7 +63,7 @@ export function ProcessForm({
           />
         </div>
         <div className="space-y-2">
-          <Label>Vara / Tribunal</Label>
+          <Label>Tribunal</Label>
           <Input
             required
             value={formData.court || ''}
@@ -71,7 +71,7 @@ export function ProcessForm({
           />
         </div>
         <div className="space-y-2">
-          <Label>Advogado Responsável</Label>
+          <Label>Advogado(a)</Label>
           <Input
             required
             value={formData.lawyer || ''}
@@ -79,7 +79,7 @@ export function ProcessForm({
           />
         </div>
         <div className="space-y-2">
-          <Label>Valor Total (R$)</Label>
+          <Label>Valor da Causa (R$)</Label>
           <Input
             required
             type="number"
@@ -109,7 +109,7 @@ export function ProcessForm({
         </div>
 
         <div className="space-y-2">
-          <Label>Data-Base</Label>
+          <Label>Data de Referência</Label>
           <Input
             required
             type="date"
@@ -118,7 +118,7 @@ export function ProcessForm({
           />
         </div>
         <div className="md:col-span-2 space-y-2">
-          <Label>Prognóstico de Ganho (Risco)</Label>
+          <Label>Prognóstico de Ganho</Label>
           <Select
             value={formData.risk || 'Possível'}
             onValueChange={(val: RiskLevel) => setFormData({ ...formData, risk: val })}
@@ -149,7 +149,7 @@ export function ProcessForm({
           />
         </div>
         <div className="md:col-span-2 space-y-2">
-          <Label>Resumo da Demanda</Label>
+          <Label>Resumo do Processo</Label>
           <Textarea
             required
             className="h-20"
@@ -158,7 +158,7 @@ export function ProcessForm({
           />
         </div>
         <div className="md:col-span-2 space-y-2">
-          <Label>Últimos Andamentos (Visível no Relatório)</Label>
+          <Label>Último Andamento</Label>
           <Textarea
             className="h-24"
             value={formData.lastDevelopments || ''}
