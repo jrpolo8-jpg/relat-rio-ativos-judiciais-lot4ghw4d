@@ -152,7 +152,7 @@ export function ProcessForm({
           <Label>Resumo do Processo</Label>
           <Textarea
             required
-            className="h-20"
+            className="min-h-[120px] resize-y"
             value={formData.summary || ''}
             onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
           />
@@ -160,7 +160,7 @@ export function ProcessForm({
         <div className="md:col-span-2 space-y-2">
           <Label>Último Andamento</Label>
           <Textarea
-            className="h-24"
+            className="min-h-[120px] resize-y"
             value={formData.lastDevelopments || ''}
             onChange={(e) => setFormData({ ...formData, lastDevelopments: e.target.value })}
           />
@@ -209,7 +209,7 @@ export function ProcessForm({
                   <Label className="text-xs">Descrição do Andamento</Label>
                   <Textarea
                     required
-                    className="h-16 text-sm"
+                    className="min-h-[80px] text-sm resize-y"
                     value={h.description}
                     onChange={(e) => handleHistoryChange(h.id, 'description', e.target.value)}
                   />
