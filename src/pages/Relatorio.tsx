@@ -319,9 +319,9 @@ export default function Relatorio() {
                   <div className="mt-6 mb-8 text-left max-w-3xl mx-auto block">
                     <p className="text-sm font-serif text-slate-800 leading-relaxed text-justify">
                       Trata-se dos principais ativos estratégicos da Cetenco, com a devida
-                      qualificação de valores envolvidos, avaliação de riscos (prognóstico de
-                      perda/êxito) e relato circunstanciado sobre os andamentos recentes de cada
-                      demanda patrocinada por nosso escritório.
+                      qualificação de valores envolvidos, avaliação de riscos (prognóstico de ganho)
+                      e relato circunstanciado sobre os andamentos recentes de cada demanda
+                      patrocinada por nosso escritório.
                     </p>
                   </div>
                 </div>
