@@ -1,7 +1,7 @@
 import { JudicialAsset } from '@/lib/types'
 import { formatCurrency, formatDate } from '@/lib/formatters'
 
-export const exportToWord = (assets: JudicialAsset[]) => {
+export const exportToWord = async (assets: JudicialAsset[]) => {
   const totalValue = assets.reduce((acc, a) => acc + (a.value || 0), 0)
   const incontroversoValue = assets.reduce((acc, a) => acc + (a.incontroversoValue || 0), 0)
   const controversoValue = assets.reduce((acc, a) => acc + (a.controversoValue || 0), 0)
@@ -9,6 +9,77 @@ export const exportToWord = (assets: JudicialAsset[]) => {
   const countProvavel = assets.filter((a) => a.risk === 'Provável').length
   const countPossivel = assets.filter((a) => a.risk === 'Possível').length
   const countRemoto = assets.filter((a) => a.risk === 'Remoto').length
+
+  const getChartDataURL = async (chartId: string): Promise<string | null> => {
+    const container = document.getElementById(chartId)
+    if (!container) return null
+    const svg = container.querySelector('svg')
+    if (!svg) return null
+
+    const clonedSvg = svg.cloneNode(true) as SVGSVGElement
+    const { width, height } = svg.getBoundingClientRect()
+    if (width === 0 || height === 0) return null
+
+    clonedSvg.setAttribute('width', width.toString())
+    clonedSvg.setAttribute('height', height.toString())
+    clonedSvg.style.backgroundColor = 'white'
+
+    if (!clonedSvg.getAttribute('xmlns')) {
+      clonedSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
+    }
+
+    const elements = clonedSvg.querySelectorAll('*')
+    for (let i = 0; i < elements.length; i++) {
+      const el = elements[i] as SVGElement
+      const computedStyle = window.getComputedStyle(el)
+      if (computedStyle.fill && computedStyle.fill !== 'none') {
+        el.style.fill = computedStyle.fill
+      }
+      if (computedStyle.stroke && computedStyle.stroke !== 'none') {
+        el.style.stroke = computedStyle.stroke
+      }
+      if (computedStyle.color) {
+        el.style.color = computedStyle.color
+      }
+      if (computedStyle.fontFamily) {
+        el.style.fontFamily = computedStyle.fontFamily
+      }
+      if (computedStyle.fontSize) {
+        el.style.fontSize = computedStyle.fontSize
+      }
+    }
+
+    const svgData = new XMLSerializer().serializeToString(clonedSvg)
+    const canvas = document.createElement('canvas')
+    canvas.width = width
+    canvas.height = height
+    const ctx = canvas.getContext('2d')
+
+    const img = new Image()
+    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' })
+    const DOMURL = window.URL || window.webkitURL || window
+    const url = DOMURL.createObjectURL(svgBlob)
+
+    return new Promise((resolve) => {
+      img.onload = () => {
+        if (ctx) {
+          ctx.fillStyle = 'white'
+          ctx.fillRect(0, 0, width, height)
+          ctx.drawImage(img, 0, 0)
+        }
+        DOMURL.revokeObjectURL(url)
+        resolve(canvas.toDataURL('image/png', 1.0))
+      }
+      img.onerror = () => {
+        DOMURL.revokeObjectURL(url)
+        resolve(null)
+      }
+      img.src = url
+    })
+  }
+
+  const financialChartImg = await getChartDataURL('word-export-chart-financial')
+  const riskChartImg = await getChartDataURL('word-export-chart-risk')
 
   let html = `
     <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
@@ -115,7 +186,7 @@ export const exportToWord = (assets: JudicialAsset[]) => {
         
         <p><strong>Resumo do Ocorrido:</strong><br/>${(a.summary || '-').replace(/\n/g, '<br/>')}</p>
         
-        <table style="width: 100%; margin-top: 10px; margin-bottom: 15px;">
+        <table style="width: 100%; margin-top: 10px; margin-bottom: 5px;">
             <tr>
                 <th style="text-align: center;">Valor da Causa</th>
                 <th style="text-align: center;">Incontroverso</th>
@@ -127,6 +198,8 @@ export const exportToWord = (assets: JudicialAsset[]) => {
                 <td align="center">${formatCurrency(a.controversoValue || 0)}</td>
             </tr>
         </table>
+
+        ${a.valueDetails ? `<p style="margin-bottom: 15px; font-size: 10pt;"><strong>Composição de Valores:</strong><br/>${a.valueDetails.replace(/\n/g, '<br/>')}</p>` : '<div style="margin-bottom: 15px;"></div>'}
 
         <p><strong>Últimos Andamentos:</strong><br/>${(a.lastDevelopments || '-').replace(/\n/g, '<br/>')}</p>
         
@@ -162,7 +235,8 @@ export const exportToWord = (assets: JudicialAsset[]) => {
 
       <table class="header-table" style="width: 100%; margin-top: 20px;">
         <tr>
-          <td style="width: 50%; padding-right: 10px;">
+          <td style="width: 50%; padding-right: 10px; text-align: center; vertical-align: top;">
+              ${riskChartImg ? `<img src="${riskChartImg}" style="max-width: 100%; height: auto; margin-bottom: 15px;" />` : ''}
               <table style="width: 100%;">
                   <tr><th colspan="2" style="text-align: center;">Prognóstico de Ganho</th></tr>
                   <tr><td>Provável</td><td align="center"><strong>${countProvavel}</strong></td></tr>
@@ -170,7 +244,8 @@ export const exportToWord = (assets: JudicialAsset[]) => {
                   <tr><td>Remoto</td><td align="center"><strong>${countRemoto}</strong></td></tr>
               </table>
           </td>
-          <td style="width: 50%; padding-left: 10px;">
+          <td style="width: 50%; padding-left: 10px; text-align: center; vertical-align: top;">
+              ${financialChartImg ? `<img src="${financialChartImg}" style="max-width: 100%; height: auto; margin-bottom: 15px;" />` : ''}
               <table style="width: 100%;">
                   <tr><th colspan="2" style="text-align: center;">Composição Financeira</th></tr>
                   <tr><td>Incontroversos</td><td align="right"><strong>${formatCurrency(incontroversoValue)}</strong></td></tr>
@@ -180,6 +255,8 @@ export const exportToWord = (assets: JudicialAsset[]) => {
           </td>
         </tr>
       </table>
+
+      <div class="page-break"></div>
 
       <table class="signatures-table" style="margin-top: 80px; width: 100%;">
         <tr>

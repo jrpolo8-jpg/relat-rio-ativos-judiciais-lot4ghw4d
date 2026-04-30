@@ -226,7 +226,18 @@ export default function Relatorio() {
 
           <Button
             variant="outline"
-            onClick={() => exportToWord(selectedAssets)}
+            onClick={async () => {
+              try {
+                await exportToWord(selectedAssets)
+                toast({ title: 'Sucesso', description: 'Relatório Word gerado com sucesso.' })
+              } catch (err) {
+                toast({
+                  title: 'Erro',
+                  description: 'Ocorreu um erro ao gerar o Word.',
+                  variant: 'destructive',
+                })
+              }
+            }}
             disabled={isEditMode || selectedAssets.length === 0}
           >
             <FileDown className="mr-2 h-4 w-4" /> Exportar Word
@@ -506,6 +517,25 @@ export default function Relatorio() {
                                   />
                                 </div>
                                 <div className="space-y-2">
+                                  <Label>Data de Referência</Label>
+                                  <Input
+                                    type="date"
+                                    value={
+                                      draft.referenceDate
+                                        ? draft.referenceDate.substring(0, 10)
+                                        : ''
+                                    }
+                                    onChange={(e) => {
+                                      const val = e.target.value
+                                      handleDraftChange(
+                                        asset.id,
+                                        'referenceDate',
+                                        val ? new Date(val).toISOString() : '',
+                                      )
+                                    }}
+                                  />
+                                </div>
+                                <div className="space-y-2">
                                   <Label>Status</Label>
                                   <Select
                                     value={draft.status || 'Ativo'}
@@ -622,6 +652,16 @@ export default function Relatorio() {
                                         'lastDevelopments',
                                         e.target.value,
                                       )
+                                    }
+                                  />
+                                </div>
+                                <div className="col-span-1 md:col-span-2 space-y-2">
+                                  <Label>Composição de Valores (Detalhes)</Label>
+                                  <Textarea
+                                    rows={3}
+                                    value={draft.valueDetails || ''}
+                                    onChange={(e) =>
+                                      handleDraftChange(asset.id, 'valueDetails', e.target.value)
                                     }
                                   />
                                 </div>

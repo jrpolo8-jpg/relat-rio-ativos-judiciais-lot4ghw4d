@@ -53,47 +53,58 @@ export function RelatorioDashboard({ assets }: { assets: JudicialAsset[] }) {
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 print:grid-cols-5 gap-4 mb-8">
         <Card className="bg-slate-50 border-slate-200 shadow-sm print:shadow-none print:border flex flex-col justify-center">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-[10px] font-bold uppercase tracking-wider text-slate-600 text-center">
+          <CardHeader className="pb-1 sm:pb-2">
+            <CardTitle className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-600 text-center">
               Total de Processos
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-center">
-            <p className="text-slate-900 text-3xl font-bold print:text-2xl">{assets.length}</p>
+          <CardContent className="text-center p-3 sm:p-6">
+            <p className="text-slate-900 text-2xl sm:text-3xl font-bold print:text-2xl">
+              {assets.length}
+            </p>
           </CardContent>
         </Card>
-        <Card className="bg-slate-50 border-slate-200 shadow-sm print:shadow-none print:border flex flex-col justify-center">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-[10px] font-bold uppercase tracking-wider text-slate-600 text-center">
+        <Card className="bg-slate-50 border-slate-200 shadow-sm print:shadow-none print:border flex flex-col justify-center overflow-hidden">
+          <CardHeader className="pb-1 sm:pb-2">
+            <CardTitle className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-600 text-center">
               Valor Total da Causa
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-center">
-            <p className="text-slate-900 text-xl font-bold print:text-base">
+          <CardContent className="text-center p-3 sm:p-6 overflow-hidden">
+            <p
+              className="text-slate-900 text-lg sm:text-xl font-bold print:text-sm truncate"
+              title={formatCurrency(totalValue)}
+            >
               {formatCurrency(totalValue)}
             </p>
           </CardContent>
         </Card>
-        <Card className="bg-emerald-50/50 border-emerald-100 shadow-sm print:shadow-none print:border flex flex-col justify-center">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-[10px] font-bold uppercase tracking-wider text-slate-600 text-center">
+        <Card className="bg-emerald-50/50 border-emerald-100 shadow-sm print:shadow-none print:border flex flex-col justify-center overflow-hidden">
+          <CardHeader className="pb-1 sm:pb-2">
+            <CardTitle className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-600 text-center">
               Incontroversos
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-center">
-            <p className="text-emerald-700 text-xl font-bold print:text-base">
+          <CardContent className="text-center p-3 sm:p-6 overflow-hidden">
+            <p
+              className="text-emerald-700 text-lg sm:text-xl font-bold print:text-sm truncate"
+              title={formatCurrency(incontroversoValue)}
+            >
               {formatCurrency(incontroversoValue)}
             </p>
           </CardContent>
         </Card>
-        <Card className="bg-amber-50/50 border-amber-100 shadow-sm print:shadow-none print:border flex flex-col justify-center">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-[10px] font-bold uppercase tracking-wider text-slate-600 text-center">
+        <Card className="bg-amber-50/50 border-amber-100 shadow-sm print:shadow-none print:border flex flex-col justify-center overflow-hidden">
+          <CardHeader className="pb-1 sm:pb-2">
+            <CardTitle className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-600 text-center">
               Controversos
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-center">
-            <p className="text-amber-700 text-xl font-bold print:text-base">
+          <CardContent className="text-center p-3 sm:p-6 overflow-hidden">
+            <p
+              className="text-amber-700 text-lg sm:text-xl font-bold print:text-sm truncate"
+              title={formatCurrency(controversoValue)}
+            >
               {formatCurrency(controversoValue)}
             </p>
           </CardContent>
@@ -124,15 +135,19 @@ export function RelatorioDashboard({ assets }: { assets: JudicialAsset[] }) {
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 print:grid-cols-2 gap-8 print-break-inside-avoid">
         <Card className="shadow-sm print:shadow-none print:border print:border-slate-300">
-          <CardHeader>
+          <CardHeader className="print:pb-0">
             <CardTitle className="text-xs font-bold uppercase text-slate-500 text-center">
               Valores Incontroversos vs. Controversos
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <ChartContainer config={financialConfig} className="h-[280px] print:h-[220px] w-full">
+          <CardContent className="print:pt-0">
+            <ChartContainer
+              id="word-export-chart-financial"
+              config={financialConfig}
+              className="h-[280px] print:h-[200px] w-full print:overflow-visible"
+            >
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
+                <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
                   <Pie
                     data={financialData}
                     dataKey="value"
@@ -157,15 +172,19 @@ export function RelatorioDashboard({ assets }: { assets: JudicialAsset[] }) {
         </Card>
 
         <Card className="shadow-sm print:shadow-none print:border print:border-slate-300">
-          <CardHeader>
+          <CardHeader className="print:pb-0">
             <CardTitle className="text-xs font-bold uppercase text-slate-500 text-center">
               Prognóstico de Ganho
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <ChartContainer config={riskConfig} className="h-[280px] print:h-[220px] w-full">
+          <CardContent className="print:pt-0">
+            <ChartContainer
+              id="word-export-chart-risk"
+              config={riskConfig}
+              className="h-[280px] print:h-[200px] w-full print:overflow-visible"
+            >
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={riskData} margin={{ top: 20, right: 0, left: 0, bottom: 20 }}>
+                <BarChart data={riskData} margin={{ top: 20, right: 0, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                   <XAxis
                     dataKey="name"

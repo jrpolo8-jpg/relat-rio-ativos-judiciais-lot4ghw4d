@@ -140,6 +140,18 @@
       -webkit-column-break-inside: avoid !important;
     }
 
+    /* Specifically fix Recharts SVG sizing during print */
+    .recharts-responsive-container {
+      display: block !important;
+      width: 100% !important;
+      height: auto !important;
+      min-height: 200px !important;
+    }
+
+    .recharts-surface {
+      overflow: visible !important;
+    }
+
     div.print-break-inside-avoid {
       display: block;
     }
