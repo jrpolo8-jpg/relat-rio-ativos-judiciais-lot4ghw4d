@@ -4,38 +4,16 @@ import { JudicialAsset } from '@/lib/types'
 import { formatCurrency } from '@/lib/formatters'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export function RelatorioDashboard({ assets }: { assets: JudicialAsset[] }) {
   const totalValue = assets.reduce((acc, a) => acc + (a.value || 0), 0)
   const incontroversoValue = assets.reduce((acc, a) => acc + (a.incontroversoValue || 0), 0)
   const controversoValue = assets.reduce((acc, a) => acc + (a.controversoValue || 0), 0)
 
-  const dashboardCards = [
-    {
-      title: 'Processos Ativos',
-      val: assets.length.toString(),
-      textCls: 'text-primary text-3xl print:text-xl',
-      bgCls: 'bg-slate-50 border-slate-200',
-    },
-    {
-      title: 'Valores Incontroversos',
-      val: formatCurrency(incontroversoValue),
-      textCls: 'text-emerald-700 text-xl print:text-base',
-      bgCls: 'bg-emerald-50/50 border-emerald-100',
-    },
-    {
-      title: 'Valores Controversos',
-      val: formatCurrency(controversoValue),
-      textCls: 'text-amber-700 text-xl print:text-base',
-      bgCls: 'bg-amber-50/50 border-amber-100',
-    },
-    {
-      title: 'Total Global (Disputa)',
-      val: formatCurrency(totalValue),
-      textCls: 'text-primary text-xl print:text-base',
-      bgCls: 'bg-slate-50 border-slate-200',
-    },
-  ]
+  const countProvavel = assets.filter((a) => a.risk === 'Provável').length
+  const countPossivel = assets.filter((a) => a.risk === 'Possível').length
+  const countRemoto = assets.filter((a) => a.risk === 'Remoto').length
 
   const chartData = [
     { name: 'incontroverso', value: incontroversoValue, fill: 'hsl(var(--chart-3))' },
@@ -47,74 +25,115 @@ export function RelatorioDashboard({ assets }: { assets: JudicialAsset[] }) {
   }
 
   return (
-    <section className="mt-12 mb-12 print-page-break-before">
+    <section className="mb-12 print-break-inside-avoid">
       <div className="flex items-center gap-2 border-b border-slate-200 pb-2 mb-6">
-        <LayoutDashboard className="h-5 w-5 text-primary" />
-        <h3 className="text-sm font-bold uppercase tracking-wider text-primary">
-          IV. Painel Gerencial Integrado (Dashboard)
+        <LayoutDashboard className="h-5 w-5 text-slate-800" />
+        <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800">
+          Painel Estratégico Integrado
         </h3>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-4 print:grid-cols-4 gap-6 mb-8">
-        {dashboardCards.map((c, i) => (
-          <div
-            key={i}
-            className={cn(
-              'border rounded p-4 flex flex-col justify-center items-center text-center h-[120px]',
-              c.bgCls,
-            )}
-          >
-            <p className="text-[10px] font-bold uppercase tracking-wider mb-2 text-slate-500">
-              {c.title}
+      <div className="grid grid-cols-1 md:grid-cols-3 print:grid-cols-3 gap-6 mb-8">
+        <Card className="bg-slate-50 border-slate-200 shadow-sm print:shadow-none print:border">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-[10px] font-bold uppercase tracking-wider text-slate-600 text-center">
+              Valor Total da Causa
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-center">
+            <p className="text-slate-900 text-2xl font-bold print:text-xl">
+              {formatCurrency(totalValue)}
             </p>
-            <p className={cn('font-bold', c.textCls)}>{c.val}</p>
-          </div>
-        ))}
+          </CardContent>
+        </Card>
+        <Card className="bg-emerald-50/50 border-emerald-100 shadow-sm print:shadow-none print:border">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-[10px] font-bold uppercase tracking-wider text-slate-600 text-center">
+              Valores Incontroversos
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-center">
+            <p className="text-emerald-700 text-2xl font-bold print:text-xl">
+              {formatCurrency(incontroversoValue)}
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="bg-slate-50 border-slate-200 shadow-sm print:shadow-none print:border">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-[10px] font-bold uppercase tracking-wider text-slate-600 text-center">
+              Distribuição por Prognóstico
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex justify-between items-center text-sm font-semibold mt-1">
+              <div className="flex flex-col items-center">
+                <span className="text-[10px] uppercase text-red-700 mb-1">Provável</span>
+                <span className="text-lg text-slate-800">{countProvavel}</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-[10px] uppercase text-amber-700 mb-1">Possível</span>
+                <span className="text-lg text-slate-800">{countPossivel}</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-[10px] uppercase text-blue-700 mb-1">Remoto</span>
+                <span className="text-lg text-slate-800">{countRemoto}</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 print:grid-cols-2 gap-8 print-break-inside-avoid">
-        <div className="border border-slate-200 rounded p-4 bg-slate-50/50">
-          <h4 className="text-xs font-bold uppercase text-slate-500 mb-4 text-center">
-            Distribuição de Valores
-          </h4>
-          <ChartContainer config={chartConfig} className="h-[280px] print:h-[220px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={chartData}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={90}
-                  paddingAngle={2}
-                  isAnimationActive={false}
-                >
-                  {chartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.fill} />
-                  ))}
-                </Pie>
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Legend verticalAlign="bottom" height={36} />
-              </PieChart>
-            </ResponsiveContainer>
-          </ChartContainer>
-        </div>
-        <div className="border border-slate-200 rounded p-4 bg-slate-50/50">
-          <h4 className="text-xs font-bold uppercase text-slate-500 mb-4 text-center">
-            Atualizações Recentes
-          </h4>
-          <div className="space-y-4 max-h-[280px] overflow-y-auto pr-2 print:max-h-none print:overflow-visible">
-            {assets.map((a) => (
-              <div key={a.id} className="border-l-2 border-primary pl-3 py-1">
-                <p className="text-xs font-bold text-primary">{a.processNumber}</p>
-                <p className="text-[10px] text-slate-500 mb-1">{a.party}</p>
-                <p className="text-xs font-serif text-slate-700 leading-snug">
-                  {a.lastDevelopments}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
+        <Card className="shadow-sm print:shadow-none print:border print:border-slate-300">
+          <CardHeader>
+            <CardTitle className="text-xs font-bold uppercase text-slate-500 text-center">
+              Distribuição de Valores
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ChartContainer config={chartConfig} className="h-[280px] print:h-[220px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={chartData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={90}
+                    paddingAngle={2}
+                    isAnimationActive={false}
+                  >
+                    {chartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.fill} />
+                    ))}
+                  </Pie>
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Legend verticalAlign="bottom" height={36} />
+                </PieChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </CardContent>
+        </Card>
+        <Card className="shadow-sm print:shadow-none print:border print:border-slate-300">
+          <CardHeader>
+            <CardTitle className="text-xs font-bold uppercase text-slate-500 text-center">
+              Atualizações Recentes
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4 max-h-[280px] overflow-y-auto pr-2 print:max-h-none print:overflow-visible">
+              {assets.map((a) => (
+                <div key={a.id} className="border-l-2 border-slate-800 pl-3 py-1">
+                  <p className="text-xs font-bold text-slate-900">{a.processNumber}</p>
+                  <p className="text-[10px] text-slate-500 mb-1">{a.party}</p>
+                  <p className="text-xs font-serif text-slate-700 leading-snug">
+                    {a.lastDevelopments}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </section>
   )
