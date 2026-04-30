@@ -1,9 +1,35 @@
-import { useState } from 'react'
-import { Printer, Plus, Loader2, Pencil, Trash2 } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import {
+  Printer,
+  Plus,
+  Loader2,
+  Pencil,
+  Trash2,
+  CheckSquare,
+  Edit3,
+  Save,
+  X,
+  FileDown,
+  FileText,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { useAssets } from '@/hooks/use-assets'
 import { JudicialAsset } from '@/lib/types'
 import { cn } from '@/lib/utils'
+import { exportToWord } from '@/lib/export-word'
+import { useToast } from '@/hooks/use-toast'
 import {
   Dialog,
   DialogContent,
@@ -39,11 +65,63 @@ import { Card, CardContent } from '@/components/ui/card'
 
 export default function Relatorio() {
   const { assets, updateAsset, removeAsset, addAsset, loading } = useAssets()
+  const { toast } = useToast()
   const [isAddOpen, setIsAddOpen] = useState(false)
   const [newAssetData, setNewAssetData] = useState<Partial<JudicialAsset>>({})
 
   const [editingAssetId, setEditingAssetId] = useState<string | null>(null)
   const [editAssetData, setEditAssetData] = useState<Partial<JudicialAsset>>({})
+
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [initialized, setInitialized] = useState(false)
+  const [isEditMode, setIsEditMode] = useState(false)
+  const [drafts, setDrafts] = useState<Record<string, Partial<JudicialAsset>>>({})
+  const [savingEdits, setSavingEdits] = useState(false)
+
+  useEffect(() => {
+    if (assets.length > 0 && !initialized) {
+      setSelectedIds(new Set(assets.map((a) => a.id)))
+      setInitialized(true)
+    }
+  }, [assets, initialized])
+
+  const selectedAssets = assets.filter((a) => selectedIds.has(a.id))
+
+  const handleSelectAll = () => setSelectedIds(new Set(assets.map((a) => a.id)))
+  const handleDeselectAll = () => setSelectedIds(new Set())
+  const toggleSelection = (id: string) => {
+    const next = new Set(selectedIds)
+    if (next.has(id)) next.delete(id)
+    else next.add(id)
+    setSelectedIds(next)
+  }
+
+  const handleToggleEdit = () => {
+    if (!isEditMode) {
+      const initialDrafts: Record<string, Partial<JudicialAsset>> = {}
+      selectedAssets.forEach((a) => (initialDrafts[a.id] = { ...a }))
+      setDrafts(initialDrafts)
+    }
+    setIsEditMode(!isEditMode)
+  }
+
+  const handleDraftChange = (id: string, field: keyof JudicialAsset, value: any) => {
+    setDrafts((prev) => ({ ...prev, [id]: { ...prev[id], [field]: value } }))
+  }
+
+  const handleSaveEdits = async () => {
+    setSavingEdits(true)
+    try {
+      const promises = Object.entries(drafts).map(([id, draft]) => updateAsset(id, draft))
+      await Promise.all(promises)
+      setIsEditMode(false)
+      toast({ title: 'Sucesso', description: 'Alterações salvas com sucesso.' })
+    } catch (e) {
+      toast({ title: 'Erro', description: 'Erro ao salvar alterações.', variant: 'destructive' })
+    } finally {
+      setSavingEdits(false)
+    }
+  }
 
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -79,9 +157,89 @@ export default function Relatorio() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 print-hide bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
         <h1 className="text-2xl font-bold text-slate-900">Relatório Gerencial</h1>
         <div className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" onClick={() => window.print()}>
-            <Printer className="mr-2 h-4 w-4" /> Imprimir / PDF
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="bg-slate-50">
+                <CheckSquare className="mr-2 h-4 w-4" /> Selecionar Ativos ({selectedIds.size})
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-xl max-h-[80vh] flex flex-col">
+              <DialogHeader>
+                <DialogTitle>Selecionar Ativos para o Relatório</DialogTitle>
+              </DialogHeader>
+              <div className="flex gap-2 my-2">
+                <Button variant="secondary" size="sm" onClick={handleSelectAll}>
+                  Selecionar Todos
+                </Button>
+                <Button variant="secondary" size="sm" onClick={handleDeselectAll}>
+                  Desmarcar Todos
+                </Button>
+              </div>
+              <ScrollArea className="flex-1 -mx-6 px-6">
+                <div className="space-y-4">
+                  {assets.map((a) => (
+                    <div key={a.id} className="flex items-start space-x-3">
+                      <Checkbox
+                        id={`select-${a.id}`}
+                        checked={selectedIds.has(a.id)}
+                        onCheckedChange={() => toggleSelection(a.id)}
+                      />
+                      <div className="grid gap-1.5 leading-none">
+                        <label
+                          htmlFor={`select-${a.id}`}
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          {a.processNumber}
+                        </label>
+                        <p className="text-xs text-muted-foreground">{a.party}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            </DialogContent>
+          </Dialog>
+
+          {isEditMode ? (
+            <>
+              <Button variant="outline" onClick={handleToggleEdit} disabled={savingEdits}>
+                <X className="mr-2 h-4 w-4" /> Cancelar
+              </Button>
+              <Button
+                onClick={handleSaveEdits}
+                disabled={savingEdits}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white"
+              >
+                {savingEdits ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="mr-2 h-4 w-4" />
+                )}
+                Salvar Alterações
+              </Button>
+            </>
+          ) : (
+            <Button variant="outline" onClick={handleToggleEdit}>
+              <Edit3 className="mr-2 h-4 w-4" /> Alterações
+            </Button>
+          )}
+
+          <Button
+            variant="outline"
+            onClick={() => exportToWord(selectedAssets)}
+            disabled={isEditMode || selectedAssets.length === 0}
+          >
+            <FileDown className="mr-2 h-4 w-4" /> Exportar Word
           </Button>
+
+          <Button
+            variant="outline"
+            onClick={() => window.print()}
+            disabled={isEditMode || selectedAssets.length === 0}
+          >
+            <FileText className="mr-2 h-4 w-4" /> Exportar PDF
+          </Button>
+
           <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
             <DialogTrigger asChild>
               <Button className="bg-primary text-primary-foreground shadow-sm hover:bg-primary/90">
@@ -194,7 +352,7 @@ export default function Relatorio() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {assets.map((asset) => (
+                        {selectedAssets.map((asset) => (
                           <TableRow
                             key={asset.id}
                             className="hover:bg-slate-50/50 print:border-b print:border-slate-200"
@@ -269,198 +427,360 @@ export default function Relatorio() {
                     II. Detalhamento Estratégico
                   </h3>
                   <div className="space-y-6">
-                    {assets.map((asset) => (
-                      <Card
-                        key={asset.id}
-                        className="relative shadow-sm print:shadow-none print:border print:border-slate-300 print-break-inside-avoid group"
-                      >
-                        <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2 print-hide">
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className="h-8 w-8 bg-white"
-                            onClick={() => handleEditOpen(asset)}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="destructive" size="icon" className="h-8 w-8">
-                                <Trash2 className="h-4 w-4" />
+                    {selectedAssets.map((asset) => {
+                      const draft = drafts[asset.id] || asset
+                      return (
+                        <Card
+                          key={asset.id}
+                          className="relative shadow-sm print:shadow-none print:border print:border-slate-300 print-break-inside-avoid group"
+                        >
+                          {!isEditMode && (
+                            <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2 print-hide">
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8 bg-white"
+                                onClick={() => handleEditOpen(asset)}
+                              >
+                                <Pencil className="h-4 w-4" />
                               </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle className="flex items-center gap-2">
-                                  <ShieldAlert className="h-5 w-5 text-destructive" />
-                                  Excluir Ativo
-                                </AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Deseja realmente excluir este ativo? Esta ação não poderá ser
-                                  desfeita.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => removeAsset(asset.id)}
-                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                >
-                                  Sim, Excluir
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
-                        <CardContent className="pt-6">
-                          <div className="border-b border-slate-200 pb-3 mb-4 pr-20">
-                            <h4 className="font-bold text-slate-900 text-lg font-serif">
-                              {asset.processNumber}
-                            </h4>
-                            {asset.party && (
-                              <p className="text-sm text-slate-600 font-serif mt-1">
-                                {asset.party}
-                              </p>
-                            )}
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                              <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
-                                Resumo do Ocorrido
-                              </p>
-                              <p className="text-sm font-serif text-justify whitespace-pre-wrap text-slate-800 leading-relaxed">
-                                {asset.summary || '-'}
-                              </p>
-                              <div className="mt-4 grid grid-cols-3 gap-2 bg-slate-50 p-3 rounded-md border border-slate-100 print:border-slate-200">
-                                <div>
-                                  <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
-                                    Valor da Causa
-                                  </p>
-                                  <p className="text-xs text-slate-900 font-bold">
-                                    {formatCurrency(asset.value || 0)}
-                                  </p>
-                                </div>
-                                <div>
-                                  <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
-                                    Incontroverso
-                                  </p>
-                                  <p className="text-xs text-emerald-700 font-bold">
-                                    {formatCurrency(asset.incontroversoValue || 0)}
-                                  </p>
-                                </div>
-                                <div>
-                                  <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
-                                    Controverso
-                                  </p>
-                                  <p className="text-xs text-amber-700 font-bold">
-                                    {formatCurrency(asset.controversoValue || 0)}
-                                  </p>
-                                </div>
-                              </div>
-                              {asset.valueDetails && (
-                                <div className="mt-4">
-                                  <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
-                                    Composição de Valores
-                                  </p>
-                                  <p className="text-sm font-serif text-justify whitespace-pre-wrap text-slate-800">
-                                    {asset.valueDetails}
-                                  </p>
-                                </div>
-                              )}
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button variant="destructive" size="icon" className="h-8 w-8">
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle className="flex items-center gap-2">
+                                      <ShieldAlert className="h-5 w-5 text-destructive" />
+                                      Excluir Ativo
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Deseja realmente excluir este ativo? Esta ação não poderá ser
+                                      desfeita.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() => removeAsset(asset.id)}
+                                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                    >
+                                      Sim, Excluir
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
                             </div>
-                            <div>
-                              <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
-                                Últimos Andamentos e Andamento
-                              </p>
-                              <p className="text-sm font-serif text-justify whitespace-pre-wrap text-slate-800 leading-relaxed">
-                                {asset.lastDevelopments || '-'}
-                              </p>
-                              <div className="grid grid-cols-2 gap-4 mt-4 bg-slate-50 p-3 rounded-md border border-slate-100 print:border-slate-200">
-                                <div>
-                                  <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
-                                    Juízo
-                                  </p>
-                                  <p className="text-xs text-slate-800 font-semibold">
-                                    {asset.court || '-'}
-                                  </p>
-                                </div>
-                                <div>
-                                  <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
-                                    Patrono
-                                  </p>
-                                  <p className="text-xs text-slate-800 font-semibold">
-                                    {asset.lawyer || '-'}
-                                  </p>
-                                </div>
-                                <div>
-                                  <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
-                                    Status
-                                  </p>
-                                  <p className="text-xs text-slate-800 font-semibold">
-                                    {asset.status || '-'}
-                                  </p>
-                                </div>
-                                <div>
-                                  <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
-                                    Data de Referência
-                                  </p>
-                                  <p className="text-xs text-slate-800 font-semibold">
-                                    {asset.referenceDate ? formatDate(asset.referenceDate) : '-'}
-                                  </p>
-                                </div>
-                                <div>
-                                  <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
-                                    Expectativa de Recuperação
-                                  </p>
-                                  <p className="text-xs text-slate-800 font-semibold">
-                                    {asset.estimatedRecoveryTime || '-'}
-                                  </p>
-                                </div>
-                                <div>
-                                  <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
-                                    Prognóstico de Ganho
-                                  </p>
-                                  <p className="text-xs text-slate-800 font-semibold">
-                                    {asset.risk || '-'}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
+                          )}
 
-                            {asset.history && asset.history.length > 0 && (
-                              <div className="mt-6 md:col-span-2 pt-4 border-t border-slate-100 print:border-slate-200">
-                                <p className="text-[10px] font-bold text-slate-500 uppercase mb-3">
-                                  Histórico Processual
-                                </p>
-                                <div className="space-y-3">
-                                  {asset.history.map((h, i) => (
-                                    <div key={i} className="flex gap-4">
-                                      <div className="w-24 shrink-0 text-xs font-semibold text-slate-600 border-r border-slate-200 pr-2 text-right py-0.5">
-                                        {formatDate(h.date)}
-                                      </div>
-                                      <div className="flex-1 pb-2">
-                                        <p className="text-sm font-serif text-slate-800 text-justify leading-relaxed">
-                                          {h.description}
-                                        </p>
-                                        <p className="text-[9px] text-slate-400 mt-1 italic uppercase tracking-wider">
-                                          Por: {h.author}
-                                        </p>
-                                      </div>
-                                    </div>
-                                  ))}
+                          {isEditMode ? (
+                            <CardContent className="pt-6">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <Label>Número do Processo</Label>
+                                  <Input
+                                    value={draft.processNumber || ''}
+                                    onChange={(e) =>
+                                      handleDraftChange(asset.id, 'processNumber', e.target.value)
+                                    }
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <Label>Parte</Label>
+                                  <Input
+                                    value={draft.party || ''}
+                                    onChange={(e) =>
+                                      handleDraftChange(asset.id, 'party', e.target.value)
+                                    }
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <Label>Juízo</Label>
+                                  <Input
+                                    value={draft.court || ''}
+                                    onChange={(e) =>
+                                      handleDraftChange(asset.id, 'court', e.target.value)
+                                    }
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <Label>Status</Label>
+                                  <Select
+                                    value={draft.status || 'Ativo'}
+                                    onValueChange={(v) =>
+                                      handleDraftChange(asset.id, 'status', v as any)
+                                    }
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="Ativo">Ativo</SelectItem>
+                                      <SelectItem value="Encerrado">Encerrado</SelectItem>
+                                      <SelectItem value="Suspenso">Suspenso</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div className="space-y-2">
+                                  <Label>Prognóstico de Ganho</Label>
+                                  <Select
+                                    value={draft.risk || 'Possível'}
+                                    onValueChange={(v) =>
+                                      handleDraftChange(asset.id, 'risk', v as any)
+                                    }
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="Provável">Provável</SelectItem>
+                                      <SelectItem value="Possível">Possível</SelectItem>
+                                      <SelectItem value="Remoto">Remoto</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div className="space-y-2">
+                                  <Label>Expectativa de Recuperação</Label>
+                                  <Input
+                                    value={draft.estimatedRecoveryTime || ''}
+                                    onChange={(e) =>
+                                      handleDraftChange(
+                                        asset.id,
+                                        'estimatedRecoveryTime',
+                                        e.target.value,
+                                      )
+                                    }
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <Label>Valor da Causa</Label>
+                                  <Input
+                                    type="number"
+                                    value={draft.value || 0}
+                                    onChange={(e) =>
+                                      handleDraftChange(asset.id, 'value', Number(e.target.value))
+                                    }
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <Label>Valor Incontroverso</Label>
+                                  <Input
+                                    type="number"
+                                    value={draft.incontroversoValue || 0}
+                                    onChange={(e) =>
+                                      handleDraftChange(
+                                        asset.id,
+                                        'incontroversoValue',
+                                        Number(e.target.value),
+                                      )
+                                    }
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <Label>Valor Controverso</Label>
+                                  <Input
+                                    type="number"
+                                    value={draft.controversoValue || 0}
+                                    onChange={(e) =>
+                                      handleDraftChange(
+                                        asset.id,
+                                        'controversoValue',
+                                        Number(e.target.value),
+                                      )
+                                    }
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <Label>Patrono</Label>
+                                  <Input
+                                    value={draft.lawyer || ''}
+                                    onChange={(e) =>
+                                      handleDraftChange(asset.id, 'lawyer', e.target.value)
+                                    }
+                                  />
+                                </div>
+                                <div className="col-span-1 md:col-span-2 space-y-2">
+                                  <Label>Resumo do Ocorrido</Label>
+                                  <Textarea
+                                    rows={3}
+                                    value={draft.summary || ''}
+                                    onChange={(e) =>
+                                      handleDraftChange(asset.id, 'summary', e.target.value)
+                                    }
+                                  />
+                                </div>
+                                <div className="col-span-1 md:col-span-2 space-y-2">
+                                  <Label>Últimos Andamentos e Andamento</Label>
+                                  <Textarea
+                                    rows={3}
+                                    value={draft.lastDevelopments || ''}
+                                    onChange={(e) =>
+                                      handleDraftChange(
+                                        asset.id,
+                                        'lastDevelopments',
+                                        e.target.value,
+                                      )
+                                    }
+                                  />
                                 </div>
                               </div>
-                            )}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
+                            </CardContent>
+                          ) : (
+                            <CardContent className="pt-6">
+                              <div className="border-b border-slate-200 pb-3 mb-4 pr-20">
+                                <h4 className="font-bold text-slate-900 text-lg font-serif">
+                                  {asset.processNumber}
+                                </h4>
+                                {asset.party && (
+                                  <p className="text-sm text-slate-600 font-serif mt-1">
+                                    {asset.party}
+                                  </p>
+                                )}
+                              </div>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                  <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
+                                    Resumo do Ocorrido
+                                  </p>
+                                  <p className="text-sm font-serif text-justify whitespace-pre-wrap text-slate-800 leading-relaxed">
+                                    {asset.summary || '-'}
+                                  </p>
+                                  <div className="mt-4 grid grid-cols-3 gap-2 bg-slate-50 p-3 rounded-md border border-slate-100 print:border-slate-200">
+                                    <div>
+                                      <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
+                                        Valor da Causa
+                                      </p>
+                                      <p className="text-xs text-slate-900 font-bold">
+                                        {formatCurrency(asset.value || 0)}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
+                                        Incontroverso
+                                      </p>
+                                      <p className="text-xs text-emerald-700 font-bold">
+                                        {formatCurrency(asset.incontroversoValue || 0)}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
+                                        Controverso
+                                      </p>
+                                      <p className="text-xs text-amber-700 font-bold">
+                                        {formatCurrency(asset.controversoValue || 0)}
+                                      </p>
+                                    </div>
+                                  </div>
+                                  {asset.valueDetails && (
+                                    <div className="mt-4">
+                                      <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
+                                        Composição de Valores
+                                      </p>
+                                      <p className="text-sm font-serif text-justify whitespace-pre-wrap text-slate-800">
+                                        {asset.valueDetails}
+                                      </p>
+                                    </div>
+                                  )}
+                                </div>
+                                <div>
+                                  <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
+                                    Últimos Andamentos e Andamento
+                                  </p>
+                                  <p className="text-sm font-serif text-justify whitespace-pre-wrap text-slate-800 leading-relaxed">
+                                    {asset.lastDevelopments || '-'}
+                                  </p>
+                                  <div className="grid grid-cols-2 gap-4 mt-4 bg-slate-50 p-3 rounded-md border border-slate-100 print:border-slate-200">
+                                    <div>
+                                      <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
+                                        Juízo
+                                      </p>
+                                      <p className="text-xs text-slate-800 font-semibold">
+                                        {asset.court || '-'}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
+                                        Patrono
+                                      </p>
+                                      <p className="text-xs text-slate-800 font-semibold">
+                                        {asset.lawyer || '-'}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
+                                        Status
+                                      </p>
+                                      <p className="text-xs text-slate-800 font-semibold">
+                                        {asset.status || '-'}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
+                                        Data de Referência
+                                      </p>
+                                      <p className="text-xs text-slate-800 font-semibold">
+                                        {asset.referenceDate
+                                          ? formatDate(asset.referenceDate)
+                                          : '-'}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
+                                        Expectativa de Recuperação
+                                      </p>
+                                      <p className="text-xs text-slate-800 font-semibold">
+                                        {asset.estimatedRecoveryTime || '-'}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">
+                                        Prognóstico de Ganho
+                                      </p>
+                                      <p className="text-xs text-slate-800 font-semibold">
+                                        {asset.risk || '-'}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {asset.history && asset.history.length > 0 && (
+                                  <div className="mt-6 md:col-span-2 pt-4 border-t border-slate-100 print:border-slate-200">
+                                    <p className="text-[10px] font-bold text-slate-500 uppercase mb-3">
+                                      Histórico Processual
+                                    </p>
+                                    <div className="space-y-3">
+                                      {asset.history.map((h, i) => (
+                                        <div key={i} className="flex gap-4">
+                                          <div className="w-24 shrink-0 text-xs font-semibold text-slate-600 border-r border-slate-200 pr-2 text-right py-0.5">
+                                            {formatDate(h.date)}
+                                          </div>
+                                          <div className="flex-1 pb-2">
+                                            <p className="text-sm font-serif text-slate-800 text-justify leading-relaxed">
+                                              {h.description}
+                                            </p>
+                                            <p className="text-[9px] text-slate-400 mt-1 italic uppercase tracking-wider">
+                                              Por: {h.author}
+                                            </p>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </CardContent>
+                          )}
+                        </Card>
+                      )
+                    })}
                   </div>
                 </section>
 
-                {assets.length > 0 && (
+                {selectedAssets.length > 0 && (
                   <div className="mt-12 print-page-break-before">
-                    <RelatorioDashboard assets={assets} />
+                    <RelatorioDashboard assets={selectedAssets} />
                   </div>
                 )}
 
