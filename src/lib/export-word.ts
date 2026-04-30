@@ -236,32 +236,6 @@ export const exportToWord = async (assets: JudicialAsset[], settings?: ReportSet
         </div>
 
         ${
-          a.history && a.history.length > 0
-            ? `
-        <div style="margin-top: 20px; width: 100%;">
-            <p style="margin: 0 0 12px 0; font-size: 9pt; font-weight: bold; text-transform: uppercase; color: #64748b;">Histórico Processual</p>
-            <table style="width: 100%; border-collapse: collapse; border: none; margin: 0;">
-            ${a.history
-              .map(
-                (h) => `
-                <tr>
-                    <td style="width: 80px; padding: 0 12px 8px 0; border: none; border-right: 1px solid #e2e8f0; vertical-align: top; text-align: right;">
-                        <span style="font-size: 9pt; font-weight: bold; color: #475569;">${formatDate(h.date)}</span>
-                    </td>
-                    <td style="padding: 0 0 8px 12px; border: none; vertical-align: top;">
-                        <p style="margin: 0; font-family: serif; font-size: 10pt; text-align: justify; line-height: 1.4; color: #1e293b;">${h.description}</p>
-                    </td>
-                </tr>
-                `,
-              )
-              .join('')}
-            </table>
-        </div>
-        `
-            : ''
-        }
-
-        ${
           a.lastDevelopments
             ? `
         <div style="margin-top: 20px; border-top: 1px solid #cbd5e1; padding-top: 16px; width: 100%;">

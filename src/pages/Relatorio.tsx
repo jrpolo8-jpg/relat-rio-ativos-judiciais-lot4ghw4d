@@ -825,28 +825,6 @@ export default function Relatorio() {
                                 </CardContent>
                               </Card>
 
-                              {asset.history && asset.history.length > 0 && (
-                                <div className="pt-4 mb-6 w-full">
-                                  <p className="text-xs font-bold text-slate-500 uppercase mb-3">
-                                    Histórico Processual
-                                  </p>
-                                  <div className="space-y-3">
-                                    {asset.history.map((h, i) => (
-                                      <div key={i} className="flex gap-4">
-                                        <div className="w-24 shrink-0 text-xs font-semibold text-slate-600 border-r border-slate-200 pr-2 text-right py-0.5">
-                                          {formatDate(h.date)}
-                                        </div>
-                                        <div className="flex-1 pb-2">
-                                          <p className="text-sm font-serif text-slate-800 text-justify leading-relaxed whitespace-pre-wrap break-words">
-                                            {h.description}
-                                          </p>
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-
                               {asset.lastDevelopments && (
                                 <div className="pt-4 border-t border-slate-200 print:border-slate-300 w-full">
                                   <p className="text-xs font-bold text-slate-500 uppercase mb-2">
