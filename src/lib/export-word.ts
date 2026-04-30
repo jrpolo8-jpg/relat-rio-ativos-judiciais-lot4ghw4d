@@ -187,50 +187,81 @@ export const exportToWord = async (assets: JudicialAsset[], settings?: ReportSet
 
   assets.forEach((a) => {
     html += `
-      <div style="margin-bottom: 30px;">
-        <h3 style="margin-bottom: 5px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">${a.processNumber}</h3>
-        <p style="margin-top: 0;"><strong>Parte:</strong> ${a.party || '-'}</p>
+      <div style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 24px; margin-bottom: 24px; background-color: #ffffff;">
+        <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 16px;">
+            <h3 style="margin: 0 0 4px 0; font-family: serif; font-size: 14pt; color: #0f172a;">${a.processNumber}</h3>
+            ${a.party ? `<p style="margin: 0; font-family: serif; font-size: 10pt; color: #475569;">${a.party}</p>` : ''}
+        </div>
         
-        <p style="margin-top: 15px;"><strong>Resumo do processo:</strong><br/>${(a.summary || '-').replace(/\n/g, '<br/>')}</p>
+        <div>
+            <p style="margin: 0 0 4px 0; font-size: 8pt; font-weight: bold; text-transform: uppercase; color: #64748b;">Resumo do processo</p>
+            <p style="margin: 0; font-family: serif; font-size: 10pt; text-align: justify; line-height: 1.5; color: #1e293b;">${(a.summary || '-').replace(/\n/g, '<br/>')}</p>
+        </div>
         
-        <table class="header-table" style="margin-top: 15px; margin-bottom: 15px; width: 100%;">
-            <tr>
-                <td style="width: 50%;"><strong>Valor Incontroverso:</strong> ${formatCurrency(a.incontroversoValue || 0)}</td>
-                <td style="width: 50%;"><strong>Valor Controverso:</strong> ${formatCurrency(a.controversoValue || 0)}</td>
-            </tr>
-            <tr>
-                <td style="width: 50%;"><strong>Data de Referência dos Valores:</strong> ${a.referenceDate ? formatDate(a.referenceDate) : '-'}</td>
-                <td style="width: 50%;"><strong>Prognóstico de Ganho:</strong> ${a.risk}</td>
-            </tr>
-            <tr>
-                <td style="width: 50%;"><strong>Expectativa de Monetização do Ativo:</strong> ${a.estimatedRecoveryTime || '-'}</td>
-                <td style="width: 50%;"><strong>Patrono Responsável:</strong> ${a.lawyer || '-'}</td>
-            </tr>
-        </table>
+        <div style="margin-top: 16px; background-color: #f8fafc; border: 1px solid #f1f5f9; padding: 16px; border-radius: 6px;">
+            <table style="width: 100%; border-collapse: collapse; border: none; margin: 0;">
+                <tr>
+                    <td style="width: 33%; padding: 0 8px 12px 0; border: none;">
+                        <p style="margin: 0 0 4px 0; font-size: 7pt; font-weight: bold; text-transform: uppercase; color: #64748b;">Valor Incontroverso</p>
+                        <p style="margin: 0; font-size: 10pt; font-weight: bold; color: #047857;">${formatCurrency(a.incontroversoValue || 0)}</p>
+                    </td>
+                    <td style="width: 33%; padding: 0 8px 12px 8px; border: none;">
+                        <p style="margin: 0 0 4px 0; font-size: 7pt; font-weight: bold; text-transform: uppercase; color: #64748b;">Valor Controverso</p>
+                        <p style="margin: 0; font-size: 10pt; font-weight: bold; color: #b45309;">${formatCurrency(a.controversoValue || 0)}</p>
+                    </td>
+                    <td style="width: 33%; padding: 0 0 12px 8px; border: none;">
+                        <p style="margin: 0 0 4px 0; font-size: 7pt; font-weight: bold; text-transform: uppercase; color: #64748b;">Data de Referência dos Valores</p>
+                        <p style="margin: 0; font-size: 10pt; font-weight: bold; color: #1e293b;">${a.referenceDate ? formatDate(a.referenceDate) : '-'}</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width: 33%; padding: 0 8px 0 0; border: none;">
+                        <p style="margin: 0 0 4px 0; font-size: 7pt; font-weight: bold; text-transform: uppercase; color: #64748b;">Prognóstico de Ganho</p>
+                        <p style="margin: 0; font-size: 10pt; font-weight: bold; color: #1e293b;">${a.risk}</p>
+                    </td>
+                    <td style="width: 33%; padding: 0 8px 0 8px; border: none;">
+                        <p style="margin: 0 0 4px 0; font-size: 7pt; font-weight: bold; text-transform: uppercase; color: #64748b;">Expectativa de Monetização do Ativo</p>
+                        <p style="margin: 0; font-size: 10pt; font-weight: bold; color: #1e293b;">${a.estimatedRecoveryTime || '-'}</p>
+                    </td>
+                    <td style="width: 33%; padding: 0 0 0 8px; border: none;">
+                        <p style="margin: 0 0 4px 0; font-size: 7pt; font-weight: bold; text-transform: uppercase; color: #64748b;">Patrono Responsável</p>
+                        <p style="margin: 0; font-size: 10pt; font-weight: bold; color: #1e293b;">${a.lawyer || '-'}</p>
+                    </td>
+                </tr>
+            </table>
+        </div>
 
         ${
           a.history && a.history.length > 0
             ? `
-        <p style="margin-top: 15px; margin-bottom: 5px;"><strong>Histórico Processual:</strong></p>
-        <table style="width: 100%; margin-bottom: 15px; font-size: 10pt;">
-          ${a.history
-            .map(
-              (h) => `
-          <tr>
-            <td style="width: 20%; border: none; border-bottom: 1px solid #eee; padding: 4px 0; vertical-align: top;"><strong>${formatDate(h.date)}</strong></td>
-            <td style="width: 80%; border: none; border-bottom: 1px solid #eee; padding: 4px 0; vertical-align: top;">${h.description}<br/><span style="font-size: 8pt; color: #666;">Por: ${h.author}</span></td>
-          </tr>
-          `,
-            )
-            .join('')}
-        </table>
+        <div style="margin-top: 16px; border-top: 1px solid #f1f5f9; padding-top: 16px;">
+            <p style="margin: 0 0 12px 0; font-size: 8pt; font-weight: bold; text-transform: uppercase; color: #64748b;">Histórico Processual</p>
+            <table style="width: 100%; border-collapse: collapse; border: none; margin: 0;">
+            ${a.history
+              .map(
+                (h) => `
+                <tr>
+                    <td style="width: 80px; padding: 0 12px 8px 0; border: none; border-right: 1px solid #e2e8f0; vertical-align: top; text-align: right;">
+                        <span style="font-size: 9pt; font-weight: bold; color: #475569;">${formatDate(h.date)}</span>
+                    </td>
+                    <td style="padding: 0 0 8px 12px; border: none; vertical-align: top;">
+                        <p style="margin: 0; font-family: serif; font-size: 10pt; text-align: justify; line-height: 1.4; color: #1e293b;">${h.description}</p>
+                    </td>
+                </tr>
+                `,
+              )
+              .join('')}
+            </table>
+        </div>
         `
             : ''
         }
 
-        <p><strong>Último andamento:</strong><br/>${(a.lastDevelopments || '-').replace(/\n/g, '<br/>')}</p>
+        <div style="margin-top: 16px; border-top: 1px solid #f1f5f9; padding-top: 16px;">
+            <p style="margin: 0 0 4px 0; font-size: 8pt; font-weight: bold; text-transform: uppercase; color: #64748b;">Último andamento</p>
+            <p style="margin: 0; font-family: serif; font-size: 10pt; text-align: justify; line-height: 1.5; color: #1e293b;">${(a.lastDevelopments || '-').replace(/\n/g, '<br/>')}</p>
+        </div>
       </div>
-      <hr style="border: 0; border-bottom: 1px solid #ccc; margin: 20px 0;" />
     `
   })
 

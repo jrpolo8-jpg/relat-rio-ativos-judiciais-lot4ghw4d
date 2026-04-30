@@ -777,9 +777,6 @@ export default function Relatorio() {
                                             <p className="text-sm font-serif text-slate-800 text-justify leading-relaxed">
                                               {h.description}
                                             </p>
-                                            <p className="text-[9px] text-slate-400 mt-1 italic uppercase tracking-wider">
-                                              Por: {h.author}
-                                            </p>
                                           </div>
                                         </div>
                                       ))}
