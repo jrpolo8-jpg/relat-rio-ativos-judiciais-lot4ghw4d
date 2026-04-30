@@ -20,6 +20,7 @@ export const MOCK_ASSETS: JudicialAsset[] = [
     estimatedRecoveryTime: 'Acima de 5 anos',
     lastDevelopments: 'Atualmente na fase de Instrução Probatória/Perícia.',
     lastUpdate: '2023-11-20',
+    sortOrder: 1,
     history: [
       {
         id: 'h1',
@@ -51,6 +52,7 @@ export const MOCK_ASSETS: JudicialAsset[] = [
     lastDevelopments:
       'Apresentação do Laudo Pericial favorável, aguardando manifestação da parte contrária.',
     lastUpdate: '2023-11-20',
+    sortOrder: 2,
     history: [],
   },
   {
@@ -74,6 +76,7 @@ export const MOCK_ASSETS: JudicialAsset[] = [
     lastDevelopments:
       'Trânsito em julgado parcial sobre a incidência de juros a partir do evento danoso.',
     lastUpdate: '2023-11-20',
+    sortOrder: 3,
     history: [],
   },
   {
@@ -96,6 +99,7 @@ export const MOCK_ASSETS: JudicialAsset[] = [
     lastDevelopments:
       'Julgamento favorável no TRF1 confirmando a legitimidade da Cetenco para levantamento dos valores.',
     lastUpdate: '2023-11-20',
+    sortOrder: 4,
     history: [],
   },
   {
@@ -119,6 +123,7 @@ export const MOCK_ASSETS: JudicialAsset[] = [
     lastDevelopments:
       'Ação julgada procedente com a seguinte sentença: "JULGO PROCEDENTE O PEDIDO... para CONDENAR o DNIT a pagar à CETENCO ENGENHARIA S.A. o valor de R$ 45.403.566,08... atualizado e acrescido de juros de mora a partir de março de 2023." Aguarda-se julgamento de Apelação buscando a majoração.',
     lastUpdate: '2026-04-20',
+    sortOrder: 5,
     history: [
       {
         id: 'h1',

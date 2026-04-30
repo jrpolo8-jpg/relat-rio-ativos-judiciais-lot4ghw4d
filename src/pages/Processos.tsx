@@ -1,5 +1,17 @@
 import { useState } from 'react'
-import { Search, Filter, Eye, FileText, Pencil, Plus, Trash2, ShieldAlert } from 'lucide-react'
+import {
+  Search,
+  Filter,
+  Eye,
+  FileText,
+  Pencil,
+  Plus,
+  Trash2,
+  ShieldAlert,
+  ChevronUp,
+  ChevronDown,
+  ArrowUpDown,
+} from 'lucide-react'
 import { useAssets } from '@/hooks/use-assets'
 import { formatCurrency, formatDate } from '@/lib/formatters'
 import { JudicialAsset, RiskLevel } from '@/lib/types'
@@ -326,9 +338,10 @@ function DeleteProcessAction({ asset }: { asset: JudicialAsset }) {
 }
 
 export default function Processos() {
-  const { assets } = useAssets()
+  const { assets, updateAsset } = useAssets()
   const [searchTerm, setSearchTerm] = useState('')
   const [riskFilter, setRiskFilter] = useState<string>('todos')
+  const [isReordering, setIsReordering] = useState(false)
 
   const filteredAssets = assets.filter((asset) => {
     const term = searchTerm.toLowerCase()
@@ -340,6 +353,46 @@ export default function Processos() {
     const matchesRisk = riskFilter === 'todos' || asset.risk === riskFilter
     return matchesSearch && matchesRisk
   })
+
+  const isFiltered = searchTerm !== '' || riskFilter !== 'todos'
+
+  const moveUp = async (index: number) => {
+    if (index === 0 || isFiltered || isReordering) return
+    setIsReordering(true)
+    try {
+      const current = filteredAssets[index]
+      const prev = filteredAssets[index - 1]
+
+      const currentSort = current.sortOrder ?? index
+      const prevSort = prev.sortOrder ?? index - 1
+
+      await Promise.all([
+        updateAsset(current.id, { sortOrder: prevSort }),
+        updateAsset(prev.id, { sortOrder: currentSort }),
+      ])
+    } finally {
+      setIsReordering(false)
+    }
+  }
+
+  const moveDown = async (index: number) => {
+    if (index === filteredAssets.length - 1 || isFiltered || isReordering) return
+    setIsReordering(true)
+    try {
+      const current = filteredAssets[index]
+      const next = filteredAssets[index + 1]
+
+      const currentSort = current.sortOrder ?? index
+      const nextSort = next.sortOrder ?? index + 1
+
+      await Promise.all([
+        updateAsset(current.id, { sortOrder: nextSort }),
+        updateAsset(next.id, { sortOrder: currentSort }),
+      ])
+    } finally {
+      setIsReordering(false)
+    }
+  }
 
   return (
     <div className="container mx-auto py-8 px-4 md:px-8 space-y-6 animate-fade-in-up">
@@ -381,6 +434,9 @@ export default function Processos() {
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/50 hover:bg-muted/50">
+              <TableHead className="w-[50px] text-center">
+                <ArrowUpDown className="h-4 w-4 text-muted-foreground inline-block" />
+              </TableHead>
               <TableHead className="font-semibold text-primary">
                 Número do Processo / Parte
               </TableHead>
@@ -397,13 +453,35 @@ export default function Processos() {
           <TableBody>
             {filteredAssets.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
                   Nenhum processo encontrado.
                 </TableCell>
               </TableRow>
             ) : (
-              filteredAssets.map((asset) => (
+              filteredAssets.map((asset, index) => (
                 <TableRow key={asset.id} className="hover:bg-muted/30 transition-colors">
+                  <TableCell className="p-2 align-middle">
+                    <div className="flex flex-col items-center justify-center gap-0.5 mt-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-5 w-5 rounded hover:bg-muted"
+                        disabled={isFiltered || index === 0 || isReordering}
+                        onClick={() => moveUp(index)}
+                      >
+                        <ChevronUp className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-5 w-5 rounded hover:bg-muted"
+                        disabled={isFiltered || index === filteredAssets.length - 1 || isReordering}
+                        onClick={() => moveDown(index)}
+                      >
+                        <ChevronDown className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </TableCell>
                   <TableCell>
                     <div className="font-medium">{asset.processNumber}</div>
                     <div

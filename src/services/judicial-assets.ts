@@ -19,6 +19,7 @@ const mapToBackend = (data: Partial<JudicialAsset>) => {
   if (data.lastDevelopments !== undefined) mapped.last_developments = data.lastDevelopments
   if (data.valueDetails !== undefined) mapped.value_details = data.valueDetails
   if (data.history !== undefined) mapped.history = data.history
+  if (data.sortOrder !== undefined) mapped.sort_order = data.sortOrder
 
   if (pb.authStore.record?.id) {
     mapped.user_id = pb.authStore.record.id
@@ -45,11 +46,12 @@ const mapToFrontend = (data: any): JudicialAsset => ({
   valueDetails: data.value_details || '',
   history: data.history || [],
   lastUpdate: data.updated || new Date().toISOString(),
+  sortOrder: data.sort_order || 0,
 })
 
 export const getAssets = async (): Promise<JudicialAsset[]> => {
   const records = await pb.collection('judicial_assets').getFullList({
-    sort: '-created',
+    sort: 'sort_order,-created',
     batch: 500,
     requestKey: null,
   })

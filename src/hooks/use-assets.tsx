@@ -54,8 +54,13 @@ export const AssetProvider = ({ children }: { children: ReactNode }) => {
 
   const addAsset = async (asset: Omit<JudicialAsset, 'id'>) => {
     try {
-      const newAsset = await createAsset(asset)
-      setAssets((prev) => [newAsset, ...prev])
+      const maxSortOrder = assets.reduce((max, a) => Math.max(max, a.sortOrder || 0), 0)
+      const newAsset = await createAsset({ ...asset, sortOrder: maxSortOrder + 1 })
+
+      setAssets((prev) => {
+        const next = [...prev, newAsset]
+        return next.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
+      })
       toast({ title: 'Sucesso', description: 'Ativo adicionado com sucesso.' })
     } catch (error) {
       console.error(error)
@@ -71,10 +76,15 @@ export const AssetProvider = ({ children }: { children: ReactNode }) => {
   const updateAsset = async (id: string, updatedFields: Partial<JudicialAsset>) => {
     try {
       const updatedAsset = await apiUpdateAsset(id, updatedFields)
-      setAssets((prev) =>
-        prev.map((asset) => (asset.id === id ? { ...asset, ...updatedAsset } : asset)),
-      )
-      toast({ title: 'Sucesso', description: 'Ativo atualizado com sucesso!' })
+      setAssets((prev) => {
+        const next = prev.map((asset) => (asset.id === id ? { ...asset, ...updatedAsset } : asset))
+        return next.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
+      })
+
+      // Only show toast if not a background update (like sort order)
+      if (Object.keys(updatedFields).length > 1 || !('sortOrder' in updatedFields)) {
+        toast({ title: 'Sucesso', description: 'Ativo atualizado com sucesso!' })
+      }
     } catch (error) {
       console.error(error)
       toast({

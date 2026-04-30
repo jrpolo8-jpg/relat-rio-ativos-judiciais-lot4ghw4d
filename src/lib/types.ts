@@ -39,4 +39,5 @@ export interface JudicialAsset {
   lastDevelopments: string
   lastUpdate: string
   history: ProcessUpdate[]
+  sortOrder?: number
 }
