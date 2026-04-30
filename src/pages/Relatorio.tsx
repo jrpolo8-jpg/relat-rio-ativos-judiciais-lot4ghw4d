@@ -733,6 +733,14 @@ export default function Relatorio() {
                                   <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-md border border-slate-100 print:border-slate-200">
                                     <div>
                                       <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
+                                        Valor estimado do pedido
+                                      </p>
+                                      <p className="text-xs text-slate-800 font-bold">
+                                        {formatCurrency(asset.value || 0)}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
                                         Valor Incontroverso
                                       </p>
                                       <p className="text-xs text-emerald-700 font-bold">
