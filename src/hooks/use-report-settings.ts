@@ -41,14 +41,8 @@ export function useReportSettings() {
       const { id, created, updated, collectionId, collectionName, ...dataToSave } =
         newSettings as any
 
-      let currentId = settings?.id
-
-      if (!currentId) {
-        const existing = await pb.collection('report_settings').getFullList()
-        if (existing.length > 0) {
-          currentId = existing[0].id
-        }
-      }
+      const existing = await pb.collection('report_settings').getFullList()
+      const currentId = existing.length > 0 ? existing[0].id : null
 
       if (currentId) {
         const updatedRecord = await pb

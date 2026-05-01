@@ -108,7 +108,10 @@ export default function Relatorio() {
     try {
       await updateSettings(editSettings)
       setIsSettingsOpen(false)
-      toast({ title: 'Sucesso', description: 'Configurações salvas.' })
+      toast({
+        title: 'Sucesso ao salvar configurações',
+        description: 'Configurações salvas com sucesso.',
+      })
     } catch (err) {
       toast({
         title: 'Erro ao salvar configurações',
@@ -262,7 +265,10 @@ export default function Relatorio() {
     }
   }
 
-  const totalValue = selectedAssets.reduce((acc, a) => acc + (a.value || 0), 0)
+  const totalValue = selectedAssets.reduce(
+    (acc, a) => acc + ((a as any).cetencoValue || a.value || 0),
+    0,
+  )
   const formattedTotal = formatCurrency(totalValue)
   const preambleHtml = settings?.preamble_text
     ? settings.preamble_text.replace(/{valor_total}/g, formattedTotal)
