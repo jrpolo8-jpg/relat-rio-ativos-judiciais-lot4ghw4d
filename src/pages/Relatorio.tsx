@@ -1,4 +1,5 @@
 import { useState, useEffect, Fragment } from 'react'
+import { Link } from 'react-router-dom'
 import {
   Printer,
   Plus,
@@ -359,8 +360,10 @@ export default function Relatorio() {
             </Button>
           )}
 
-          <Button variant="outline" onClick={handleSettingsOpen}>
-            <Settings className="mr-2 h-4 w-4" /> Configurações
+          <Button variant="outline" asChild>
+            <Link to="/configuracoes">
+              <Settings className="mr-2 h-4 w-4" /> Configurações
+            </Link>
           </Button>
 
           <Button
