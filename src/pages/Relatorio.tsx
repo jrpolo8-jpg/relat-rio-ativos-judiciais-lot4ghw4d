@@ -82,9 +82,12 @@ export default function Relatorio() {
   const [drafts, setDrafts] = useState<Record<string, Partial<JudicialAsset>>>({})
   const [savingEdits, setSavingEdits] = useState(false)
 
-  const [editingSummaryId, setEditingSummaryId] = useState<string | null>(null)
-  const [editingSummaryText, setEditingSummaryText] = useState('')
-  const [savingSummary, setSavingSummary] = useState(false)
+  const [inlineEdit, setInlineEdit] = useState<{
+    id: string
+    field: 'summary' | 'lastDevelopments'
+    text: string
+  } | null>(null)
+  const [savingInline, setSavingInline] = useState(false)
 
   const { settings, loading: loadingSettings, updateSettings } = useReportSettings()
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
@@ -194,9 +197,17 @@ export default function Relatorio() {
     setEditingAssetId(asset.id)
   }
 
-  const handleOpenSummaryEdit = (asset: JudicialAsset) => {
-    setEditingSummaryId(asset.id)
-    setEditingSummaryText(asset.summary ?? '')
+  const handleSaveInline = async (field: 'summary' | 'lastDevelopments') => {
+    if (!inlineEdit) return
+    setSavingInline(true)
+    try {
+      await updateAsset(inlineEdit.id, { [field]: inlineEdit.text })
+      setInlineEdit(null)
+    } catch (e) {
+      // error toast already handled by updateAsset
+    } finally {
+      setSavingInline(false)
+    }
   }
 
   const totalValue = selectedAssets.reduce((acc, a) => acc + (a.value || 0), 0)
@@ -736,18 +747,61 @@ export default function Relatorio() {
                                     <p className="text-[9px] font-bold text-slate-500 uppercase flex items-center gap-2">
                                       Breve Histórico
                                     </p>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-6 px-2 text-xs print-hide opacity-0 group-hover/summary:opacity-100 transition-opacity"
-                                      onClick={() => handleOpenSummaryEdit(asset)}
-                                    >
-                                      <Pencil className="h-3 w-3 mr-1" /> Editar Histórico
-                                    </Button>
+                                    {!isEditMode && inlineEdit?.id !== asset.id && (
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-6 px-2 text-xs print-hide opacity-0 group-hover/summary:opacity-100 transition-opacity"
+                                        onClick={() =>
+                                          setInlineEdit({
+                                            id: asset.id,
+                                            field: 'summary',
+                                            text: asset.summary || '',
+                                          })
+                                        }
+                                      >
+                                        <Pencil className="h-3 w-3 mr-1" /> Editar Histórico
+                                      </Button>
+                                    )}
                                   </div>
-                                  <p className="text-sm sm:text-base font-serif text-justify whitespace-pre-wrap break-words text-slate-800 leading-relaxed w-full">
-                                    {asset.summary ?? '-'}
-                                  </p>
+                                  {inlineEdit?.id === asset.id &&
+                                  inlineEdit?.field === 'summary' ? (
+                                    <div className="space-y-3 mt-2">
+                                      <Textarea
+                                        value={inlineEdit.text}
+                                        onChange={(e) =>
+                                          setInlineEdit({ ...inlineEdit, text: e.target.value })
+                                        }
+                                        className="min-h-[250px] font-serif text-sm sm:text-base"
+                                        placeholder="Digite o breve histórico..."
+                                      />
+                                      <div className="flex justify-end gap-2">
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          onClick={() => setInlineEdit(null)}
+                                          disabled={savingInline}
+                                        >
+                                          Cancelar
+                                        </Button>
+                                        <Button
+                                          size="sm"
+                                          onClick={() => handleSaveInline('summary')}
+                                          disabled={savingInline}
+                                          className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                                        >
+                                          {savingInline && (
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                          )}
+                                          Salvar Alterações
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <p className="text-sm sm:text-base font-serif text-justify whitespace-pre-wrap break-words text-slate-800 leading-relaxed w-full">
+                                      {asset.summary ?? '-'}
+                                    </p>
+                                  )}
                                 </CardContent>
                               </Card>
 
@@ -816,16 +870,97 @@ export default function Relatorio() {
                                 </CardContent>
                               </Card>
 
-                              {asset.lastDevelopments && (
-                                <div className="pt-4 border-t border-slate-200 print:border-slate-300 w-full">
-                                  <p className="text-xs font-bold text-slate-500 uppercase mb-2">
-                                    Último andamento
-                                  </p>
-                                  <p className="text-base font-serif text-justify whitespace-pre-wrap break-words text-slate-800 leading-relaxed w-full">
-                                    {asset.lastDevelopments}
-                                  </p>
+                              {(asset.lastDevelopments || inlineEdit?.id === asset.id) && (
+                                <div className="pt-4 border-t border-slate-200 print:border-slate-300 w-full relative group/lastDev">
+                                  <div className="flex justify-between items-start mb-2">
+                                    <p className="text-xs font-bold text-slate-500 uppercase">
+                                      Último andamento / Resumo do Processo
+                                    </p>
+                                    {!isEditMode && inlineEdit?.id !== asset.id && (
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-6 px-2 text-xs print-hide opacity-0 group-hover/lastDev:opacity-100 transition-opacity"
+                                        onClick={() =>
+                                          setInlineEdit({
+                                            id: asset.id,
+                                            field: 'lastDevelopments',
+                                            text: asset.lastDevelopments || '',
+                                          })
+                                        }
+                                      >
+                                        <Pencil className="h-3 w-3 mr-1" /> Editar Andamento
+                                      </Button>
+                                    )}
+                                  </div>
+                                  {inlineEdit?.id === asset.id &&
+                                  inlineEdit?.field === 'lastDevelopments' ? (
+                                    <div className="space-y-3 mt-2">
+                                      <Textarea
+                                        value={inlineEdit.text}
+                                        onChange={(e) =>
+                                          setInlineEdit({ ...inlineEdit, text: e.target.value })
+                                        }
+                                        className="min-h-[250px] font-serif text-base"
+                                        placeholder="Digite o resumo do processo / último andamento..."
+                                      />
+                                      <div className="flex justify-end gap-2">
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          onClick={() => setInlineEdit(null)}
+                                          disabled={savingInline}
+                                        >
+                                          Cancelar
+                                        </Button>
+                                        <Button
+                                          size="sm"
+                                          onClick={() => handleSaveInline('lastDevelopments')}
+                                          disabled={savingInline}
+                                          className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                                        >
+                                          {savingInline && (
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                          )}
+                                          Salvar Alterações
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <p className="text-base font-serif text-justify whitespace-pre-wrap break-words text-slate-800 leading-relaxed w-full">
+                                      {asset.lastDevelopments}
+                                    </p>
+                                  )}
                                 </div>
                               )}
+                              {!asset.lastDevelopments &&
+                                inlineEdit?.id !== asset.id &&
+                                !isEditMode && (
+                                  <div className="pt-4 border-t border-slate-200 print:border-slate-300 w-full relative group/lastDev">
+                                    <div className="flex justify-between items-start mb-2">
+                                      <p className="text-xs font-bold text-slate-500 uppercase">
+                                        Último andamento / Resumo do Processo
+                                      </p>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-6 px-2 text-xs print-hide opacity-0 group-hover/lastDev:opacity-100 transition-opacity"
+                                        onClick={() =>
+                                          setInlineEdit({
+                                            id: asset.id,
+                                            field: 'lastDevelopments',
+                                            text: '',
+                                          })
+                                        }
+                                      >
+                                        <Pencil className="h-3 w-3 mr-1" /> Adicionar Andamento
+                                      </Button>
+                                    </div>
+                                    <p className="text-sm font-serif text-slate-400 italic">
+                                      Sem andamentos registrados.
+                                    </p>
+                                  </div>
+                                )}
                             </div>
                           )}
                         </div>
@@ -991,61 +1126,6 @@ export default function Relatorio() {
               <Button type="submit">Salvar Alterações</Button>
             </DialogFooter>
           </form>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog
-        open={!!editingSummaryId}
-        onOpenChange={(open) => {
-          if (!open && !savingSummary) setEditingSummaryId(null)
-        }}
-      >
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Editar Breve Histórico</DialogTitle>
-            <DialogDescription>
-              As alterações feitas aqui serão salvas permanentemente no banco de dados e ficarão
-              disponíveis para futuras exportações.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4">
-            <Textarea
-              rows={10}
-              value={editingSummaryText}
-              onChange={(e) => setEditingSummaryText(e.target.value)}
-              placeholder="Digite o breve histórico..."
-              disabled={savingSummary}
-            />
-          </div>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setEditingSummaryId(null)}
-              disabled={savingSummary}
-            >
-              Cancelar
-            </Button>
-            <Button
-              type="button"
-              disabled={savingSummary}
-              onClick={async () => {
-                if (!editingSummaryId) return
-                setSavingSummary(true)
-                try {
-                  await updateAsset(editingSummaryId, { summary: editingSummaryText })
-                  setEditingSummaryId(null)
-                } catch (e) {
-                  // Error toast is already handled by updateAsset
-                } finally {
-                  setSavingSummary(false)
-                }
-              }}
-            >
-              {savingSummary && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Salvar Alterações
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
