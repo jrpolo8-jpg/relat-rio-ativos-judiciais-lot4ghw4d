@@ -32,6 +32,7 @@ import { JudicialAsset, ReportSettings } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { exportToWord } from '@/lib/export-word'
 import { useToast } from '@/hooks/use-toast'
+import { getErrorMessage } from '@/lib/pocketbase/errors'
 import {
   Dialog,
   DialogContent,
@@ -109,7 +110,11 @@ export default function Relatorio() {
       setIsSettingsOpen(false)
       toast({ title: 'Sucesso', description: 'Configurações salvas.' })
     } catch (err) {
-      toast({ title: 'Erro', description: 'Erro ao salvar configurações.', variant: 'destructive' })
+      toast({
+        title: 'Erro ao salvar configurações',
+        description: getErrorMessage(err),
+        variant: 'destructive',
+      })
     }
   }
 
@@ -261,7 +266,7 @@ export default function Relatorio() {
   const formattedTotal = formatCurrency(totalValue)
   const preambleHtml = settings?.preamble_text
     ? settings.preamble_text.replace(/{valor_total}/g, formattedTotal)
-    : 'Trata-se dos principais ativos estratégicos da Cetenco, com a devida qualificação de valores envolvidos (incontroversos e controversos), avaliação de riscos (prognóstico de ganho) e relatório circunstanciado sobre os andamentos recentes de cada demanda, com indicação dos respectivos patronos e acompanhamento pela Sayão e Polo Sociedade de Advogados, juntamente com toda diretoria executiva da Companhia Cetenco..'
+    : 'Trata-se dos principais ativos estratégicos da Cetenco, com a devida qualificação de valores envolvidos (incontroversos e controversos), avaliação de riscos (prognóstico de ganho) e relatório circunstanciado sobre os andamentos recentes de cada demanda, com indicação dos respectivos patronos e acompanhamento pela Sayão e Polo Sociedade de Advogados, juntamente com toda diretoria executiva da Companhia Cetenco.'
 
   if (loading || loadingSettings) {
     return (
@@ -449,7 +454,7 @@ export default function Relatorio() {
                     Relatório Gerencial de Ativos Judiciais
                   </h1>
                   <p className="text-sm font-serif italic text-slate-600 mt-4 font-bold">
-                    Data-Base: {formatDate(new Date().toISOString())}
+                    Data-Base: {settings?.base_date || formatDate(new Date().toISOString())}
                   </p>
                   <div className="mt-6 mb-8 text-left max-w-3xl mx-auto block">
                     <p className="text-sm font-serif text-slate-800 leading-relaxed text-justify whitespace-pre-wrap">
@@ -1261,6 +1266,14 @@ export default function Relatorio() {
                 onChange={(e) =>
                   setEditSettings({ ...editSettings, preamble_text: e.target.value })
                 }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Data-Base do Relatório</Label>
+              <Input
+                value={editSettings.base_date || ''}
+                placeholder="Ex: 01/05/2026"
+                onChange={(e) => setEditSettings({ ...editSettings, base_date: e.target.value })}
               />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-slate-200 pt-4">

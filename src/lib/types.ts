@@ -10,6 +10,7 @@ export interface ReportSettings {
   signature2_title: string
   signature3_name: string
   signature3_title: string
+  base_date?: string
 }
 
 export interface ProcessUpdate {
