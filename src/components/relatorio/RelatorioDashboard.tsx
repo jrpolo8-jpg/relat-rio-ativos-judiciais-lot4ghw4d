@@ -17,9 +17,12 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export function RelatorioDashboard({ assets }: { assets: JudicialAsset[] }) {
-  const totalValue = assets.reduce((acc, a) => acc + (a.value || 0), 0)
   const incontroversoValue = assets.reduce((acc, a) => acc + (a.incontroversoValue || 0), 0)
   const controversoValue = assets.reduce((acc, a) => acc + (a.controversoValue || 0), 0)
+  const totalCetenco = assets.reduce(
+    (acc, a) => acc + (a.cetencoValue ?? (a.incontroversoValue || 0) + (a.controversoValue || 0)),
+    0,
+  )
 
   const countProvavel = assets.filter((a) => a.risk === 'Provável').length
   const countPossivel = assets.filter((a) => a.risk === 'Possível').length
@@ -67,12 +70,12 @@ export function RelatorioDashboard({ assets }: { assets: JudicialAsset[] }) {
         <Card className="bg-slate-50 border-slate-200 shadow-sm print:shadow-none print:border flex flex-col justify-center">
           <CardHeader className="pb-1 sm:pb-2">
             <CardTitle className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-600 text-center">
-              Valor Total dos Ativos
+              Valor Total Pertencente à Cetenco
             </CardTitle>
           </CardHeader>
           <CardContent className="text-center p-2 sm:p-3 flex items-center justify-center">
             <p className="text-slate-900 text-sm sm:text-base font-bold print:text-xs break-words leading-tight">
-              {formatCurrency(totalValue)}
+              {formatCurrency(totalCetenco)}
             </p>
           </CardContent>
         </Card>

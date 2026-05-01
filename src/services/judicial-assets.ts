@@ -77,6 +77,8 @@ export const updateAsset = async (
   if (data.lastDevelopments !== undefined) record.last_developments = data.lastDevelopments
   if (data.valueDetails !== undefined) record.value_details = data.valueDetails
   if (data.sortOrder !== undefined) record.sort_order = data.sortOrder
+  if (data.cetencoPercentage !== undefined) record.cetenco_percentage = data.cetencoPercentage
+  if (data.cetencoValue !== undefined) record.cetenco_value = data.cetencoValue
 
   if (data.history !== undefined || data.summaryItems !== undefined) {
     const currentHistory = currentRecord.history || {}

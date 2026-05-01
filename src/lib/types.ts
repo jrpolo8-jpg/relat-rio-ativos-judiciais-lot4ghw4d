@@ -49,4 +49,6 @@ export interface JudicialAsset {
   lastUpdate: string
   history: ProcessUpdate[]
   sortOrder?: number
+  cetencoPercentage?: number
+  cetencoValue?: number
 }

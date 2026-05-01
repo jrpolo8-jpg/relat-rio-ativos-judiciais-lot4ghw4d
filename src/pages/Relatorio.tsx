@@ -270,8 +270,11 @@ export default function Relatorio() {
     }
   }
 
-  const totalValue = selectedAssets.reduce((acc, a) => acc + (a.value || 0), 0)
-  const formattedTotal = formatCurrency(totalValue)
+  const totalCetenco = selectedAssets.reduce(
+    (acc, a) => acc + (a.cetencoValue ?? (a.incontroversoValue || 0) + (a.controversoValue || 0)),
+    0,
+  )
+  const formattedTotal = formatCurrency(totalCetenco)
   const preambleHtml = settings?.preamble_text
     ? settings.preamble_text.replace(/{valor_total}/g, formattedTotal)
     : 'Trata-se dos principais ativos estratégicos da Cetenco, com a devida qualificação de valores envolvidos (incontroversos e controversos), avaliação de riscos (prognóstico de ganho) e relatório circunstanciado sobre os andamentos recentes de cada demanda, com indicação dos respectivos patronos e acompanhamento pela Sayão e Polo Sociedade de Advogados, juntamente com toda diretoria executiva da Companhia Cetenco.'
@@ -473,735 +476,837 @@ export default function Relatorio() {
                   </div>
                 </div>
 
-                {selectedAssets.length > 0 && (
-                  <div className="mt-12 mb-12">
-                    <RelatorioDashboard assets={selectedAssets} />
+                {selectedAssets.length === 0 ? (
+                  <div className="text-center py-20 text-slate-500 border border-dashed rounded-lg bg-slate-50">
+                    Nenhum ativo selecionado ou disponível para o relatório.
                   </div>
-                )}
+                ) : (
+                  <>
+                    <div className="mt-12 mb-12">
+                      <RelatorioDashboard assets={selectedAssets} />
+                    </div>
 
-                <section className="mb-12 print-break-inside-avoid">
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 mb-4 border-b border-slate-200 pb-1">
-                    I. Quadro Resumo
-                  </h3>
-                  <div className="rounded-md border border-slate-200 overflow-hidden print:border-none print:overflow-visible">
-                    <Table>
-                      <TableHeader className="bg-slate-50 print:bg-transparent">
-                        <TableRow>
-                          <TableHead className="text-[11px] uppercase font-bold text-slate-700 w-1/4">
-                            Identificação
-                          </TableHead>
-                          <TableHead className="text-[11px] uppercase font-bold text-slate-700">
-                            Valores com Datas-Bases
-                          </TableHead>
-                          <TableHead className="text-[11px] uppercase font-bold text-slate-700 text-center">
-                            Prognóstico de Ganho
-                          </TableHead>
-                          <TableHead className="text-[11px] uppercase font-bold text-slate-700 text-right">
-                            Estimativa de Tempo
-                          </TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {selectedAssets.map((asset) => (
-                          <TableRow
-                            key={asset.id}
-                            className="hover:bg-slate-50/50 border-b print:border-slate-200"
-                          >
-                            <TableCell className="align-top pt-4 pb-4">
-                              <div className="font-bold text-slate-900 text-xs">
-                                {asset.processNumber}
-                              </div>
-                              <div className="text-[10px] text-slate-600 font-medium mt-1">
-                                {asset.party}
-                              </div>
-                              <div className="text-[9px] text-slate-400 mt-1 uppercase">
-                                {asset.court}
-                              </div>
-                              {asset.lawyer && (
-                                <div className="text-[9px] text-slate-500 mt-1">
-                                  <span className="font-semibold uppercase">Patrono:</span>{' '}
-                                  {asset.lawyer}
-                                </div>
-                              )}
-                            </TableCell>
-                            <TableCell className="align-top pt-4 pb-4">
-                              <div className="font-bold text-xs text-slate-800">
-                                {formatCurrency(asset.value)}{' '}
-                                <span className="text-[9px] font-normal text-slate-500">
-                                  (Total)
-                                </span>
-                              </div>
-                              <div className="text-[11px] text-emerald-700 font-semibold mt-1">
-                                {formatCurrency(asset.incontroversoValue || 0)}{' '}
-                                <span className="text-[9px] font-normal text-slate-500">
-                                  (Incont.)
-                                </span>
-                              </div>
-                              <div className="text-[11px] text-amber-700 font-semibold mt-1">
-                                {formatCurrency(asset.controversoValue || 0)}{' '}
-                                <span className="text-[9px] font-normal text-slate-500">
-                                  (Cont.)
-                                </span>
-                              </div>
-                              {asset.valueDetails && (
-                                <div className="text-[10px] text-slate-600 mt-1 italic">
-                                  {asset.valueDetails}
-                                </div>
-                              )}
-                              {asset.referenceDate && (
-                                <div className="text-[9px] text-slate-500 uppercase mt-2 font-semibold">
-                                  Ref: {formatDate(asset.referenceDate)}
-                                </div>
-                              )}
-                            </TableCell>
-                            <TableCell className="align-top pt-4 pb-4 text-center">
-                              <span
-                                className={cn(
-                                  'px-2 py-1 rounded text-[10px] font-bold uppercase',
-                                  asset.risk === 'Provável'
-                                    ? 'text-red-700 bg-red-50 print:border print:border-red-200'
-                                    : asset.risk === 'Possível'
-                                      ? 'text-amber-700 bg-amber-50 print:border print:border-amber-200'
-                                      : 'text-blue-700 bg-blue-50 print:border print:border-blue-200',
-                                )}
+                    <section className="mb-12 print-break-inside-avoid">
+                      <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 mb-4 border-b border-slate-200 pb-1">
+                        I. Quadro Resumo
+                      </h3>
+                      <div className="rounded-md border border-slate-200 overflow-hidden print:border-none print:overflow-visible">
+                        <Table>
+                          <TableHeader className="bg-slate-50 print:bg-transparent">
+                            <TableRow>
+                              <TableHead className="text-[11px] uppercase font-bold text-slate-700 w-1/4">
+                                Identificação
+                              </TableHead>
+                              <TableHead className="text-[11px] uppercase font-bold text-slate-700">
+                                Valores com Datas-Bases
+                              </TableHead>
+                              <TableHead className="text-[11px] uppercase font-bold text-slate-700 text-center">
+                                Prognóstico de Ganho
+                              </TableHead>
+                              <TableHead className="text-[11px] uppercase font-bold text-slate-700 text-right">
+                                Estimativa de Tempo
+                              </TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {selectedAssets.map((asset) => (
+                              <TableRow
+                                key={asset.id}
+                                className="hover:bg-slate-50/50 border-b print:border-slate-200"
                               >
-                                {asset.risk}
-                              </span>
-                            </TableCell>
-                            <TableCell className="align-top pt-4 pb-4 text-right font-medium text-[11px] text-slate-700">
-                              {asset.estimatedRecoveryTime || '-'}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                </section>
-
-                <section className="mb-12">
-                  <div className="print-page-break-before print:break-after-page print:flex print:min-h-[220mm] print:flex-col print:justify-center print:items-center">
-                    <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 mb-4 border-b border-slate-200 pb-1 print:border-none print:text-4xl print:text-center print:mb-0 print:pb-0">
-                      II. Detalhamento Estratégico
-                    </h3>
-                  </div>
-                  <div className="space-y-12">
-                    {selectedAssets.map((asset) => {
-                      const draft = drafts[asset.id] || asset
-                      return (
-                        <div key={asset.id} className="relative print-break-inside-avoid group">
-                          {!isEditMode && (
-                            <div className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2 print-hide">
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                className="h-8 w-8 bg-white"
-                                onClick={() => handleEditOpen(asset)}
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <Button variant="destructive" size="icon" className="h-8 w-8">
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle className="flex items-center gap-2">
-                                      <ShieldAlert className="h-5 w-5 text-destructive" />
-                                      Excluir Ativo
-                                    </AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      Deseja realmente excluir este ativo? Esta ação não poderá ser
-                                      desfeita.
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                    <AlertDialogAction
-                                      onClick={() => removeAsset(asset.id)}
-                                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                    >
-                                      Sim, Excluir
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            </div>
-                          )}
-
-                          {isEditMode ? (
-                            <Card className="shadow-sm mt-8">
-                              <CardContent className="pt-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                  <div className="space-y-2">
-                                    <Label>Número do Processo</Label>
-                                    <Input
-                                      value={draft.processNumber || ''}
-                                      onChange={(e) =>
-                                        handleDraftChange(asset.id, 'processNumber', e.target.value)
-                                      }
-                                    />
+                                <TableCell className="align-top pt-4 pb-4">
+                                  <div className="font-bold text-slate-900 text-xs">
+                                    {asset.processNumber}
                                   </div>
-                                  <div className="space-y-2">
-                                    <Label>Parte</Label>
-                                    <Input
-                                      value={draft.party || ''}
-                                      onChange={(e) =>
-                                        handleDraftChange(asset.id, 'party', e.target.value)
-                                      }
-                                    />
+                                  <div className="text-[10px] text-slate-600 font-medium mt-1">
+                                    {asset.party}
                                   </div>
-                                  <div className="space-y-2">
-                                    <Label>Juízo</Label>
-                                    <Input
-                                      value={draft.court || ''}
-                                      onChange={(e) =>
-                                        handleDraftChange(asset.id, 'court', e.target.value)
-                                      }
-                                    />
+                                  <div className="text-[9px] text-slate-400 mt-1 uppercase">
+                                    {asset.court}
                                   </div>
-                                  <div className="space-y-2">
-                                    <Label>Data de Referência</Label>
-                                    <Input
-                                      type="date"
-                                      value={
-                                        draft.referenceDate
-                                          ? draft.referenceDate.substring(0, 10)
-                                          : ''
-                                      }
-                                      onChange={(e) => {
-                                        const val = e.target.value
-                                        handleDraftChange(
-                                          asset.id,
-                                          'referenceDate',
-                                          val ? new Date(val).toISOString() : '',
-                                        )
-                                      }}
-                                    />
-                                  </div>
-                                  <div className="space-y-2">
-                                    <Label>Status</Label>
-                                    <Select
-                                      value={draft.status || 'Ativo'}
-                                      onValueChange={(v) =>
-                                        handleDraftChange(asset.id, 'status', v as any)
-                                      }
-                                    >
-                                      <SelectTrigger>
-                                        <SelectValue />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        <SelectItem value="Ativo">Ativo</SelectItem>
-                                        <SelectItem value="Encerrado">Encerrado</SelectItem>
-                                        <SelectItem value="Suspenso">Suspenso</SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                  </div>
-                                  <div className="space-y-2">
-                                    <Label>Prognóstico de Ganho</Label>
-                                    <Select
-                                      value={draft.risk || 'Possível'}
-                                      onValueChange={(v) =>
-                                        handleDraftChange(asset.id, 'risk', v as any)
-                                      }
-                                    >
-                                      <SelectTrigger>
-                                        <SelectValue />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        <SelectItem value="Provável">Provável</SelectItem>
-                                        <SelectItem value="Possível">Possível</SelectItem>
-                                        <SelectItem value="Remoto">Remoto</SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                  </div>
-                                  <div className="space-y-2">
-                                    <Label>Expectativa de Recuperação</Label>
-                                    <Input
-                                      value={draft.estimatedRecoveryTime || ''}
-                                      onChange={(e) =>
-                                        handleDraftChange(
-                                          asset.id,
-                                          'estimatedRecoveryTime',
-                                          e.target.value,
-                                        )
-                                      }
-                                    />
-                                  </div>
-                                  <div className="space-y-2">
-                                    <Label>Valor da Causa</Label>
-                                    <Input
-                                      type="number"
-                                      value={draft.value || 0}
-                                      onChange={(e) =>
-                                        handleDraftChange(asset.id, 'value', Number(e.target.value))
-                                      }
-                                    />
-                                  </div>
-                                  <div className="space-y-2">
-                                    <Label>Valor Incontroverso</Label>
-                                    <Input
-                                      type="number"
-                                      value={draft.incontroversoValue || 0}
-                                      onChange={(e) =>
-                                        handleDraftChange(
-                                          asset.id,
-                                          'incontroversoValue',
-                                          Number(e.target.value),
-                                        )
-                                      }
-                                    />
-                                  </div>
-                                  <div className="space-y-2">
-                                    <Label>Valor Controverso</Label>
-                                    <Input
-                                      type="number"
-                                      value={draft.controversoValue || 0}
-                                      onChange={(e) =>
-                                        handleDraftChange(
-                                          asset.id,
-                                          'controversoValue',
-                                          Number(e.target.value),
-                                        )
-                                      }
-                                    />
-                                  </div>
-                                  <div className="space-y-2">
-                                    <Label>Patrono</Label>
-                                    <Input
-                                      value={draft.lawyer || ''}
-                                      onChange={(e) =>
-                                        handleDraftChange(asset.id, 'lawyer', e.target.value)
-                                      }
-                                    />
-                                  </div>
-                                  <div className="col-span-1 md:col-span-2 space-y-2">
-                                    <Label>Detalhes do Valor</Label>
-                                    <Textarea
-                                      rows={2}
-                                      value={draft.valueDetails || ''}
-                                      onChange={(e) =>
-                                        handleDraftChange(asset.id, 'valueDetails', e.target.value)
-                                      }
-                                    />
-                                  </div>
-                                  <div className="col-span-1 md:col-span-2 space-y-4 border-t pt-4">
-                                    <div className="flex justify-between items-center">
-                                      <Label className="text-base">
-                                        Breve Histórico (Subdivisões)
-                                      </Label>
-                                      <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => {
-                                          const current = draft.summaryItems || []
-                                          handleDraftChange(asset.id, 'summaryItems', [
-                                            ...current,
-                                            {
-                                              id: Math.random().toString(36).substring(7),
-                                              title: 'Nova Seção',
-                                              content: '',
-                                              isDefault: false,
-                                            },
-                                          ])
-                                        }}
-                                      >
-                                        <Plus className="h-4 w-4 mr-2" /> Adicionar Seção
-                                      </Button>
+                                  {asset.lawyer && (
+                                    <div className="text-[9px] text-slate-500 mt-1">
+                                      <span className="font-semibold uppercase">Patrono:</span>{' '}
+                                      {asset.lawyer}
                                     </div>
-                                    <div className="space-y-4">
-                                      {(draft.summaryItems || []).map((item) => (
-                                        <div
-                                          key={item.id}
-                                          className="grid gap-2 border p-3 rounded-md relative bg-muted/20"
+                                  )}
+                                </TableCell>
+                                <TableCell className="align-top pt-4 pb-4">
+                                  <div className="font-bold text-xs text-slate-800">
+                                    {formatCurrency(asset.value)}{' '}
+                                    <span className="text-[9px] font-normal text-slate-500">
+                                      (Total)
+                                    </span>
+                                  </div>
+                                  <div className="text-[11px] text-emerald-700 font-semibold mt-1">
+                                    {formatCurrency(asset.incontroversoValue || 0)}{' '}
+                                    <span className="text-[9px] font-normal text-slate-500">
+                                      (Incont.)
+                                    </span>
+                                  </div>
+                                  <div className="text-[11px] text-amber-700 font-semibold mt-1">
+                                    {formatCurrency(asset.controversoValue || 0)}{' '}
+                                    <span className="text-[9px] font-normal text-slate-500">
+                                      (Cont.)
+                                    </span>
+                                  </div>
+                                  {asset.valueDetails && (
+                                    <div className="text-[10px] text-slate-600 mt-1 italic">
+                                      {asset.valueDetails}
+                                    </div>
+                                  )}
+                                  {asset.referenceDate && (
+                                    <div className="text-[9px] text-slate-500 uppercase mt-2 font-semibold">
+                                      Ref: {formatDate(asset.referenceDate)}
+                                    </div>
+                                  )}
+                                </TableCell>
+                                <TableCell className="align-top pt-4 pb-4 text-center">
+                                  <span
+                                    className={cn(
+                                      'px-2 py-1 rounded text-[10px] font-bold uppercase',
+                                      asset.risk === 'Provável'
+                                        ? 'text-red-700 bg-red-50 print:border print:border-red-200'
+                                        : asset.risk === 'Possível'
+                                          ? 'text-amber-700 bg-amber-50 print:border print:border-amber-200'
+                                          : 'text-blue-700 bg-blue-50 print:border print:border-blue-200',
+                                    )}
+                                  >
+                                    {asset.risk}
+                                  </span>
+                                </TableCell>
+                                <TableCell className="align-top pt-4 pb-4 text-right font-medium text-[11px] text-slate-700">
+                                  {asset.estimatedRecoveryTime || '-'}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    </section>
+
+                    <section className="mb-12">
+                      <div className="print-page-break-before print:break-after-page print:flex print:min-h-[220mm] print:flex-col print:justify-center print:items-center">
+                        <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 mb-4 border-b border-slate-200 pb-1 print:border-none print:text-4xl print:text-center print:mb-0 print:pb-0">
+                          II. Detalhamento Estratégico
+                        </h3>
+                      </div>
+                      <div className="space-y-12">
+                        {selectedAssets.map((asset) => {
+                          const draft = drafts[asset.id] || asset
+                          return (
+                            <div key={asset.id} className="relative print-break-inside-avoid group">
+                              {!isEditMode && (
+                                <div className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2 print-hide">
+                                  <Button
+                                    variant="outline"
+                                    size="icon"
+                                    className="h-8 w-8 bg-white"
+                                    onClick={() => handleEditOpen(asset)}
+                                  >
+                                    <Pencil className="h-4 w-4" />
+                                  </Button>
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <Button variant="destructive" size="icon" className="h-8 w-8">
+                                        <Trash2 className="h-4 w-4" />
+                                      </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle className="flex items-center gap-2">
+                                          <ShieldAlert className="h-5 w-5 text-destructive" />
+                                          Excluir Ativo
+                                        </AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          Deseja realmente excluir este ativo? Esta ação não poderá
+                                          ser desfeita.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                        <AlertDialogAction
+                                          onClick={() => removeAsset(asset.id)}
+                                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                         >
+                                          Sim, Excluir
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                                </div>
+                              )}
+
+                              {isEditMode ? (
+                                <Card className="shadow-sm mt-8">
+                                  <CardContent className="pt-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                      <div className="space-y-2">
+                                        <Label>Número do Processo</Label>
+                                        <Input
+                                          value={draft.processNumber || ''}
+                                          onChange={(e) =>
+                                            handleDraftChange(
+                                              asset.id,
+                                              'processNumber',
+                                              e.target.value,
+                                            )
+                                          }
+                                        />
+                                      </div>
+                                      <div className="space-y-2">
+                                        <Label>Parte</Label>
+                                        <Input
+                                          value={draft.party || ''}
+                                          onChange={(e) =>
+                                            handleDraftChange(asset.id, 'party', e.target.value)
+                                          }
+                                        />
+                                      </div>
+                                      <div className="space-y-2">
+                                        <Label>Juízo</Label>
+                                        <Input
+                                          value={draft.court || ''}
+                                          onChange={(e) =>
+                                            handleDraftChange(asset.id, 'court', e.target.value)
+                                          }
+                                        />
+                                      </div>
+                                      <div className="space-y-2">
+                                        <Label>Data de Referência</Label>
+                                        <Input
+                                          type="date"
+                                          value={
+                                            draft.referenceDate
+                                              ? draft.referenceDate.substring(0, 10)
+                                              : ''
+                                          }
+                                          onChange={(e) => {
+                                            const val = e.target.value
+                                            handleDraftChange(
+                                              asset.id,
+                                              'referenceDate',
+                                              val ? new Date(val).toISOString() : '',
+                                            )
+                                          }}
+                                        />
+                                      </div>
+                                      <div className="space-y-2">
+                                        <Label>Status</Label>
+                                        <Select
+                                          value={draft.status || 'Ativo'}
+                                          onValueChange={(v) =>
+                                            handleDraftChange(asset.id, 'status', v as any)
+                                          }
+                                        >
+                                          <SelectTrigger>
+                                            <SelectValue />
+                                          </SelectTrigger>
+                                          <SelectContent>
+                                            <SelectItem value="Ativo">Ativo</SelectItem>
+                                            <SelectItem value="Encerrado">Encerrado</SelectItem>
+                                            <SelectItem value="Suspenso">Suspenso</SelectItem>
+                                          </SelectContent>
+                                        </Select>
+                                      </div>
+                                      <div className="space-y-2">
+                                        <Label>Prognóstico de Ganho</Label>
+                                        <Select
+                                          value={draft.risk || 'Possível'}
+                                          onValueChange={(v) =>
+                                            handleDraftChange(asset.id, 'risk', v as any)
+                                          }
+                                        >
+                                          <SelectTrigger>
+                                            <SelectValue />
+                                          </SelectTrigger>
+                                          <SelectContent>
+                                            <SelectItem value="Provável">Provável</SelectItem>
+                                            <SelectItem value="Possível">Possível</SelectItem>
+                                            <SelectItem value="Remoto">Remoto</SelectItem>
+                                          </SelectContent>
+                                        </Select>
+                                      </div>
+                                      <div className="space-y-2">
+                                        <Label>Expectativa de Recuperação</Label>
+                                        <Input
+                                          value={draft.estimatedRecoveryTime || ''}
+                                          onChange={(e) =>
+                                            handleDraftChange(
+                                              asset.id,
+                                              'estimatedRecoveryTime',
+                                              e.target.value,
+                                            )
+                                          }
+                                        />
+                                      </div>
+                                      <div className="space-y-2">
+                                        <Label>Valor da Causa</Label>
+                                        <Input
+                                          type="number"
+                                          value={draft.value || 0}
+                                          onChange={(e) =>
+                                            handleDraftChange(
+                                              asset.id,
+                                              'value',
+                                              Number(e.target.value),
+                                            )
+                                          }
+                                        />
+                                      </div>
+                                      <div className="space-y-2">
+                                        <Label>Valor Incontroverso</Label>
+                                        <Input
+                                          type="number"
+                                          value={draft.incontroversoValue || 0}
+                                          onChange={(e) =>
+                                            handleDraftChange(
+                                              asset.id,
+                                              'incontroversoValue',
+                                              Number(e.target.value),
+                                            )
+                                          }
+                                        />
+                                      </div>
+                                      <div className="space-y-2">
+                                        <Label>Valor Controverso</Label>
+                                        <Input
+                                          type="number"
+                                          value={draft.controversoValue || 0}
+                                          onChange={(e) =>
+                                            handleDraftChange(
+                                              asset.id,
+                                              'controversoValue',
+                                              Number(e.target.value),
+                                            )
+                                          }
+                                        />
+                                      </div>
+                                      <div className="space-y-2">
+                                        <Label>Valor Cetenco</Label>
+                                        <Input
+                                          type="number"
+                                          value={draft.cetencoValue || 0}
+                                          onChange={(e) =>
+                                            handleDraftChange(
+                                              asset.id,
+                                              'cetencoValue',
+                                              Number(e.target.value),
+                                            )
+                                          }
+                                        />
+                                      </div>
+                                      <div className="space-y-2">
+                                        <Label>Patrono</Label>
+                                        <Input
+                                          value={draft.lawyer || ''}
+                                          onChange={(e) =>
+                                            handleDraftChange(asset.id, 'lawyer', e.target.value)
+                                          }
+                                        />
+                                      </div>
+                                      <div className="col-span-1 md:col-span-2 space-y-2">
+                                        <Label>Detalhes do Valor</Label>
+                                        <Textarea
+                                          rows={2}
+                                          value={draft.valueDetails || ''}
+                                          onChange={(e) =>
+                                            handleDraftChange(
+                                              asset.id,
+                                              'valueDetails',
+                                              e.target.value,
+                                            )
+                                          }
+                                        />
+                                      </div>
+                                      <div className="col-span-1 md:col-span-2 space-y-4 border-t pt-4">
+                                        <div className="flex justify-between items-center">
+                                          <Label className="text-base">
+                                            Breve Histórico (Subdivisões)
+                                          </Label>
                                           <Button
                                             type="button"
-                                            variant="ghost"
-                                            size="icon"
-                                            className="absolute -top-3 -right-3 h-6 w-6 rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:text-white z-10"
+                                            variant="outline"
+                                            size="sm"
                                             onClick={() => {
                                               const current = draft.summaryItems || []
-                                              handleDraftChange(
-                                                asset.id,
-                                                'summaryItems',
-                                                current.filter((i: any) => i.id !== item.id),
-                                              )
+                                              handleDraftChange(asset.id, 'summaryItems', [
+                                                ...current,
+                                                {
+                                                  id: Math.random().toString(36).substring(7),
+                                                  title: 'Nova Seção',
+                                                  content: '',
+                                                  isDefault: false,
+                                                },
+                                              ])
                                             }}
                                           >
-                                            <X className="h-3 w-3" />
+                                            <Plus className="h-4 w-4 mr-2" /> Adicionar Seção
                                           </Button>
-                                          <div className="space-y-1">
-                                            <Label className="text-xs">Título da Seção</Label>
-                                            <Input
-                                              value={item.title}
-                                              onChange={(e) => {
-                                                const current = draft.summaryItems || []
-                                                handleDraftChange(
-                                                  asset.id,
-                                                  'summaryItems',
-                                                  current.map((i: any) =>
-                                                    i.id === item.id
-                                                      ? { ...i, title: e.target.value }
-                                                      : i,
-                                                  ),
-                                                )
-                                              }}
-                                              className="font-bold"
-                                            />
-                                          </div>
-                                          <div className="space-y-1">
-                                            <Label className="text-xs">Conteúdo</Label>
-                                            <Textarea
-                                              className="min-h-[100px] resize-y"
-                                              value={item.content}
-                                              onChange={(e) => {
-                                                const current = draft.summaryItems || []
-                                                handleDraftChange(
-                                                  asset.id,
-                                                  'summaryItems',
-                                                  current.map((i: any) =>
-                                                    i.id === item.id
-                                                      ? { ...i, content: e.target.value }
-                                                      : i,
-                                                  ),
-                                                )
-                                              }}
-                                            />
-                                          </div>
                                         </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                  <div className="col-span-1 md:col-span-2 space-y-2">
-                                    <Label>Último andamento</Label>
-                                    <Textarea
-                                      rows={3}
-                                      value={draft.lastDevelopments || ''}
-                                      onChange={(e) =>
-                                        handleDraftChange(
-                                          asset.id,
-                                          'lastDevelopments',
-                                          e.target.value,
-                                        )
-                                      }
-                                    />
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ) : (
-                            <div>
-                              <div className="border-b-2 border-slate-300 pb-2 mb-4 pr-20">
-                                <h4 className="font-bold text-slate-900 text-lg font-serif">
-                                  {asset.processNumber}
-                                </h4>
-                                {asset.party && (
-                                  <p className="text-sm text-slate-600 font-serif mt-1">
-                                    {asset.party}
-                                  </p>
-                                )}
-                              </div>
-
-                              <Card className="shadow-sm print:shadow-none print:border print:border-slate-300 mb-6 bg-slate-50/50 w-full relative group/summary">
-                                <CardContent className="p-4 sm:p-6">
-                                  <div className="flex justify-between items-start mb-4">
-                                    <p className="text-sm font-bold text-slate-800 uppercase flex items-center gap-2">
-                                      Breve Histórico
-                                    </p>
-                                    {!isEditMode && (
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="h-8 px-3 text-xs print-hide"
-                                        onClick={() => handleAddSummaryItemLocally(asset.id)}
-                                      >
-                                        <Plus className="h-3 w-3 mr-1" /> Adicionar novo item
-                                      </Button>
-                                    )}
-                                  </div>
-
-                                  <div className="space-y-6">
-                                    {asset.summaryItems?.map((item) => (
-                                      <div key={item.id} className="relative group/subitem">
-                                        <div className="flex justify-between items-start mb-2 border-b border-slate-200 pb-1">
-                                          <h5 className="text-xs font-bold text-slate-800 uppercase">
-                                            {item.title}
-                                          </h5>
-                                          {!isEditMode &&
-                                            inlineEdit?.id !== `${asset.id}-${item.id}` && (
-                                              <div className="flex gap-1 opacity-0 group-hover/subitem:opacity-100 transition-opacity print-hide">
+                                        <div className="space-y-4">
+                                          {(draft.summaryItems || []).map((item) => (
+                                            <div
+                                              key={item.id}
+                                              className="grid gap-2 border p-3 rounded-md relative bg-muted/20 mt-3"
+                                            >
+                                              <div className="absolute -top-3 -right-3 flex items-center gap-1 z-10">
+                                                {draft.summaryItems &&
+                                                  (draft.summaryItems as any[]).indexOf(item) >
+                                                    0 && (
+                                                    <Button
+                                                      type="button"
+                                                      variant="outline"
+                                                      size="icon"
+                                                      className="h-6 w-6 rounded-full bg-background shadow-sm"
+                                                      onClick={() => {
+                                                        const items = [
+                                                          ...(draft.summaryItems || []),
+                                                        ]
+                                                        const idx = items.indexOf(item)
+                                                        if (idx > 0) {
+                                                          const temp = items[idx - 1]
+                                                          items[idx - 1] = item
+                                                          items[idx] = temp
+                                                          handleDraftChange(
+                                                            asset.id,
+                                                            'summaryItems',
+                                                            items,
+                                                          )
+                                                        }
+                                                      }}
+                                                    >
+                                                      ↑
+                                                    </Button>
+                                                  )}
+                                                {draft.summaryItems &&
+                                                  (draft.summaryItems as any[]).indexOf(item) <
+                                                    (draft.summaryItems as any[]).length - 1 && (
+                                                    <Button
+                                                      type="button"
+                                                      variant="outline"
+                                                      size="icon"
+                                                      className="h-6 w-6 rounded-full bg-background shadow-sm"
+                                                      onClick={() => {
+                                                        const items = [
+                                                          ...(draft.summaryItems || []),
+                                                        ]
+                                                        const idx = items.indexOf(item)
+                                                        if (idx < items.length - 1) {
+                                                          const temp = items[idx + 1]
+                                                          items[idx + 1] = item
+                                                          items[idx] = temp
+                                                          handleDraftChange(
+                                                            asset.id,
+                                                            'summaryItems',
+                                                            items,
+                                                          )
+                                                        }
+                                                      }}
+                                                    >
+                                                      ↓
+                                                    </Button>
+                                                  )}
                                                 <Button
+                                                  type="button"
                                                   variant="ghost"
-                                                  size="sm"
-                                                  className="h-6 px-2"
-                                                  onClick={() =>
-                                                    setInlineEdit({
-                                                      id: `${asset.id}-${item.id}`,
-                                                      field: 'summaryItem',
-                                                      text: item.content,
-                                                      itemId: item.id,
-                                                      title: item.title,
-                                                    })
-                                                  }
-                                                >
-                                                  <Pencil className="h-3 w-3 mr-1" /> Editar
-                                                </Button>
-                                                <Button
-                                                  variant="ghost"
-                                                  size="sm"
-                                                  className="h-6 w-6 p-0 text-destructive hover:text-destructive"
-                                                  onClick={() =>
-                                                    handleRemoveSummaryItemLocally(
+                                                  size="icon"
+                                                  className="h-6 w-6 rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:text-white"
+                                                  onClick={() => {
+                                                    const current = draft.summaryItems || []
+                                                    handleDraftChange(
                                                       asset.id,
-                                                      item.id,
+                                                      'summaryItems',
+                                                      current.filter((i: any) => i.id !== item.id),
                                                     )
-                                                  }
+                                                  }}
                                                 >
-                                                  <Trash2 className="h-3 w-3" />
+                                                  <X className="h-3 w-3" />
                                                 </Button>
                                               </div>
-                                            )}
-                                        </div>
-                                        {inlineEdit?.id === `${asset.id}-${item.id}` &&
-                                        inlineEdit?.field === 'summaryItem' ? (
-                                          <div className="space-y-3 mt-2">
-                                            <Input
-                                              value={inlineEdit.title || ''}
-                                              onChange={(e) =>
-                                                setInlineEdit({
-                                                  ...inlineEdit,
-                                                  title: e.target.value,
-                                                })
-                                              }
-                                              placeholder="Título da seção"
-                                              className="font-bold text-sm"
-                                            />
-                                            <Textarea
-                                              value={inlineEdit.text}
-                                              onChange={(e) =>
-                                                setInlineEdit({
-                                                  ...inlineEdit,
-                                                  text: e.target.value,
-                                                })
-                                              }
-                                              className="min-h-[150px] font-serif text-sm sm:text-base"
-                                              placeholder={`Digite o conteúdo para ${item.title}...`}
-                                            />
-                                            <div className="flex justify-end gap-2">
-                                              <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => setInlineEdit(null)}
-                                                disabled={savingInline}
-                                              >
-                                                Cancelar
-                                              </Button>
-                                              <Button
-                                                size="sm"
-                                                onClick={() =>
-                                                  handleSaveSummaryItem(asset.id, item.id)
-                                                }
-                                                disabled={savingInline}
-                                                className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                                              >
-                                                {savingInline && (
-                                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                )}
-                                                Salvar Alterações
-                                              </Button>
+                                              <div className="space-y-1">
+                                                <Label className="text-xs">Título da Seção</Label>
+                                                <Input
+                                                  value={item.title}
+                                                  onChange={(e) => {
+                                                    const current = draft.summaryItems || []
+                                                    handleDraftChange(
+                                                      asset.id,
+                                                      'summaryItems',
+                                                      current.map((i: any) =>
+                                                        i.id === item.id
+                                                          ? { ...i, title: e.target.value }
+                                                          : i,
+                                                      ),
+                                                    )
+                                                  }}
+                                                  className="font-bold"
+                                                />
+                                              </div>
+                                              <div className="space-y-1">
+                                                <Label className="text-xs">Conteúdo</Label>
+                                                <Textarea
+                                                  className="min-h-[100px] resize-y"
+                                                  value={item.content}
+                                                  onChange={(e) => {
+                                                    const current = draft.summaryItems || []
+                                                    handleDraftChange(
+                                                      asset.id,
+                                                      'summaryItems',
+                                                      current.map((i: any) =>
+                                                        i.id === item.id
+                                                          ? { ...i, content: e.target.value }
+                                                          : i,
+                                                      ),
+                                                    )
+                                                  }}
+                                                />
+                                              </div>
                                             </div>
-                                          </div>
-                                        ) : (
-                                          <p className="text-sm sm:text-base font-serif text-justify whitespace-pre-wrap break-words text-slate-800 leading-relaxed w-full">
-                                            {item.content || (
-                                              <span className="text-slate-400 italic">
-                                                Sem conteúdo registrado.
-                                              </span>
-                                            )}
-                                          </p>
+                                          ))}
+                                        </div>
+                                      </div>
+                                      <div className="col-span-1 md:col-span-2 space-y-2">
+                                        <Label>Último andamento</Label>
+                                        <Textarea
+                                          rows={3}
+                                          value={draft.lastDevelopments || ''}
+                                          onChange={(e) =>
+                                            handleDraftChange(
+                                              asset.id,
+                                              'lastDevelopments',
+                                              e.target.value,
+                                            )
+                                          }
+                                        />
+                                      </div>
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              ) : (
+                                <div>
+                                  <div className="border-b-2 border-slate-300 pb-2 mb-4 pr-20">
+                                    <h4 className="font-bold text-slate-900 text-lg font-serif">
+                                      {asset.processNumber}
+                                    </h4>
+                                    {asset.party && (
+                                      <p className="text-sm text-slate-600 font-serif mt-1">
+                                        {asset.party}
+                                      </p>
+                                    )}
+                                  </div>
+
+                                  <Card className="shadow-sm print:shadow-none print:border print:border-slate-300 mb-6 bg-slate-50/50 w-full relative group/summary">
+                                    <CardContent className="p-4 sm:p-6">
+                                      <div className="flex justify-between items-start mb-4">
+                                        <p className="text-sm font-bold text-slate-800 uppercase flex items-center gap-2">
+                                          Breve Histórico
+                                        </p>
+                                        {!isEditMode && (
+                                          <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="h-8 px-3 text-xs print-hide"
+                                            onClick={() => handleAddSummaryItemLocally(asset.id)}
+                                          >
+                                            <Plus className="h-3 w-3 mr-1" /> Adicionar novo item
+                                          </Button>
                                         )}
                                       </div>
-                                    ))}
-                                  </div>
-                                </CardContent>
-                              </Card>
 
-                              <Card className="shadow-sm print:shadow-none print:border print:border-slate-300 mb-6 bg-slate-50/50">
-                                <CardContent className="p-4 sm:p-6">
-                                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
-                                    <div>
-                                      <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
-                                        Valor estimado do pedido
-                                      </p>
-                                      <p className="text-xs text-slate-800 font-bold">
-                                        {formatCurrency(asset.value || 0)}
-                                      </p>
-                                    </div>
-                                    <div>
-                                      <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
-                                        Valor Incontroverso
-                                      </p>
-                                      <p className="text-xs text-emerald-700 font-bold">
-                                        {formatCurrency(asset.incontroversoValue || 0)}
-                                      </p>
-                                    </div>
-                                    <div>
-                                      <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
-                                        Valor Controverso
-                                      </p>
-                                      <p className="text-xs text-amber-700 font-bold">
-                                        {formatCurrency(asset.controversoValue || 0)}
-                                      </p>
-                                    </div>
-                                    <div>
-                                      <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
-                                        Data de Referência dos Valores
-                                      </p>
-                                      <p className="text-xs text-slate-800 font-semibold">
-                                        {asset.referenceDate
-                                          ? formatDate(asset.referenceDate)
-                                          : '-'}
-                                      </p>
-                                    </div>
-                                    <div>
-                                      <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
-                                        Prognóstico de Ganho
-                                      </p>
-                                      <p className="text-xs text-slate-800 font-semibold">
-                                        {asset.risk || '-'}
-                                      </p>
-                                    </div>
-                                    <div>
-                                      <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
-                                        Expectativa de Monetização do Ativo
-                                      </p>
-                                      <p className="text-xs text-slate-800 font-semibold">
-                                        {asset.estimatedRecoveryTime || '-'}
-                                      </p>
-                                    </div>
-                                    <div>
-                                      <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
-                                        Patrono Responsável
-                                      </p>
-                                      <p className="text-xs text-slate-800 font-semibold">
-                                        {asset.lawyer || '-'}
-                                      </p>
-                                    </div>
-                                    {asset.valueDetails && (
-                                      <div className="col-span-2 sm:col-span-3">
-                                        <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
-                                          Detalhes do Valor
-                                        </p>
-                                        <p className="text-xs text-slate-800 font-semibold whitespace-pre-wrap">
-                                          {asset.valueDetails}
-                                        </p>
+                                      <div className="space-y-6">
+                                        {asset.summaryItems?.map((item) => (
+                                          <div key={item.id} className="relative group/subitem">
+                                            <div className="flex justify-between items-start mb-2 border-b border-slate-200 pb-1">
+                                              <h5 className="text-xs font-bold text-slate-800 uppercase">
+                                                {item.title}
+                                              </h5>
+                                              {!isEditMode &&
+                                                inlineEdit?.id !== `${asset.id}-${item.id}` && (
+                                                  <div className="flex gap-1 opacity-0 group-hover/subitem:opacity-100 transition-opacity print-hide">
+                                                    <Button
+                                                      variant="ghost"
+                                                      size="sm"
+                                                      className="h-6 px-2"
+                                                      onClick={() =>
+                                                        setInlineEdit({
+                                                          id: `${asset.id}-${item.id}`,
+                                                          field: 'summaryItem',
+                                                          text: item.content,
+                                                          itemId: item.id,
+                                                          title: item.title,
+                                                        })
+                                                      }
+                                                    >
+                                                      <Pencil className="h-3 w-3 mr-1" /> Editar
+                                                    </Button>
+                                                    <Button
+                                                      variant="ghost"
+                                                      size="sm"
+                                                      className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+                                                      onClick={() =>
+                                                        handleRemoveSummaryItemLocally(
+                                                          asset.id,
+                                                          item.id,
+                                                        )
+                                                      }
+                                                    >
+                                                      <Trash2 className="h-3 w-3" />
+                                                    </Button>
+                                                  </div>
+                                                )}
+                                            </div>
+                                            {inlineEdit?.id === `${asset.id}-${item.id}` &&
+                                            inlineEdit?.field === 'summaryItem' ? (
+                                              <div className="space-y-3 mt-2">
+                                                <Input
+                                                  value={inlineEdit.title || ''}
+                                                  onChange={(e) =>
+                                                    setInlineEdit({
+                                                      ...inlineEdit,
+                                                      title: e.target.value,
+                                                    })
+                                                  }
+                                                  placeholder="Título da seção"
+                                                  className="font-bold text-sm"
+                                                />
+                                                <Textarea
+                                                  value={inlineEdit.text}
+                                                  onChange={(e) =>
+                                                    setInlineEdit({
+                                                      ...inlineEdit,
+                                                      text: e.target.value,
+                                                    })
+                                                  }
+                                                  className="min-h-[150px] font-serif text-sm sm:text-base"
+                                                  placeholder={`Digite o conteúdo para ${item.title}...`}
+                                                />
+                                                <div className="flex justify-end gap-2">
+                                                  <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => setInlineEdit(null)}
+                                                    disabled={savingInline}
+                                                  >
+                                                    Cancelar
+                                                  </Button>
+                                                  <Button
+                                                    size="sm"
+                                                    onClick={() =>
+                                                      handleSaveSummaryItem(asset.id, item.id)
+                                                    }
+                                                    disabled={savingInline}
+                                                    className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                                                  >
+                                                    {savingInline && (
+                                                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                    )}
+                                                    Salvar Alterações
+                                                  </Button>
+                                                </div>
+                                              </div>
+                                            ) : (
+                                              <p className="text-sm sm:text-base font-serif text-justify whitespace-pre-wrap break-words text-slate-800 leading-relaxed w-full">
+                                                {item.content || (
+                                                  <span className="text-slate-400 italic">
+                                                    Sem conteúdo registrado.
+                                                  </span>
+                                                )}
+                                              </p>
+                                            )}
+                                          </div>
+                                        ))}
                                       </div>
-                                    )}
-                                  </div>
-                                </CardContent>
-                              </Card>
+                                    </CardContent>
+                                  </Card>
 
-                              {(asset.lastDevelopments || inlineEdit?.id === asset.id) && (
-                                <div className="pt-4 border-t border-slate-200 print:border-slate-300 w-full relative group/lastDev">
-                                  <div className="flex justify-between items-start mb-2">
-                                    <p className="text-xs font-bold text-slate-500 uppercase">
-                                      Último andamento / Resumo do Processo
-                                    </p>
-                                    {!isEditMode && inlineEdit?.id !== asset.id && (
-                                      <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="h-6 px-2 text-xs print-hide opacity-0 group-hover/lastDev:opacity-100 transition-opacity"
-                                        onClick={() =>
-                                          setInlineEdit({
-                                            id: asset.id,
-                                            field: 'lastDevelopments',
-                                            text: asset.lastDevelopments || '',
-                                          })
-                                        }
-                                      >
-                                        <Pencil className="h-3 w-3 mr-1" /> Editar Andamento
-                                      </Button>
-                                    )}
-                                  </div>
-                                  {inlineEdit?.id === asset.id &&
-                                  inlineEdit?.field === 'lastDevelopments' ? (
-                                    <div className="space-y-3 mt-2">
-                                      <Textarea
-                                        value={inlineEdit.text}
-                                        onChange={(e) =>
-                                          setInlineEdit({ ...inlineEdit, text: e.target.value })
-                                        }
-                                        className="min-h-[250px] font-serif text-base"
-                                        placeholder="Digite o resumo do processo / último andamento..."
-                                      />
-                                      <div className="flex justify-end gap-2">
-                                        <Button
-                                          variant="outline"
-                                          size="sm"
-                                          onClick={() => setInlineEdit(null)}
-                                          disabled={savingInline}
-                                        >
-                                          Cancelar
-                                        </Button>
-                                        <Button
-                                          size="sm"
-                                          onClick={() => handleSaveInline('lastDevelopments')}
-                                          disabled={savingInline}
-                                          className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                                        >
-                                          {savingInline && (
-                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                          )}
-                                          Salvar Alterações
-                                        </Button>
+                                  <Card className="shadow-sm print:shadow-none print:border print:border-slate-300 mb-6 bg-slate-50/50">
+                                    <CardContent className="p-4 sm:p-6">
+                                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
+                                        <div>
+                                          <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
+                                            Valor estimado do pedido
+                                          </p>
+                                          <p className="text-xs text-slate-800 font-bold">
+                                            {formatCurrency(asset.value || 0)}
+                                          </p>
+                                        </div>
+                                        <div>
+                                          <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
+                                            Valor Incontroverso
+                                          </p>
+                                          <p className="text-xs text-emerald-700 font-bold">
+                                            {formatCurrency(asset.incontroversoValue || 0)}
+                                          </p>
+                                        </div>
+                                        <div>
+                                          <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
+                                            Valor Controverso
+                                          </p>
+                                          <p className="text-xs text-amber-700 font-bold">
+                                            {formatCurrency(asset.controversoValue || 0)}
+                                          </p>
+                                        </div>
+                                        <div>
+                                          <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
+                                            Valor Cetenco
+                                          </p>
+                                          <p className="text-xs text-slate-800 font-bold">
+                                            {formatCurrency(
+                                              asset.cetencoValue ??
+                                                (asset.incontroversoValue || 0) +
+                                                  (asset.controversoValue || 0),
+                                            )}
+                                          </p>
+                                        </div>
+                                        <div>
+                                          <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
+                                            Data de Referência dos Valores
+                                          </p>
+                                          <p className="text-xs text-slate-800 font-semibold">
+                                            {asset.referenceDate
+                                              ? formatDate(asset.referenceDate)
+                                              : '-'}
+                                          </p>
+                                        </div>
+                                        <div>
+                                          <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
+                                            Prognóstico de Ganho
+                                          </p>
+                                          <p className="text-xs text-slate-800 font-semibold">
+                                            {asset.risk || '-'}
+                                          </p>
+                                        </div>
+                                        <div>
+                                          <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
+                                            Expectativa de Monetização do Ativo
+                                          </p>
+                                          <p className="text-xs text-slate-800 font-semibold">
+                                            {asset.estimatedRecoveryTime || '-'}
+                                          </p>
+                                        </div>
+                                        <div>
+                                          <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
+                                            Patrono Responsável
+                                          </p>
+                                          <p className="text-xs text-slate-800 font-semibold">
+                                            {asset.lawyer || '-'}
+                                          </p>
+                                        </div>
+                                        {asset.valueDetails && (
+                                          <div className="col-span-2 sm:col-span-3">
+                                            <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
+                                              Detalhes do Valor
+                                            </p>
+                                            <p className="text-xs text-slate-800 font-semibold whitespace-pre-wrap">
+                                              {asset.valueDetails}
+                                            </p>
+                                          </div>
+                                        )}
                                       </div>
+                                    </CardContent>
+                                  </Card>
+
+                                  {(asset.lastDevelopments || inlineEdit?.id === asset.id) && (
+                                    <div className="pt-4 border-t border-slate-200 print:border-slate-300 w-full relative group/lastDev">
+                                      <div className="flex justify-between items-start mb-2">
+                                        <p className="text-xs font-bold text-slate-500 uppercase">
+                                          Último andamento / Resumo do Processo
+                                        </p>
+                                        {!isEditMode && inlineEdit?.id !== asset.id && (
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="h-6 px-2 text-xs print-hide opacity-0 group-hover/lastDev:opacity-100 transition-opacity"
+                                            onClick={() =>
+                                              setInlineEdit({
+                                                id: asset.id,
+                                                field: 'lastDevelopments',
+                                                text: asset.lastDevelopments || '',
+                                              })
+                                            }
+                                          >
+                                            <Pencil className="h-3 w-3 mr-1" /> Editar Andamento
+                                          </Button>
+                                        )}
+                                      </div>
+                                      {inlineEdit?.id === asset.id &&
+                                      inlineEdit?.field === 'lastDevelopments' ? (
+                                        <div className="space-y-3 mt-2">
+                                          <Textarea
+                                            value={inlineEdit.text}
+                                            onChange={(e) =>
+                                              setInlineEdit({ ...inlineEdit, text: e.target.value })
+                                            }
+                                            className="min-h-[250px] font-serif text-base"
+                                            placeholder="Digite o resumo do processo / último andamento..."
+                                          />
+                                          <div className="flex justify-end gap-2">
+                                            <Button
+                                              variant="outline"
+                                              size="sm"
+                                              onClick={() => setInlineEdit(null)}
+                                              disabled={savingInline}
+                                            >
+                                              Cancelar
+                                            </Button>
+                                            <Button
+                                              size="sm"
+                                              onClick={() => handleSaveInline('lastDevelopments')}
+                                              disabled={savingInline}
+                                              className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                                            >
+                                              {savingInline && (
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                              )}
+                                              Salvar Alterações
+                                            </Button>
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <p className="text-base font-serif text-justify whitespace-pre-wrap break-words text-slate-800 leading-relaxed w-full">
+                                          {asset.lastDevelopments}
+                                        </p>
+                                      )}
                                     </div>
-                                  ) : (
-                                    <p className="text-base font-serif text-justify whitespace-pre-wrap break-words text-slate-800 leading-relaxed w-full">
-                                      {asset.lastDevelopments}
-                                    </p>
                                   )}
+                                  {!asset.lastDevelopments &&
+                                    inlineEdit?.id !== asset.id &&
+                                    !isEditMode && (
+                                      <div className="pt-4 border-t border-slate-200 print:border-slate-300 w-full relative group/lastDev">
+                                        <div className="flex justify-between items-start mb-2">
+                                          <p className="text-xs font-bold text-slate-500 uppercase">
+                                            Último andamento / Resumo do Processo
+                                          </p>
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="h-6 px-2 text-xs print-hide opacity-0 group-hover/lastDev:opacity-100 transition-opacity"
+                                            onClick={() =>
+                                              setInlineEdit({
+                                                id: asset.id,
+                                                field: 'lastDevelopments',
+                                                text: '',
+                                              })
+                                            }
+                                          >
+                                            <Pencil className="h-3 w-3 mr-1" /> Adicionar Andamento
+                                          </Button>
+                                        </div>
+                                        <p className="text-sm font-serif text-slate-400 italic">
+                                          Sem andamentos registrados.
+                                        </p>
+                                      </div>
+                                    )}
                                 </div>
                               )}
-                              {!asset.lastDevelopments &&
-                                inlineEdit?.id !== asset.id &&
-                                !isEditMode && (
-                                  <div className="pt-4 border-t border-slate-200 print:border-slate-300 w-full relative group/lastDev">
-                                    <div className="flex justify-between items-start mb-2">
-                                      <p className="text-xs font-bold text-slate-500 uppercase">
-                                        Último andamento / Resumo do Processo
-                                      </p>
-                                      <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="h-6 px-2 text-xs print-hide opacity-0 group-hover/lastDev:opacity-100 transition-opacity"
-                                        onClick={() =>
-                                          setInlineEdit({
-                                            id: asset.id,
-                                            field: 'lastDevelopments',
-                                            text: '',
-                                          })
-                                        }
-                                      >
-                                        <Pencil className="h-3 w-3 mr-1" /> Adicionar Andamento
-                                      </Button>
-                                    </div>
-                                    <p className="text-sm font-serif text-slate-400 italic">
-                                      Sem andamentos registrados.
-                                    </p>
-                                  </div>
-                                )}
                             </div>
-                          )}
-                        </div>
-                      )
-                    })}
-                  </div>
-                </section>
+                          )
+                        })}
+                      </div>
+                    </section>
+                  </>
+                )}
 
                 <div className="mt-32 pt-8 print-break-inside-avoid">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8 text-center">

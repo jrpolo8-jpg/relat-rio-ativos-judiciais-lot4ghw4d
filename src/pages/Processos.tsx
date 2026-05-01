@@ -96,9 +96,9 @@ function AddProcessModal() {
     history: [],
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    addAsset(formData as Omit<JudicialAsset, 'id'>)
+    await addAsset(formData as Omit<JudicialAsset, 'id'>)
     setOpen(false)
     setFormData({
       processNumber: '',
@@ -227,6 +227,14 @@ function ProcessDetailModal({ asset }: { asset: JudicialAsset }) {
                     {formatCurrency(asset.controversoValue)}{' '}
                     <span className="text-xs font-normal text-muted-foreground uppercase">
                       (Controverso)
+                    </span>
+                  </p>
+                )}
+                {asset.cetencoValue !== undefined && (
+                  <p className="text-sm font-semibold text-blue-600 mt-1">
+                    {formatCurrency(asset.cetencoValue)}{' '}
+                    <span className="text-xs font-normal text-muted-foreground uppercase">
+                      (Cetenco)
                     </span>
                   </p>
                 )}

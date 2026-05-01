@@ -107,6 +107,16 @@ export function ProcessForm({
             }
           />
         </div>
+        <div className="space-y-2">
+          <Label>Valor Cetenco (R$)</Label>
+          <Input
+            type="number"
+            value={formData.cetencoValue || 0}
+            onChange={(e) =>
+              setFormData({ ...formData, cetencoValue: parseFloat(e.target.value) || 0 })
+            }
+          />
+        </div>
 
         <div className="space-y-2">
           <Label>Data de Referência</Label>
@@ -218,22 +228,69 @@ export function ProcessForm({
                 },
               ]
             ).map((item) => (
-              <div key={item.id} className="grid gap-2 border p-3 rounded-md relative bg-muted/20">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="absolute -top-3 -right-3 h-6 w-6 rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:text-white z-10"
-                  onClick={() => {
-                    const current = formData.summaryItems || []
-                    setFormData({
-                      ...formData,
-                      summaryItems: current.filter((i: any) => i.id !== item.id),
-                    })
-                  }}
-                >
-                  <X className="h-3 w-3" />
-                </Button>
+              <div
+                key={item.id}
+                className="grid gap-2 border p-3 rounded-md relative bg-muted/20 mt-3"
+              >
+                <div className="absolute -top-3 -right-3 flex items-center gap-1 z-10">
+                  {formData.summaryItems && (formData.summaryItems as any[]).indexOf(item) > 0 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="h-6 w-6 rounded-full bg-background shadow-sm"
+                      onClick={() => {
+                        const items = [...(formData.summaryItems || [])]
+                        const idx = items.indexOf(item)
+                        if (idx > 0) {
+                          const temp = items[idx - 1]
+                          items[idx - 1] = item
+                          items[idx] = temp
+                          setFormData({ ...formData, summaryItems: items })
+                        }
+                      }}
+                    >
+                      <span className="sr-only">Subir</span>↑
+                    </Button>
+                  )}
+                  {formData.summaryItems &&
+                    (formData.summaryItems as any[]).indexOf(item) <
+                      (formData.summaryItems as any[]).length - 1 && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        className="h-6 w-6 rounded-full bg-background shadow-sm"
+                        onClick={() => {
+                          const items = [...(formData.summaryItems || [])]
+                          const idx = items.indexOf(item)
+                          if (idx < items.length - 1) {
+                            const temp = items[idx + 1]
+                            items[idx + 1] = item
+                            items[idx] = temp
+                            setFormData({ ...formData, summaryItems: items })
+                          }
+                        }}
+                      >
+                        <span className="sr-only">Descer</span>↓
+                      </Button>
+                    )}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:text-white"
+                    onClick={() => {
+                      const current = formData.summaryItems || []
+                      setFormData({
+                        ...formData,
+                        summaryItems: current.filter((i: any) => i.id !== item.id),
+                      })
+                    }}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
                 <div className="space-y-1">
                   <Label className="text-xs">Título da Seção</Label>
                   <Input
