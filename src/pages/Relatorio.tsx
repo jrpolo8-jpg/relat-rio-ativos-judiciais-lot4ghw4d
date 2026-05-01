@@ -555,6 +555,7 @@ export default function Relatorio() {
                                       onChange={(e) =>
                                         handleDraftChange(asset.id, 'processNumber', e.target.value)
                                       }
+                                      maxLength={undefined}
                                     />
                                   </div>
                                   <div className="space-y-2">
@@ -564,6 +565,7 @@ export default function Relatorio() {
                                       onChange={(e) =>
                                         handleDraftChange(asset.id, 'party', e.target.value)
                                       }
+                                      maxLength={undefined}
                                     />
                                   </div>
                                   <div className="space-y-2">
@@ -573,6 +575,7 @@ export default function Relatorio() {
                                       onChange={(e) =>
                                         handleDraftChange(asset.id, 'court', e.target.value)
                                       }
+                                      maxLength={undefined}
                                     />
                                   </div>
                                   <div className="space-y-2">
@@ -641,6 +644,7 @@ export default function Relatorio() {
                                           e.target.value,
                                         )
                                       }
+                                      maxLength={undefined}
                                     />
                                   </div>
                                   <div className="space-y-2">
@@ -688,6 +692,7 @@ export default function Relatorio() {
                                       onChange={(e) =>
                                         handleDraftChange(asset.id, 'lawyer', e.target.value)
                                       }
+                                      maxLength={undefined}
                                     />
                                   </div>
                                   <div className="col-span-1 md:col-span-2 space-y-2">
@@ -698,6 +703,7 @@ export default function Relatorio() {
                                       onChange={(e) =>
                                         handleDraftChange(asset.id, 'summary', e.target.value)
                                       }
+                                      maxLength={undefined}
                                     />
                                   </div>
                                   <div className="col-span-1 md:col-span-2 space-y-2">
@@ -712,6 +718,7 @@ export default function Relatorio() {
                                           e.target.value,
                                         )
                                       }
+                                      maxLength={undefined}
                                     />
                                   </div>
                                 </div>
@@ -909,6 +916,7 @@ export default function Relatorio() {
                 onChange={(e) =>
                   setEditSettings({ ...editSettings, preamble_text: e.target.value })
                 }
+                maxLength={undefined}
               />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-slate-200 pt-4">
@@ -919,6 +927,7 @@ export default function Relatorio() {
                   onChange={(e) =>
                     setEditSettings({ ...editSettings, signature1_name: e.target.value })
                   }
+                  maxLength={undefined}
                 />
               </div>
               <div className="space-y-2">
@@ -928,6 +937,7 @@ export default function Relatorio() {
                   onChange={(e) =>
                     setEditSettings({ ...editSettings, signature1_title: e.target.value })
                   }
+                  maxLength={undefined}
                 />
               </div>
               <div className="space-y-2">
@@ -937,6 +947,7 @@ export default function Relatorio() {
                   onChange={(e) =>
                     setEditSettings({ ...editSettings, signature2_name: e.target.value })
                   }
+                  maxLength={undefined}
                 />
               </div>
               <div className="space-y-2">
@@ -946,6 +957,7 @@ export default function Relatorio() {
                   onChange={(e) =>
                     setEditSettings({ ...editSettings, signature2_title: e.target.value })
                   }
+                  maxLength={undefined}
                 />
               </div>
               <div className="space-y-2">
@@ -955,6 +967,7 @@ export default function Relatorio() {
                   onChange={(e) =>
                     setEditSettings({ ...editSettings, signature3_name: e.target.value })
                   }
+                  maxLength={undefined}
                 />
               </div>
               <div className="space-y-2">
@@ -964,6 +977,7 @@ export default function Relatorio() {
                   onChange={(e) =>
                     setEditSettings({ ...editSettings, signature3_title: e.target.value })
                   }
+                  maxLength={undefined}
                 />
               </div>
             </div>
@@ -1015,6 +1029,7 @@ export default function Relatorio() {
               onChange={(e) => setEditingSummaryText(e.target.value)}
               placeholder="Digite o breve histórico..."
               disabled={savingSummary}
+              maxLength={undefined}
             />
           </div>
           <DialogFooter>

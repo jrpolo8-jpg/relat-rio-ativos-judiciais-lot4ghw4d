@@ -52,6 +52,7 @@ export function ProcessForm({
             required
             value={formData.processNumber || ''}
             onChange={(e) => setFormData({ ...formData, processNumber: e.target.value })}
+            maxLength={undefined}
           />
         </div>
         <div className="space-y-2">
@@ -60,6 +61,7 @@ export function ProcessForm({
             required
             value={formData.party || ''}
             onChange={(e) => setFormData({ ...formData, party: e.target.value })}
+            maxLength={undefined}
           />
         </div>
         <div className="space-y-2">
@@ -68,6 +70,7 @@ export function ProcessForm({
             required
             value={formData.court || ''}
             onChange={(e) => setFormData({ ...formData, court: e.target.value })}
+            maxLength={undefined}
           />
         </div>
         <div className="space-y-2">
@@ -76,6 +79,7 @@ export function ProcessForm({
             required
             value={formData.lawyer || ''}
             onChange={(e) => setFormData({ ...formData, lawyer: e.target.value })}
+            maxLength={undefined}
           />
         </div>
         <div className="space-y-2">
@@ -138,6 +142,7 @@ export function ProcessForm({
           <Input
             value={formData.valueDetails || ''}
             onChange={(e) => setFormData({ ...formData, valueDetails: e.target.value })}
+            maxLength={undefined}
           />
         </div>
         <div className="md:col-span-2 space-y-2">
@@ -146,6 +151,7 @@ export function ProcessForm({
             required
             value={formData.estimatedRecoveryTime || ''}
             onChange={(e) => setFormData({ ...formData, estimatedRecoveryTime: e.target.value })}
+            maxLength={undefined}
           />
         </div>
         <div className="md:col-span-2 space-y-2">
@@ -155,6 +161,7 @@ export function ProcessForm({
             className="min-h-[120px] resize-y"
             value={formData.summary || ''}
             onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
+            maxLength={undefined}
           />
         </div>
         <div className="md:col-span-2 space-y-2">
@@ -163,6 +170,7 @@ export function ProcessForm({
             className="min-h-[120px] resize-y"
             value={formData.lastDevelopments || ''}
             onChange={(e) => setFormData({ ...formData, lastDevelopments: e.target.value })}
+            maxLength={undefined}
           />
         </div>
 
@@ -203,6 +211,7 @@ export function ProcessForm({
                     required
                     value={h.author}
                     onChange={(e) => handleHistoryChange(h.id, 'author', e.target.value)}
+                    maxLength={undefined}
                   />
                 </div>
                 <div className="col-span-12 space-y-1">
@@ -212,6 +221,7 @@ export function ProcessForm({
                     className="min-h-[80px] text-sm resize-y"
                     value={h.description}
                     onChange={(e) => handleHistoryChange(h.id, 'description', e.target.value)}
+                    maxLength={undefined}
                   />
                 </div>
               </div>
