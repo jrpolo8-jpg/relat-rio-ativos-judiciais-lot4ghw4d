@@ -19,6 +19,13 @@ export interface ProcessUpdate {
   author: string
 }
 
+export interface SummaryItem {
+  id: string
+  title: string
+  content: string
+  isDefault?: boolean
+}
+
 export interface JudicialAsset {
   id: string
   processNumber: string
@@ -35,6 +42,7 @@ export interface JudicialAsset {
   risk: RiskLevel
   status: Status
   summary: string
+  summaryItems: SummaryItem[]
   estimatedRecoveryTime: string
   lastDevelopments: string
   lastUpdate: string

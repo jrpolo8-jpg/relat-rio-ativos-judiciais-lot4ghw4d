@@ -84,8 +84,10 @@ export default function Relatorio() {
 
   const [inlineEdit, setInlineEdit] = useState<{
     id: string
-    field: 'summary' | 'lastDevelopments'
+    field: 'summary' | 'lastDevelopments' | 'summaryItem'
     text: string
+    itemId?: string
+    title?: string
   } | null>(null)
   const [savingInline, setSavingInline] = useState(false)
 
@@ -207,6 +209,47 @@ export default function Relatorio() {
       // error toast already handled by updateAsset
     } finally {
       setSavingInline(false)
+    }
+  }
+
+  const handleSaveSummaryItem = async (assetId: string, itemId: string) => {
+    if (!inlineEdit) return
+    setSavingInline(true)
+    try {
+      const asset = assets.find((a) => a.id === assetId)
+      if (asset) {
+        const updatedItems = (asset.summaryItems || []).map((item) =>
+          item.id === itemId
+            ? { ...item, title: inlineEdit.title || item.title, content: inlineEdit.text }
+            : item,
+        )
+        await updateAsset(assetId, { summaryItems: updatedItems })
+      }
+      setInlineEdit(null)
+    } finally {
+      setSavingInline(false)
+    }
+  }
+
+  const handleAddSummaryItemLocally = async (assetId: string) => {
+    const asset = assets.find((a) => a.id === assetId)
+    if (asset) {
+      const newItem = {
+        id: Math.random().toString(36).substring(7),
+        title: 'Nova Seção',
+        content: '',
+        isDefault: false,
+      }
+      await updateAsset(assetId, { summaryItems: [...(asset.summaryItems || []), newItem] })
+    }
+  }
+
+  const handleRemoveSummaryItemLocally = async (assetId: string, itemId: string) => {
+    const asset = assets.find((a) => a.id === assetId)
+    if (asset) {
+      await updateAsset(assetId, {
+        summaryItems: (asset.summaryItems || []).filter((i) => i.id !== itemId),
+      })
     }
   }
 
@@ -701,15 +744,99 @@ export default function Relatorio() {
                                       }
                                     />
                                   </div>
-                                  <div className="col-span-1 md:col-span-2 space-y-2">
-                                    <Label>Breve Histórico</Label>
-                                    <Textarea
-                                      rows={3}
-                                      value={draft.summary || ''}
-                                      onChange={(e) =>
-                                        handleDraftChange(asset.id, 'summary', e.target.value)
-                                      }
-                                    />
+                                  <div className="col-span-1 md:col-span-2 space-y-4 border-t pt-4">
+                                    <div className="flex justify-between items-center">
+                                      <Label className="text-base">
+                                        Breve Histórico (Subdivisões)
+                                      </Label>
+                                      <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => {
+                                          const current = draft.summaryItems || []
+                                          handleDraftChange(asset.id, 'summaryItems', [
+                                            ...current,
+                                            {
+                                              id: Math.random().toString(36).substring(7),
+                                              title: 'Nova Seção',
+                                              content: '',
+                                              isDefault: false,
+                                            },
+                                          ])
+                                        }}
+                                      >
+                                        <Plus className="h-4 w-4 mr-2" /> Adicionar Seção
+                                      </Button>
+                                    </div>
+                                    <div className="space-y-4">
+                                      {(draft.summaryItems || []).map((item) => (
+                                        <div
+                                          key={item.id}
+                                          className="grid gap-2 border p-3 rounded-md relative bg-muted/20"
+                                        >
+                                          {!item.isDefault && (
+                                            <Button
+                                              type="button"
+                                              variant="ghost"
+                                              size="icon"
+                                              className="absolute -top-3 -right-3 h-6 w-6 rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:text-white z-10"
+                                              onClick={() => {
+                                                const current = draft.summaryItems || []
+                                                handleDraftChange(
+                                                  asset.id,
+                                                  'summaryItems',
+                                                  current.filter((i: any) => i.id !== item.id),
+                                                )
+                                              }}
+                                            >
+                                              <X className="h-3 w-3" />
+                                            </Button>
+                                          )}
+                                          <div className="space-y-1">
+                                            <Label className="text-xs">Título da Seção</Label>
+                                            <Input
+                                              value={item.title}
+                                              onChange={(e) => {
+                                                const current = draft.summaryItems || []
+                                                handleDraftChange(
+                                                  asset.id,
+                                                  'summaryItems',
+                                                  current.map((i: any) =>
+                                                    i.id === item.id
+                                                      ? { ...i, title: e.target.value }
+                                                      : i,
+                                                  ),
+                                                )
+                                              }}
+                                              disabled={item.isDefault}
+                                              className={
+                                                item.isDefault ? 'font-bold bg-muted' : 'font-bold'
+                                              }
+                                            />
+                                          </div>
+                                          <div className="space-y-1">
+                                            <Label className="text-xs">Conteúdo</Label>
+                                            <Textarea
+                                              className="min-h-[100px] resize-y"
+                                              value={item.content}
+                                              onChange={(e) => {
+                                                const current = draft.summaryItems || []
+                                                handleDraftChange(
+                                                  asset.id,
+                                                  'summaryItems',
+                                                  current.map((i: any) =>
+                                                    i.id === item.id
+                                                      ? { ...i, content: e.target.value }
+                                                      : i,
+                                                  ),
+                                                )
+                                              }}
+                                            />
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
                                   </div>
                                   <div className="col-span-1 md:col-span-2 space-y-2">
                                     <Label>Último andamento</Label>
@@ -743,65 +870,129 @@ export default function Relatorio() {
 
                               <Card className="shadow-sm print:shadow-none print:border print:border-slate-300 mb-6 bg-slate-50/50 w-full relative group/summary">
                                 <CardContent className="p-4 sm:p-6">
-                                  <div className="flex justify-between items-start mb-3">
-                                    <p className="text-[9px] font-bold text-slate-500 uppercase flex items-center gap-2">
+                                  <div className="flex justify-between items-start mb-4">
+                                    <p className="text-sm font-bold text-slate-800 uppercase flex items-center gap-2">
                                       Breve Histórico
                                     </p>
-                                    {!isEditMode && inlineEdit?.id !== asset.id && (
+                                    {!isEditMode && (
                                       <Button
-                                        variant="ghost"
+                                        variant="outline"
                                         size="sm"
-                                        className="h-6 px-2 text-xs print-hide opacity-0 group-hover/summary:opacity-100 transition-opacity"
-                                        onClick={() =>
-                                          setInlineEdit({
-                                            id: asset.id,
-                                            field: 'summary',
-                                            text: asset.summary || '',
-                                          })
-                                        }
+                                        className="h-8 px-3 text-xs print-hide"
+                                        onClick={() => handleAddSummaryItemLocally(asset.id)}
                                       >
-                                        <Pencil className="h-3 w-3 mr-1" /> Editar Histórico
+                                        <Plus className="h-3 w-3 mr-1" /> Adicionar novo item
                                       </Button>
                                     )}
                                   </div>
-                                  {inlineEdit?.id === asset.id &&
-                                  inlineEdit?.field === 'summary' ? (
-                                    <div className="space-y-3 mt-2">
-                                      <Textarea
-                                        value={inlineEdit.text}
-                                        onChange={(e) =>
-                                          setInlineEdit({ ...inlineEdit, text: e.target.value })
-                                        }
-                                        className="min-h-[250px] font-serif text-sm sm:text-base"
-                                        placeholder="Digite o breve histórico..."
-                                      />
-                                      <div className="flex justify-end gap-2">
-                                        <Button
-                                          variant="outline"
-                                          size="sm"
-                                          onClick={() => setInlineEdit(null)}
-                                          disabled={savingInline}
-                                        >
-                                          Cancelar
-                                        </Button>
-                                        <Button
-                                          size="sm"
-                                          onClick={() => handleSaveInline('summary')}
-                                          disabled={savingInline}
-                                          className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                                        >
-                                          {savingInline && (
-                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                          )}
-                                          Salvar Alterações
-                                        </Button>
+
+                                  <div className="space-y-6">
+                                    {asset.summaryItems?.map((item) => (
+                                      <div key={item.id} className="relative group/subitem">
+                                        <div className="flex justify-between items-start mb-2 border-b border-slate-200 pb-1">
+                                          <h5 className="text-[11px] font-bold text-slate-600 uppercase">
+                                            {item.title}
+                                          </h5>
+                                          {!isEditMode &&
+                                            inlineEdit?.id !== `${asset.id}-${item.id}` && (
+                                              <div className="flex gap-1 opacity-0 group-hover/subitem:opacity-100 transition-opacity print-hide">
+                                                <Button
+                                                  variant="ghost"
+                                                  size="sm"
+                                                  className="h-6 px-2"
+                                                  onClick={() =>
+                                                    setInlineEdit({
+                                                      id: `${asset.id}-${item.id}`,
+                                                      field: 'summaryItem',
+                                                      text: item.content,
+                                                      itemId: item.id,
+                                                      title: item.title,
+                                                    })
+                                                  }
+                                                >
+                                                  <Pencil className="h-3 w-3 mr-1" /> Editar
+                                                </Button>
+                                                {!item.isDefault && (
+                                                  <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+                                                    onClick={() =>
+                                                      handleRemoveSummaryItemLocally(
+                                                        asset.id,
+                                                        item.id,
+                                                      )
+                                                    }
+                                                  >
+                                                    <Trash2 className="h-3 w-3" />
+                                                  </Button>
+                                                )}
+                                              </div>
+                                            )}
+                                        </div>
+                                        {inlineEdit?.id === `${asset.id}-${item.id}` &&
+                                        inlineEdit?.field === 'summaryItem' ? (
+                                          <div className="space-y-3 mt-2">
+                                            {!item.isDefault && (
+                                              <Input
+                                                value={inlineEdit.title || ''}
+                                                onChange={(e) =>
+                                                  setInlineEdit({
+                                                    ...inlineEdit,
+                                                    title: e.target.value,
+                                                  })
+                                                }
+                                                placeholder="Título da seção"
+                                                className="font-bold text-sm"
+                                              />
+                                            )}
+                                            <Textarea
+                                              value={inlineEdit.text}
+                                              onChange={(e) =>
+                                                setInlineEdit({
+                                                  ...inlineEdit,
+                                                  text: e.target.value,
+                                                })
+                                              }
+                                              className="min-h-[150px] font-serif text-sm sm:text-base"
+                                              placeholder={`Digite o conteúdo para ${item.title}...`}
+                                            />
+                                            <div className="flex justify-end gap-2">
+                                              <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => setInlineEdit(null)}
+                                                disabled={savingInline}
+                                              >
+                                                Cancelar
+                                              </Button>
+                                              <Button
+                                                size="sm"
+                                                onClick={() =>
+                                                  handleSaveSummaryItem(asset.id, item.id)
+                                                }
+                                                disabled={savingInline}
+                                                className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                                              >
+                                                {savingInline && (
+                                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                )}
+                                                Salvar Alterações
+                                              </Button>
+                                            </div>
+                                          </div>
+                                        ) : (
+                                          <p className="text-sm sm:text-base font-serif text-justify whitespace-pre-wrap break-words text-slate-800 leading-relaxed w-full">
+                                            {item.content || (
+                                              <span className="text-slate-400 italic">
+                                                Sem conteúdo registrado.
+                                              </span>
+                                            )}
+                                          </p>
+                                        )}
                                       </div>
-                                    </div>
-                                  ) : (
-                                    <p className="text-sm sm:text-base font-serif text-justify whitespace-pre-wrap break-words text-slate-800 leading-relaxed w-full">
-                                      {asset.summary ?? '-'}
-                                    </p>
-                                  )}
+                                    ))}
+                                  </div>
                                 </CardContent>
                               </Card>
 

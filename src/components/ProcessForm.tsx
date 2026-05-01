@@ -148,14 +148,156 @@ export function ProcessForm({
             onChange={(e) => setFormData({ ...formData, estimatedRecoveryTime: e.target.value })}
           />
         </div>
-        <div className="md:col-span-2 space-y-2">
-          <Label>Resumo do Processo</Label>
-          <Textarea
-            required
-            className="min-h-[120px] resize-y"
-            value={formData.summary || ''}
-            onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
-          />
+        <div className="md:col-span-2 space-y-4 border-t pt-4 mt-2">
+          <div className="flex justify-between items-center">
+            <Label className="text-base font-semibold">Breve Histórico (Subdivisões)</Label>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const current = formData.summaryItems || [
+                  {
+                    id: 'def-1',
+                    title: 'Andamento na fase de conhecimento',
+                    content: '',
+                    isDefault: true,
+                  },
+                  { id: 'def-2', title: 'Andamento no tribunal', content: '', isDefault: true },
+                  {
+                    id: 'def-3',
+                    title: 'Andamento no tribunal superiores',
+                    content: '',
+                    isDefault: true,
+                  },
+                  {
+                    id: 'def-4',
+                    title: 'Cumprimento de sentença ou incidentes processuais',
+                    content: '',
+                    isDefault: true,
+                  },
+                ]
+                setFormData({
+                  ...formData,
+                  summaryItems: [
+                    ...current,
+                    {
+                      id: Math.random().toString(36).substring(7),
+                      title: 'Nova Seção',
+                      content: '',
+                      isDefault: false,
+                    },
+                  ],
+                })
+              }}
+            >
+              <Plus className="h-4 w-4 mr-2" /> Adicionar Seção
+            </Button>
+          </div>
+          <div className="space-y-4">
+            {(
+              formData.summaryItems || [
+                {
+                  id: 'def-1',
+                  title: 'Andamento na fase de conhecimento',
+                  content: '',
+                  isDefault: true,
+                },
+                { id: 'def-2', title: 'Andamento no tribunal', content: '', isDefault: true },
+                {
+                  id: 'def-3',
+                  title: 'Andamento no tribunal superiores',
+                  content: '',
+                  isDefault: true,
+                },
+                {
+                  id: 'def-4',
+                  title: 'Cumprimento de sentença ou incidentes processuais',
+                  content: '',
+                  isDefault: true,
+                },
+              ]
+            ).map((item) => (
+              <div key={item.id} className="grid gap-2 border p-3 rounded-md relative bg-muted/20">
+                {!item.isDefault && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute -top-3 -right-3 h-6 w-6 rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:text-white z-10"
+                    onClick={() => {
+                      const current = formData.summaryItems || []
+                      setFormData({
+                        ...formData,
+                        summaryItems: current.filter((i: any) => i.id !== item.id),
+                      })
+                    }}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                )}
+                <div className="space-y-1">
+                  <Label className="text-xs">Título da Seção</Label>
+                  <Input
+                    required
+                    value={item.title}
+                    onChange={(e) => {
+                      const current = formData.summaryItems || []
+                      setFormData({
+                        ...formData,
+                        summaryItems: current.map((i: any) =>
+                          i.id === item.id ? { ...i, title: e.target.value } : i,
+                        ),
+                      })
+                    }}
+                    disabled={item.isDefault}
+                    className={item.isDefault ? 'font-bold bg-muted' : 'font-bold'}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Conteúdo</Label>
+                  <Textarea
+                    className="min-h-[100px] resize-y"
+                    value={item.content}
+                    onChange={(e) => {
+                      const current = formData.summaryItems || [
+                        {
+                          id: 'def-1',
+                          title: 'Andamento na fase de conhecimento',
+                          content: '',
+                          isDefault: true,
+                        },
+                        {
+                          id: 'def-2',
+                          title: 'Andamento no tribunal',
+                          content: '',
+                          isDefault: true,
+                        },
+                        {
+                          id: 'def-3',
+                          title: 'Andamento no tribunal superiores',
+                          content: '',
+                          isDefault: true,
+                        },
+                        {
+                          id: 'def-4',
+                          title: 'Cumprimento de sentença ou incidentes processuais',
+                          content: '',
+                          isDefault: true,
+                        },
+                      ]
+                      setFormData({
+                        ...formData,
+                        summaryItems: current.map((i: any) =>
+                          i.id === item.id ? { ...i, content: e.target.value } : i,
+                        ),
+                      })
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
         <div className="md:col-span-2 space-y-2">
           <Label>Último Andamento</Label>

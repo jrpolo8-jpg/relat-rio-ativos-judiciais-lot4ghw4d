@@ -193,14 +193,27 @@ export const exportToWord = async (assets: JudicialAsset[], settings?: ReportSet
             ${a.party ? `<p style="margin: 0; font-family: serif; font-size: 11pt; color: #475569;">${a.party}</p>` : ''}
         </div>
         
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-            <tr>
-                <td style="background-color: #f8fafc; border: 1px solid #cbd5e1; padding: 16px;">
-                    <p style="margin: 0 0 8px 0; font-size: 8pt; font-weight: bold; text-transform: uppercase; color: #64748b;">Breve Histórico</p>
-                    <p style="margin: 0; font-family: serif; font-size: 11pt; text-align: justify; line-height: 1.6; color: #1e293b;">${(a.summary || '-').replace(/\n/g, '<br/>')}</p>
-                </td>
-            </tr>
-        </table>
+        <div style="background-color: #f8fafc; border: 1px solid #cbd5e1; padding: 16px; border-radius: 6px; margin-bottom: 20px;">
+            <p style="margin: 0 0 16px 0; font-size: 10pt; font-weight: bold; text-transform: uppercase; color: #334155; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px;">Breve Histórico</p>
+            ${
+              a.summaryItems && a.summaryItems.length > 0
+                ? a.summaryItems
+                    .map(
+                      (item) => `
+              <div style="margin-bottom: 12px;">
+                <p style="margin: 0 0 4px 0; font-size: 8pt; font-weight: bold; text-transform: uppercase; color: #64748b;">${item.title}</p>
+                <p style="margin: 0; font-family: serif; font-size: 11pt; text-align: justify; line-height: 1.6; color: #1e293b;">${item.content ? item.content.replace(/\n/g, '<br/>') : '<em>Sem conteúdo registrado.</em>'}</p>
+              </div>
+            `,
+                    )
+                    .join('')
+                : `
+              <div style="margin-bottom: 12px;">
+                <p style="margin: 0; font-family: serif; font-size: 11pt; text-align: justify; line-height: 1.6; color: #1e293b;">${(a.summary || '-').replace(/\n/g, '<br/>')}</p>
+              </div>
+            `
+            }
+        </div>
         
         <div style="background-color: #f8fafc; border: 1px solid #cbd5e1; padding: 16px; border-radius: 6px; margin-bottom: 20px;">
             <table style="width: 100%; border-collapse: collapse; border: none; margin: 0;">
