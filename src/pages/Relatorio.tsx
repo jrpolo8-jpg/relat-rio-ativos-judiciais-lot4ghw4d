@@ -554,9 +554,11 @@ export default function Relatorio() {
                 </section>
 
                 <section className="mb-12">
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 mb-4 border-b border-slate-200 pb-1 print-page-break-before">
-                    II. Detalhamento Estratégico
-                  </h3>
+                  <div className="print-page-break-before print:break-after-page print:flex print:min-h-[220mm] print:flex-col print:justify-center print:items-center">
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 mb-4 border-b border-slate-200 pb-1 print:border-none print:text-4xl print:text-center print:mb-0 print:pb-0">
+                      II. Detalhamento Estratégico
+                    </h3>
+                  </div>
                   <div className="space-y-12">
                     {selectedAssets.map((asset) => {
                       const draft = drafts[asset.id] || asset
