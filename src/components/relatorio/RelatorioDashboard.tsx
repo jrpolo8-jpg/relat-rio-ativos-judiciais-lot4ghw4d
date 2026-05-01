@@ -67,12 +67,12 @@ export function RelatorioDashboard({ assets }: { assets: JudicialAsset[] }) {
         <Card className="bg-slate-50 border-slate-200 shadow-sm print:shadow-none print:border flex flex-col justify-center">
           <CardHeader className="pb-1 sm:pb-2">
             <CardTitle className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-600 text-center">
-              Valor Total dos Ativos
+              Valor Total Pertencente à Cetenco
             </CardTitle>
           </CardHeader>
           <CardContent className="text-center p-2 sm:p-3 flex items-center justify-center">
             <p className="text-slate-900 text-sm sm:text-base font-bold print:text-xs break-words leading-tight">
-              {formatCurrency(totalValue)}
+              {formatCurrency(incontroversoValue + controversoValue)}
             </p>
           </CardContent>
         </Card>

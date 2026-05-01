@@ -518,6 +518,11 @@ export default function Relatorio() {
                                   (Cont.)
                                 </span>
                               </div>
+                              {asset.valueDetails && (
+                                <div className="text-[10px] text-slate-600 mt-1 italic">
+                                  {asset.valueDetails}
+                                </div>
+                              )}
                               {asset.referenceDate && (
                                 <div className="text-[9px] text-slate-500 uppercase mt-2 font-semibold">
                                   Ref: {formatDate(asset.referenceDate)}
@@ -744,6 +749,16 @@ export default function Relatorio() {
                                       }
                                     />
                                   </div>
+                                  <div className="col-span-1 md:col-span-2 space-y-2">
+                                    <Label>Detalhes do Valor</Label>
+                                    <Textarea
+                                      rows={2}
+                                      value={draft.valueDetails || ''}
+                                      onChange={(e) =>
+                                        handleDraftChange(asset.id, 'valueDetails', e.target.value)
+                                      }
+                                    />
+                                  </div>
                                   <div className="col-span-1 md:col-span-2 space-y-4 border-t pt-4">
                                     <div className="flex justify-between items-center">
                                       <Label className="text-base">
@@ -809,10 +824,7 @@ export default function Relatorio() {
                                                   ),
                                                 )
                                               }}
-                                              disabled={item.isDefault}
-                                              className={
-                                                item.isDefault ? 'font-bold bg-muted' : 'font-bold'
-                                              }
+                                              className="font-bold"
                                             />
                                           </div>
                                           <div className="space-y-1">
@@ -933,19 +945,17 @@ export default function Relatorio() {
                                         {inlineEdit?.id === `${asset.id}-${item.id}` &&
                                         inlineEdit?.field === 'summaryItem' ? (
                                           <div className="space-y-3 mt-2">
-                                            {!item.isDefault && (
-                                              <Input
-                                                value={inlineEdit.title || ''}
-                                                onChange={(e) =>
-                                                  setInlineEdit({
-                                                    ...inlineEdit,
-                                                    title: e.target.value,
-                                                  })
-                                                }
-                                                placeholder="Título da seção"
-                                                className="font-bold text-sm"
-                                              />
-                                            )}
+                                            <Input
+                                              value={inlineEdit.title || ''}
+                                              onChange={(e) =>
+                                                setInlineEdit({
+                                                  ...inlineEdit,
+                                                  title: e.target.value,
+                                                })
+                                              }
+                                              placeholder="Título da seção"
+                                              className="font-bold text-sm"
+                                            />
                                             <Textarea
                                               value={inlineEdit.text}
                                               onChange={(e) =>
@@ -1057,6 +1067,16 @@ export default function Relatorio() {
                                         {asset.lawyer || '-'}
                                       </p>
                                     </div>
+                                    {asset.valueDetails && (
+                                      <div className="col-span-2 sm:col-span-3">
+                                        <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">
+                                          Detalhes do Valor
+                                        </p>
+                                        <p className="text-xs text-slate-800 font-semibold whitespace-pre-wrap">
+                                          {asset.valueDetails}
+                                        </p>
+                                      </div>
+                                    )}
                                   </div>
                                 </CardContent>
                               </Card>
