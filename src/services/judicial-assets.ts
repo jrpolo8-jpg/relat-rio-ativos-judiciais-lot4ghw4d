@@ -13,7 +13,7 @@ export const defaultSummaryItems = (): SummaryItem[] => [
   },
 ]
 
-const mapToBackend = (data: Partial<JudicialAsset>) => {
+const mapToBackend = (data: Partial<JudicialAsset>, isCreate = false) => {
   const mapped: any = {}
   if (data.processNumber !== undefined) mapped.process_number = data.processNumber
   if (data.party !== undefined) mapped.party = data.party
@@ -32,7 +32,7 @@ const mapToBackend = (data: Partial<JudicialAsset>) => {
   if (data.valueDetails !== undefined) mapped.value_details = data.valueDetails
   if (data.sortOrder !== undefined) mapped.sort_order = data.sortOrder
 
-  if (pb.authStore.record?.id) {
+  if (isCreate && pb.authStore.record?.id) {
     mapped.user_id = pb.authStore.record.id
   }
 
@@ -87,7 +87,7 @@ export const getAssets = async (): Promise<JudicialAsset[]> => {
 }
 
 export const createAsset = async (data: Partial<JudicialAsset>): Promise<JudicialAsset> => {
-  const mapped = mapToBackend(data)
+  const mapped = mapToBackend(data, true)
   mapped.history = {
     updates: data.history || [],
     summaryItems: data.summaryItems || defaultSummaryItems(),
@@ -100,7 +100,7 @@ export const updateAsset = async (
   id: string,
   data: Partial<JudicialAsset>,
 ): Promise<JudicialAsset> => {
-  const mapped = mapToBackend(data)
+  const mapped = mapToBackend(data, false)
 
   if (data.history !== undefined || data.summaryItems !== undefined) {
     const existingRaw = await pb.collection('judicial_assets').getOne(id)

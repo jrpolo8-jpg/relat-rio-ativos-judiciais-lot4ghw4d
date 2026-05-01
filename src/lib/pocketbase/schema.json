@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-01T02:57:45.732Z",
+  "generatedAt": "2026-05-01T14:12:14.106Z",
   "collections": [
     {
       "name": "users",
@@ -48,11 +48,11 @@
       "name": "judicial_assets",
       "type": "base",
       "apiRules": {
-        "list": "",
-        "view": "",
-        "create": "",
-        "update": "",
-        "delete": ""
+        "list": "@request.auth.id != ''",
+        "view": "@request.auth.id != ''",
+        "create": "@request.auth.id != ''",
+        "update": "@request.auth.id != ''",
+        "delete": "@request.auth.id != ''"
       },
       "fields": [
         {
@@ -173,6 +173,18 @@
           "type": "number",
           "required": false,
           "system": false
+        },
+        {
+          "name": "cetenco_percentage",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "cetenco_value",
+          "type": "number",
+          "required": false,
+          "system": false
         }
       ],
       "indexes": []
@@ -181,11 +193,11 @@
       "name": "report_settings",
       "type": "base",
       "apiRules": {
-        "list": "",
-        "view": "",
-        "create": "",
-        "update": "",
-        "delete": ""
+        "list": "@request.auth.id != ''",
+        "view": "@request.auth.id != ''",
+        "create": "@request.auth.id != ''",
+        "update": "@request.auth.id != ''",
+        "delete": "@request.auth.id != ''"
       },
       "fields": [
         {

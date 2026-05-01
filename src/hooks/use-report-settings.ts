@@ -37,14 +37,18 @@ export function useReportSettings() {
 
   const updateSettings = async (newSettings: Partial<ReportSettings>) => {
     try {
+      const { id, created, updated, collectionId, collectionName, ...dataToSave } =
+        newSettings as any
       if (settings?.id) {
-        const updated = await pb
+        const updatedRecord = await pb
           .collection('report_settings')
-          .update<ReportSettings>(settings.id, newSettings)
-        setSettings(updated)
+          .update<ReportSettings>(settings.id, dataToSave)
+        setSettings(updatedRecord)
       } else {
-        const created = await pb.collection('report_settings').create<ReportSettings>(newSettings)
-        setSettings(created)
+        const createdRecord = await pb
+          .collection('report_settings')
+          .create<ReportSettings>(dataToSave)
+        setSettings(createdRecord)
       }
     } catch (e) {
       console.error(e)

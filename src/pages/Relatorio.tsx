@@ -220,7 +220,11 @@ export default function Relatorio() {
       if (asset) {
         const updatedItems = (asset.summaryItems || []).map((item) =>
           item.id === itemId
-            ? { ...item, title: inlineEdit.title || item.title, content: inlineEdit.text }
+            ? {
+                ...item,
+                title: inlineEdit.title !== undefined ? inlineEdit.title : item.title,
+                content: inlineEdit.text,
+              }
             : item,
         )
         await updateAsset(assetId, { summaryItems: updatedItems })
