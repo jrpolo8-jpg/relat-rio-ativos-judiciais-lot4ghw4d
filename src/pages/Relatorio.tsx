@@ -95,6 +95,7 @@ export default function Relatorio() {
   const { settings, loading: loadingSettings, updateSettings } = useReportSettings()
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [editSettings, setEditSettings] = useState<Partial<ReportSettings>>({})
+  const [isSavingSettings, setIsSavingSettings] = useState(false)
 
   const handleSettingsOpen = () => {
     if (settings) {
@@ -105,6 +106,7 @@ export default function Relatorio() {
 
   const handleSettingsSave = async (e: React.FormEvent) => {
     e.preventDefault()
+    setIsSavingSettings(true)
     try {
       await updateSettings(editSettings)
       setIsSettingsOpen(false)
@@ -118,6 +120,8 @@ export default function Relatorio() {
         description: getErrorMessage(err),
         variant: 'destructive',
       })
+    } finally {
+      setIsSavingSettings(false)
     }
   }
 
@@ -1339,10 +1343,18 @@ export default function Relatorio() {
               </div>
             </div>
             <DialogFooter className="mt-4">
-              <Button type="button" variant="outline" onClick={() => setIsSettingsOpen(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsSettingsOpen(false)}
+                disabled={isSavingSettings}
+              >
                 Cancelar
               </Button>
-              <Button type="submit">Salvar Configurações</Button>
+              <Button type="submit" disabled={isSavingSettings}>
+                {isSavingSettings && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Salvar Configurações
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>

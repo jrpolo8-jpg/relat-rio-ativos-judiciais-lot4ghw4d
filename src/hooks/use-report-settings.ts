@@ -55,13 +55,9 @@ export function useReportSettings() {
         base_date: newSettings.base_date ?? '',
       }
 
-      let currentId = newSettings.id || settings?.id
-
-      if (!currentId) {
-        // Fallback: check database again in case another client created it
-        const existing = await pb.collection('report_settings').getFullList()
-        currentId = existing.length > 0 ? existing[0].id : null
-      }
+      // Always check database before attempting create/update to prevent duplicate rows
+      const existing = await pb.collection('report_settings').getFullList()
+      const currentId = existing.length > 0 ? existing[0].id : null
 
       if (currentId) {
         const updatedRecord = await pb
