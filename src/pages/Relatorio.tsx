@@ -261,7 +261,7 @@ export default function Relatorio() {
   const formattedTotal = formatCurrency(totalValue)
   const preambleHtml = settings?.preamble_text
     ? settings.preamble_text.replace(/{valor_total}/g, formattedTotal)
-    : 'Trata-se dos principais ativos estratégicos da Cetenco, com a devida qualificação de valores envolvidos, avaliação de riscos (prognóstico de ganho) e relato circunstanciado sobre os andamentos recentes de cada demanda patrocinada por nosso escritório.'
+    : 'Trata-se dos principais ativos estratégicos da Cetenco, com a devida qualificação de valores envolvidos (incontroversos e controversos), avaliação de riscos (prognóstico de ganho) e relatório circunstanciado sobre os andamentos recentes de cada demanda, com indicação dos respectivos patronos e acompanhamento pela Sayão e Polo Sociedade de Advogados, juntamente com toda diretoria executiva da Companhia Cetenco..'
 
   if (loading || loadingSettings) {
     return (
