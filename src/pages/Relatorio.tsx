@@ -270,10 +270,7 @@ export default function Relatorio() {
     }
   }
 
-  const totalValue = selectedAssets.reduce(
-    (acc, a) => acc + ((a as any).cetencoValue || a.value || 0),
-    0,
-  )
+  const totalValue = selectedAssets.reduce((acc, a) => acc + (a.value || 0), 0)
   const formattedTotal = formatCurrency(totalValue)
   const preambleHtml = settings?.preamble_text
     ? settings.preamble_text.replace(/{valor_total}/g, formattedTotal)
@@ -475,6 +472,12 @@ export default function Relatorio() {
                     </p>
                   </div>
                 </div>
+
+                {selectedAssets.length > 0 && (
+                  <div className="mt-12 mb-12">
+                    <RelatorioDashboard assets={selectedAssets} />
+                  </div>
+                )}
 
                 <section className="mb-12 print-break-inside-avoid">
                   <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 mb-4 border-b border-slate-200 pb-1">
@@ -814,24 +817,22 @@ export default function Relatorio() {
                                           key={item.id}
                                           className="grid gap-2 border p-3 rounded-md relative bg-muted/20"
                                         >
-                                          {!item.isDefault && (
-                                            <Button
-                                              type="button"
-                                              variant="ghost"
-                                              size="icon"
-                                              className="absolute -top-3 -right-3 h-6 w-6 rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:text-white z-10"
-                                              onClick={() => {
-                                                const current = draft.summaryItems || []
-                                                handleDraftChange(
-                                                  asset.id,
-                                                  'summaryItems',
-                                                  current.filter((i: any) => i.id !== item.id),
-                                                )
-                                              }}
-                                            >
-                                              <X className="h-3 w-3" />
-                                            </Button>
-                                          )}
+                                          <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            className="absolute -top-3 -right-3 h-6 w-6 rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:text-white z-10"
+                                            onClick={() => {
+                                              const current = draft.summaryItems || []
+                                              handleDraftChange(
+                                                asset.id,
+                                                'summaryItems',
+                                                current.filter((i: any) => i.id !== item.id),
+                                              )
+                                            }}
+                                          >
+                                            <X className="h-3 w-3" />
+                                          </Button>
                                           <div className="space-y-1">
                                             <Label className="text-xs">Título da Seção</Label>
                                             <Input
@@ -926,7 +927,7 @@ export default function Relatorio() {
                                     {asset.summaryItems?.map((item) => (
                                       <div key={item.id} className="relative group/subitem">
                                         <div className="flex justify-between items-start mb-2 border-b border-slate-200 pb-1">
-                                          <h5 className="text-[11px] font-bold text-slate-600 uppercase">
+                                          <h5 className="text-xs font-bold text-slate-800 uppercase">
                                             {item.title}
                                           </h5>
                                           {!isEditMode &&
@@ -948,21 +949,19 @@ export default function Relatorio() {
                                                 >
                                                   <Pencil className="h-3 w-3 mr-1" /> Editar
                                                 </Button>
-                                                {!item.isDefault && (
-                                                  <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    className="h-6 w-6 p-0 text-destructive hover:text-destructive"
-                                                    onClick={() =>
-                                                      handleRemoveSummaryItemLocally(
-                                                        asset.id,
-                                                        item.id,
-                                                      )
-                                                    }
-                                                  >
-                                                    <Trash2 className="h-3 w-3" />
-                                                  </Button>
-                                                )}
+                                                <Button
+                                                  variant="ghost"
+                                                  size="sm"
+                                                  className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+                                                  onClick={() =>
+                                                    handleRemoveSummaryItemLocally(
+                                                      asset.id,
+                                                      item.id,
+                                                    )
+                                                  }
+                                                >
+                                                  <Trash2 className="h-3 w-3" />
+                                                </Button>
                                               </div>
                                             )}
                                         </div>
@@ -1203,12 +1202,6 @@ export default function Relatorio() {
                     })}
                   </div>
                 </section>
-
-                {selectedAssets.length > 0 && (
-                  <div className="mt-12 print-page-break-before">
-                    <RelatorioDashboard assets={selectedAssets} />
-                  </div>
-                )}
 
                 <div className="mt-32 pt-8 print-break-inside-avoid">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8 text-center">

@@ -219,23 +219,21 @@ export function ProcessForm({
               ]
             ).map((item) => (
               <div key={item.id} className="grid gap-2 border p-3 rounded-md relative bg-muted/20">
-                {!item.isDefault && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute -top-3 -right-3 h-6 w-6 rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:text-white z-10"
-                    onClick={() => {
-                      const current = formData.summaryItems || []
-                      setFormData({
-                        ...formData,
-                        summaryItems: current.filter((i: any) => i.id !== item.id),
-                      })
-                    }}
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                )}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute -top-3 -right-3 h-6 w-6 rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:text-white z-10"
+                  onClick={() => {
+                    const current = formData.summaryItems || []
+                    setFormData({
+                      ...formData,
+                      summaryItems: current.filter((i: any) => i.id !== item.id),
+                    })
+                  }}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
                 <div className="space-y-1">
                   <Label className="text-xs">Título da Seção</Label>
                   <Input
@@ -250,8 +248,7 @@ export function ProcessForm({
                         ),
                       })
                     }}
-                    disabled={item.isDefault}
-                    className={item.isDefault ? 'font-bold bg-muted' : 'font-bold'}
+                    className="font-bold"
                   />
                 </div>
                 <div className="space-y-1">
