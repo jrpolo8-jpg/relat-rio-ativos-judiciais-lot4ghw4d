@@ -159,20 +159,20 @@ export function ProcessForm({
                 const current = formData.summaryItems || [
                   {
                     id: 'def-1',
-                    title: 'Andamento na fase de conhecimento',
+                    title: 'ANDAMENTO NA FASE DE CONHECIMENTO',
                     content: '',
                     isDefault: true,
                   },
-                  { id: 'def-2', title: 'Andamento no tribunal', content: '', isDefault: true },
+                  { id: 'def-2', title: 'ANDAMENTO NO TRIBUNAL', content: '', isDefault: true },
                   {
                     id: 'def-3',
-                    title: 'Andamento no tribunal superiores',
+                    title: 'ANDAMENTO NO TRIBUNAL SUPERIORES',
                     content: '',
                     isDefault: true,
                   },
                   {
                     id: 'def-4',
-                    title: 'Cumprimento de sentença ou incidentes processuais',
+                    title: 'CUMPRIMENTO DE SENTENÇA OU INCIDENTES PROCESSUAIS',
                     content: '',
                     isDefault: true,
                   },
@@ -199,20 +199,20 @@ export function ProcessForm({
               formData.summaryItems || [
                 {
                   id: 'def-1',
-                  title: 'Andamento na fase de conhecimento',
+                  title: 'ANDAMENTO NA FASE DE CONHECIMENTO',
                   content: '',
                   isDefault: true,
                 },
-                { id: 'def-2', title: 'Andamento no tribunal', content: '', isDefault: true },
+                { id: 'def-2', title: 'ANDAMENTO NO TRIBUNAL', content: '', isDefault: true },
                 {
                   id: 'def-3',
-                  title: 'Andamento no tribunal superiores',
+                  title: 'ANDAMENTO NO TRIBUNAL SUPERIORES',
                   content: '',
                   isDefault: true,
                 },
                 {
                   id: 'def-4',
-                  title: 'Cumprimento de sentença ou incidentes processuais',
+                  title: 'CUMPRIMENTO DE SENTENÇA OU INCIDENTES PROCESSUAIS',
                   content: '',
                   isDefault: true,
                 },
@@ -263,25 +263,25 @@ export function ProcessForm({
                       const current = formData.summaryItems || [
                         {
                           id: 'def-1',
-                          title: 'Andamento na fase de conhecimento',
+                          title: 'ANDAMENTO NA FASE DE CONHECIMENTO',
                           content: '',
                           isDefault: true,
                         },
                         {
                           id: 'def-2',
-                          title: 'Andamento no tribunal',
+                          title: 'ANDAMENTO NO TRIBUNAL',
                           content: '',
                           isDefault: true,
                         },
                         {
                           id: 'def-3',
-                          title: 'Andamento no tribunal superiores',
+                          title: 'ANDAMENTO NO TRIBUNAL SUPERIORES',
                           content: '',
                           isDefault: true,
                         },
                         {
                           id: 'def-4',
-                          title: 'Cumprimento de sentença ou incidentes processuais',
+                          title: 'CUMPRIMENTO DE SENTENÇA OU INCIDENTES PROCESSUAIS',
                           content: '',
                           isDefault: true,
                         },
