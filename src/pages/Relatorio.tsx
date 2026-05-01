@@ -82,9 +82,9 @@ export default function Relatorio() {
   const [drafts, setDrafts] = useState<Record<string, Partial<JudicialAsset>>>({})
   const [savingEdits, setSavingEdits] = useState(false)
 
-  const [summaryOverrides, setSummaryOverrides] = useState<Record<string, string>>({})
   const [editingSummaryId, setEditingSummaryId] = useState<string | null>(null)
   const [editingSummaryText, setEditingSummaryText] = useState('')
+  const [savingSummary, setSavingSummary] = useState(false)
 
   const { settings, loading: loadingSettings, updateSettings } = useReportSettings()
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
@@ -196,7 +196,7 @@ export default function Relatorio() {
 
   const handleOpenSummaryEdit = (asset: JudicialAsset) => {
     setEditingSummaryId(asset.id)
-    setEditingSummaryText(summaryOverrides[asset.id] ?? asset.summary ?? '')
+    setEditingSummaryText(asset.summary ?? '')
   }
 
   const totalValue = selectedAssets.reduce((acc, a) => acc + (a.value || 0), 0)
@@ -294,11 +294,7 @@ export default function Relatorio() {
             variant="outline"
             onClick={async () => {
               try {
-                const assetsForExport = selectedAssets.map((a) => ({
-                  ...a,
-                  summary: summaryOverrides[a.id] ?? a.summary,
-                }))
-                await exportToWord(assetsForExport, settings)
+                await exportToWord(selectedAssets, settings)
                 toast({ title: 'Sucesso', description: 'Relatório Word gerado com sucesso.' })
               } catch (err) {
                 toast({
@@ -739,11 +735,6 @@ export default function Relatorio() {
                                   <div className="flex justify-between items-start mb-3">
                                     <p className="text-[9px] font-bold text-slate-500 uppercase flex items-center gap-2">
                                       Breve Histórico
-                                      {summaryOverrides[asset.id] !== undefined && (
-                                        <span className="text-[8px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded print:hidden font-medium">
-                                          Editado para exportação
-                                        </span>
-                                      )}
                                     </p>
                                     <Button
                                       variant="ghost"
@@ -751,11 +742,11 @@ export default function Relatorio() {
                                       className="h-6 px-2 text-xs print-hide opacity-0 group-hover/summary:opacity-100 transition-opacity"
                                       onClick={() => handleOpenSummaryEdit(asset)}
                                     >
-                                      <Pencil className="h-3 w-3 mr-1" /> Editar para Relatório
+                                      <Pencil className="h-3 w-3 mr-1" /> Editar Histórico
                                     </Button>
                                   </div>
                                   <p className="text-sm sm:text-base font-serif text-justify whitespace-pre-wrap break-words text-slate-800 leading-relaxed w-full">
-                                    {summaryOverrides[asset.id] ?? asset.summary ?? '-'}
+                                    {asset.summary ?? '-'}
                                   </p>
                                 </CardContent>
                               </Card>
@@ -1003,13 +994,18 @@ export default function Relatorio() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={!!editingSummaryId} onOpenChange={(open) => !open && setEditingSummaryId(null)}>
+      <Dialog
+        open={!!editingSummaryId}
+        onOpenChange={(open) => {
+          if (!open && !savingSummary) setEditingSummaryId(null)
+        }}
+      >
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Editar Resumo para Exportação</DialogTitle>
+            <DialogTitle>Editar Breve Histórico</DialogTitle>
             <DialogDescription>
-              O texto abaixo será usado apenas na exportação atual e não alterará o registro
-              original no banco de dados.
+              As alterações feitas aqui serão salvas permanentemente no banco de dados e ficarão
+              disponíveis para futuras exportações.
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
@@ -1017,33 +1013,37 @@ export default function Relatorio() {
               rows={10}
               value={editingSummaryText}
               onChange={(e) => setEditingSummaryText(e.target.value)}
-              placeholder="Digite o resumo simplificado..."
+              placeholder="Digite o breve histórico..."
+              disabled={savingSummary}
             />
           </div>
           <DialogFooter>
             <Button
               type="button"
               variant="outline"
-              onClick={() => {
-                const next = { ...summaryOverrides }
-                delete next[editingSummaryId!]
-                setSummaryOverrides(next)
-                setEditingSummaryId(null)
-              }}
+              onClick={() => setEditingSummaryId(null)}
+              disabled={savingSummary}
             >
-              Restaurar Original
+              Cancelar
             </Button>
             <Button
               type="button"
-              onClick={() => {
-                setSummaryOverrides({
-                  ...summaryOverrides,
-                  [editingSummaryId!]: editingSummaryText,
-                })
-                setEditingSummaryId(null)
+              disabled={savingSummary}
+              onClick={async () => {
+                if (!editingSummaryId) return
+                setSavingSummary(true)
+                try {
+                  await updateAsset(editingSummaryId, { summary: editingSummaryText })
+                  setEditingSummaryId(null)
+                } catch (e) {
+                  // Error toast is already handled by updateAsset
+                } finally {
+                  setSavingSummary(false)
+                }
               }}
             >
-              Aplicar ao Relatório
+              {savingSummary && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Salvar Alterações
             </Button>
           </DialogFooter>
         </DialogContent>
